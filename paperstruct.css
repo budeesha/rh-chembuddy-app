@@ -1,0 +1,17 @@
+/* Paper-style structural formulas (see paperstruct.js) */
+.ps { display: inline-flex; align-items: flex-start; font-family: 'Noto Serif', 'Times New Roman', serif; font-size: 17px; color: #111; line-height: 1; margin: 6px auto; padding: 0 10px; }
+.ps-col { display: inline-grid; align-items: center; flex: none; }
+.ps-acol { grid-template-columns: auto auto auto; }
+.ps-bcol { grid-template-columns: auto; }
+.ps-l { height: 1.15em; display: flex; justify-content: center; }
+.ps-lu { align-items: flex-end; }
+.ps-ld { align-items: flex-start; }
+.ps-l b { font-weight: 400; display: flex; justify-content: center; width: 0; white-space: nowrap; }
+.ps-v { height: .85em; display: flex; justify-content: center; }
+.ps-a { height: 1.2em; display: flex; align-items: center; white-space: nowrap; }
+.ps-vb { display: flex; gap: 2.2px; height: 100%; padding: 2px 0; box-sizing: border-box; }
+.ps-vb i { display: block; width: 1.2px; height: 100%; background: currentColor; }
+.ps-hb { display: flex; flex-direction: column; gap: 2.4px; width: 15px; margin: 0 2px; }
+.ps-hb i { display: block; height: 1.2px; background: currentColor; }
+.ps-wrap { text-align: center; overflow-x: auto; overflow-y: hidden; scrollbar-width: none; }
+.ps-wrap::-webkit-scrollbar { display: none; }

@@ -6,6 +6,8 @@
 <title>Rh ChemBuddy</title>
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
 <!-- Rich questions: equations (KaTeX + mhchem), organic structures (SmilesDrawer), graphs (Chart.js) -->
+<link rel="stylesheet" href="paperstruct.css">
+<script src="paperstruct.js"></script>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
 <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
 <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/mhchem.min.js"></script>
@@ -733,7 +735,7 @@ let PAPER = null;
 const SEC_PER_Q = 144; // A/L Chemistry I: 50 questions in 2 hours
 const plainLen = (t) => String(t || '').replace(/\$\\ce\{([^}]*)\}\$/g, '$1').replace(/\$[^$]*\$/g, 'xxxxxxxx').length;
 function optCols(o) {
-  if (o.some(x => /^\s*smiles:/i.test(x))) return 'c2';
+  if (o.some(x => /^\s*(smiles|paper):/i.test(x))) return 'c1';
   if (o.some(x => /\$(?!\\ce)/.test(x))) return 'c2'; // maths (fractions etc.) needs room
   const m = Math.max(...o.map(plainLen));
   return m <= 9 ? 'c5' : m <= 26 ? 'c2' : 'c1';
@@ -851,7 +853,28 @@ function richText(t) {
   const s = String(t ?? '');
   const m = s.match(/^\s*smiles:\s*(\S+)\s*$/i);
   if (m) return `<div class="struct"><svg data-smiles="${esc(m[1])}"></svg></div>`;
-  return esc(s);
+  const p = s.match(/^\s*paper:\s*(\S+)\s*$/i);
+  if (p && window.paperStructHTML) return `<span class="ps-wrap" style="display:block">${paperStructHTML(p[1])}</span>`;
+  const l = s.match(/^\s*line:\s*(\S+)\s*$/i);
+  if (l && window.paperStructText) return esc(paperStructText(l[1]));
+  return inlineStructs(s);
+}
+// [[HC#C-C(=O)-CH3]] inside question text = paper-style structure; [[line:...]] = one-line formula
+function inlineStructs(s) {
+  return String(s).split(/(\[\[[^\]]+\]\])/).map(part => {
+    const m = part.match(/^\[\[(line:)?([^\]]+)\]\]$/);
+    if (!m || !window.paperStructHTML) return esc(part);
+    return m[1] ? esc(paperStructText(m[2])) : `<span class="ps-wrap" style="display:block">${paperStructHTML(m[2])}</span>`;
+  }).join('');
+}
+// Structure column: "paper:..." (default A/L style), "line:...", or SMILES (skeletal)
+function structHtml(v) {
+  const s = String(v || '').trim();
+  const p = s.match(/^paper:\s*(\S+)$/i);
+  if (p && window.paperStructHTML) return `<div class="struct ps-wrap">${paperStructHTML(p[1])}</div>`;
+  const l = s.match(/^line:\s*(\S+)$/i);
+  if (l && window.paperStructText) return `<div class="struct">${esc(paperStructText(l[1]))}</div>`;
+  return `<div class="struct"><svg data-smiles="${esc(s.replace(/^smiles:\s*/i, ''))}"></svg></div>`;
 }
 function tableHtml(t) {
   const rows = String(t).split(/\r?\n|\s\/\/\s/).map(r => r.split('|').map(c => c.trim())).filter(r => r.some(Boolean));
@@ -866,9 +889,9 @@ function parseGraph(g) {
   return { x: nums(o.x), y: nums(o.y), xl: o.xlabel || '', yl: o.ylabel || '', type: (o.type || 'line').toLowerCase() };
 }
 function richQuestion(q) {
-  let h = `<div>${esc(q.q)}</div>`;
+  let h = `<div>${inlineStructs(q.q)}</div>`;
   if (q.img) h += `<img class="qimg" src="${esc(q.img)}" alt="" loading="lazy">`;
-  if (q.smiles) h += `<div class="struct"><svg data-smiles="${esc(q.smiles)}"></svg></div>`;
+  if (q.smiles) h += structHtml(q.smiles);
   if (q.table) h += tableHtml(q.table);
   if (q.graph) h += `<div class="qgraph"><canvas data-graph="${esc(q.graph)}"></canvas></div>`;
   return h;
