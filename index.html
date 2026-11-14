@@ -757,10 +757,13 @@ function paperClock() {
   $('ppTimer').classList.toggle('low', l <= 300);
   $('ppAnswered').textContent = '✍️ ' + Object.keys(PAPER.ans).length + ' / ' + PAPER.qs.length;
 }
+// A past paper question can accept several answers (q.acc), e.g. 2012 Q27 = (2), (3), (5)
+const okAns = (q, i) => i === q.a || (Array.isArray(q.acc) && q.acc.includes(i));
+const ansLabel = (q) => (Array.isArray(q.acc) && q.acc.length > 1 ? q.acc : [q.a]).map(x => '(' + (x + 1) + ')').join(', ');
 function renderPaper() {
   const P = PAPER;
   let correct = 0;
-  P.qs.forEach(q => { if (P.ans[q.id] === q.a) correct++; });
+  P.qs.forEach(q => { if (P.ans[q.id] !== undefined && okAns(q, P.ans[q.id])) correct++; });
   const head = `<div class="ph-code">AL/${esc(P.year)}/02/S-I</div>
     <div class="ph">අධ්‍යයන පොදු සහතික පත්‍ර (උසස් පෙළ) විභාගය, ${esc(P.year)}<small>රසායන විද්‍යාව I · නව නිර්දේශය</small><div class="ph-meta"><span>රසායන විද්‍යාව I</span><span class="ph-box"><span>02</span><span>S</span><span>I</span></span><span>පැය දෙකයි</span></div></div>
     <div class="pinst">✳ සියලු ම ප්‍රශ්නවලට පිළිතුරු සපයන්න.<br>✳ ගණක යන්ත්‍ර භාවිතයට ඉඩ දෙනු නොලැබේ.<br>✳ 1 සිට 50 තෙක් එක් එක් ප්‍රශ්නයට (1), (2), (3), (4), (5) යන පිළිතුරුවලින් නිවැරදි හෝ ඉතාමත් ගැළපෙන පිළිතුර තෝරන්න.</div>
@@ -770,11 +773,12 @@ function renderPaper() {
     const chosen = P.ans[q.id];
     const opts = q.o.map((o, i) => {
       let cls = '';
-      if (P.done) { if (i === q.a) cls = 'ok'; else if (i === chosen) cls = 'bad'; }
+      if (P.done) { if (okAns(q, i)) cls = 'ok'; else if (i === chosen) cls = 'bad'; }
       else if (i === chosen) cls = 'sel';
       return `<button class="po ${cls}" ${P.done ? 'disabled' : ''} onclick="paperPick('${q.id}', ${i})"><span class="pon">(${i + 1})</span><span style="min-width:0">${richText(o)}</span></button>`;
     }).join('');
-    const ex = P.done ? `<div class="pq-ex ${chosen === q.a ? '' : 'bad'}">${chosen === q.a ? '✅ හරි' : (chosen === undefined ? '⚪ උත්තර දුන්නේ නැහැ' : '❌ ඔබ (' + (chosen + 1) + ')') + ' · හරි උත්තරය (' + (q.a + 1) + ')'}<br>${inlineStructs(q.ex)}<br>${noteButton(q, chosen !== q.a)}${aiButton(q, chosen === undefined ? -1 : chosen)}</div>` : '';
+    const good = chosen !== undefined && okAns(q, chosen);
+    const ex = P.done ? `<div class="pq-ex ${good ? '' : 'bad'}">${good ? '✅ හරි' : (chosen === undefined ? '⚪ උත්තර දුන්නේ නැහැ' : '❌ ඔබ (' + (chosen + 1) + ')') + ' · හරි උත්තරය ' + ansLabel(q)}<br>${inlineStructs(q.ex)}<br>${noteButton(q, !good)}${aiButton(q, chosen === undefined ? -1 : chosen)}</div>` : '';
     return `<div class="pq"><div class="pq-n">${q.ppNo || n + 1}.</div><div class="pq-b">${richQuestion(q)}<div class="pq-opts ${optCols(q.o)}">${opts}</div>${ex}</div></div>`;
   }).join('');
   $('ppSheet').innerHTML = res + head + body;
@@ -951,12 +955,12 @@ function tick() {
 function answer(i) {
   clearInterval(timer);
   const q = qs[qi]; if (answers.some(a => a.qid === q.id)) return;
-  document.querySelectorAll('#qOpts .opt').forEach((b, k) => { b.disabled = true; if (k === q.a) b.classList.add('correct'); if (k === i && i !== q.a) b.classList.add('wrong'); });
+  document.querySelectorAll('#qOpts .opt').forEach((b, k) => { b.disabled = true; if (okAns(q, k)) b.classList.add('correct'); if (k === i && !okAns(q, i)) b.classList.add('wrong'); });
   answers.push({ qid: q.id, choice: i });
   store.set(goalKey(), store.get(goalKey(), 0) + 1);
-  if (i === q.a) { score++; haptic('success'); } else { haptic('error'); wrongQs.push(q); }
+  if (okAns(q, i)) { score++; haptic('success'); } else { haptic('error'); wrongQs.push(q); }
   const ex = $('qExplain');
-  ex.innerHTML = (i === q.a ? '✅ <b>හරි!</b> ' : (i === -1 ? '⏰ <b>වෙලාව ඉවරයි.</b> ' : '❌ <b>වැරදියි.</b> හරි උත්තරය: <b>(' + (q.a + 1) + ')</b><br>')) + esc(q.ex) + '<br>' + noteButton(q, i !== q.a) + aiButton(q, i);
+  ex.innerHTML = (okAns(q, i) ? '✅ <b>හරි!</b> ' + (q.acc ? '(මේ ප්‍රශ්නයට හරි උත්තර ' + ansLabel(q) + ')<br>' : '') : (i === -1 ? '⏰ <b>වෙලාව ඉවරයි.</b> හරි උත්තරය: <b>' + ansLabel(q) + '</b><br>' : '❌ <b>වැරදියි.</b> හරි උත්තරය: <b>' + ansLabel(q) + '</b><br>')) + esc(q.ex) + '<br>' + noteButton(q, !okAns(q, i)) + aiButton(q, i);
   ex.classList.add('show'); enhance(ex);
   const nx = $('qNext'); nx.style.display = 'block';
   nx.textContent = qi === qs.length - 1 ? 'ප්‍රතිඵලය බලන්න 🎯' : 'ඊළඟ ➜';
@@ -975,7 +979,7 @@ function nextQ() {
 // Send answers to n8n. The server checks them against the Question Bank and adds points.
 async function submitResult(list) {
   const box = $('rSave');
-  if (DEMO) { const pts = list.filter(a => { const q = qById(a.qid); return q && q.a === a.choice; }).length * 10; box.textContent = 'Demo: points save වෙන්නේ නැහැ'; $('rPts').textContent = '+' + pts + ' ⭐ (demo)'; return; }
+  if (DEMO) { const pts = list.filter(a => { const q = qById(a.qid); return q && okAns(q, a.choice); }).length * 10; box.textContent = 'Demo: points save වෙන්නේ නැහැ'; $('rPts').textContent = '+' + pts + ' ⭐ (demo)'; return; }
   box.innerHTML = '<span class="spin sm"></span>Points save කරනවා...';
   try {
     const r = await api('submit', { answers: JSON.stringify(list) });
@@ -1019,9 +1023,9 @@ function openAsk() { go('askScr'); setTimeout(() => $('askIn').focus(), 200); }
 function askSug(b) { $('askIn').value = b.textContent; sendAsk(); }
 function askAboutQ(id, choice) {
   const q = qById(id); if (!q) return;
-  aiCtx = 'Question: ' + q.q + (q.smiles ? '\nStructure (SMILES): ' + q.smiles : '') + (q.table ? '\nTable: ' + q.table : '') + (q.graph ? '\nGraph data: ' + q.graph : '') + '\nOptions: ' + q.o.map((o, i) => '(' + (i + 1) + ') ' + o).join(' | ') + '\nCorrect answer: (' + (q.a + 1) + ')\nStudent chose: ' + (choice >= 0 ? '(' + (choice + 1) + ')' : 'no answer (time up)') + '\nTeacher explanation: ' + q.ex;
+  aiCtx = 'Question: ' + q.q + (q.smiles ? '\nStructure (SMILES): ' + q.smiles : '') + (q.table ? '\nTable: ' + q.table : '') + (q.graph ? '\nGraph data: ' + q.graph : '') + '\nOptions: ' + q.o.map((o, i) => '(' + (i + 1) + ') ' + o).join(' | ') + '\nCorrect answer: ' + ansLabel(q) + '\nStudent chose: ' + (choice >= 0 ? '(' + (choice + 1) + ')' : 'no answer (time up)') + '\nTeacher explanation: ' + q.ex;
   addBubble('ctx', '🧩 ' + q.q);
-  $('askIn').value = choice >= 0 && choice !== q.a ? 'මම (' + (choice + 1) + ') තේරුවා. ඒක වැරදි ඇයි? හරි උත්තරය පැහැදිලි කරන්න.' : 'මේ ප්‍රශ්නය step by step පැහැදිලි කරන්න.';
+  $('askIn').value = choice >= 0 && !okAns(q, choice) ? 'මම (' + (choice + 1) + ') තේරුවා. ඒක වැරදි ඇයි? හරි උත්තරය පැහැදිලි කරන්න.' : 'මේ ප්‍රශ්නය step by step පැහැදිලි කරන්න.';
   openAsk();
 }
 function addBubble(cls, text) { const b = document.createElement('div'); b.className = 'bub ' + cls; b.textContent = text; $('chat').appendChild(b); $('askSugs').style.display = 'none'; b.scrollIntoView({ behavior: 'smooth', block: 'end' }); return b; }
