@@ -25,34 +25,34 @@
   * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
   html, body { margin: 0; background: var(--bg); color: var(--text); }
   body { font-family: 'Inter', 'Noto Sans Sinhala', system-ui, sans-serif; font-size: 15px; line-height: 1.45; }
-  /* Fullscreen mode: keep content below Telegram's top bar (vars set by Telegram 8.0+) */
   .app { max-width: 480px; margin: 0 auto; padding: calc(16px + var(--tg-safe-area-inset-top, 0px) + var(--tg-content-safe-area-inset-top, 0px)) 16px 96px; }
   h1, h2, h3 { margin: 0; }
   .muted { color: var(--muted); }
   .si { font-family: 'Noto Sans Sinhala', 'Inter', sans-serif; }
   .card { background: var(--card); border-radius: var(--radius); padding: 16px; margin-bottom: 12px; }
+  .tap { cursor: pointer; }
   .row { display: flex; align-items: center; gap: 12px; }
   .between { justify-content: space-between; }
-  .pill { display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px; border-radius: 999px; font-size: 12px; font-weight: 600; background: color-mix(in srgb, var(--accent) 18%, transparent); color: var(--accent); }
-  .btn { display: block; width: 100%; border: 0; border-radius: 12px; padding: 14px; font: inherit; font-weight: 700; background: var(--accent); color: var(--accent-text); cursor: pointer; }
+  .pill { white-space: nowrap; display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px; border-radius: 999px; font-size: 12px; font-weight: 600; background: color-mix(in srgb, var(--accent) 18%, transparent); color: var(--accent); }
+  .btn { display: block; width: 100%; border: 0; border-radius: 12px; padding: 14px; font: inherit; font-weight: 700; background: var(--accent); color: var(--accent-text); cursor: pointer; text-align: center; }
   .btn.ghost { background: transparent; color: var(--accent); border: 1.5px solid var(--accent); }
+  .btn.danger { background: transparent; color: var(--bad); border: 1.5px solid var(--bad); }
+  .btn:disabled { opacity: .55; }
   .screen { display: none; animation: fade .25s ease; }
   .screen.active { display: block; }
   @keyframes fade { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
 
-  /* Header */
   .hello { margin: 4px 0 16px; }
   .hello h1 { font-size: 22px; font-weight: 800; }
   .avatar { width: 44px; height: 44px; border-radius: 50%; background: linear-gradient(135deg, var(--chem), var(--accent)); display: grid; place-items: center; font-weight: 800; color: #fff; flex: none; }
+  .iconbtn2 { border: 0; background: var(--card); color: var(--text); width: 38px; height: 38px; border-radius: 12px; font-size: 16px; cursor: pointer; flex: none; }
 
-  /* Countdown */
   .countdown { background: linear-gradient(135deg, #6d28d9, #2563eb); color: #fff; }
   .countdown .big { font-size: 44px; font-weight: 800; line-height: 1; }
   .countdown .units { display: flex; gap: 18px; margin-top: 10px; }
   .countdown .units div { font-size: 12px; opacity: .85; }
   .countdown .units b { display: block; font-size: 20px; opacity: 1; }
 
-  /* Stats */
   .stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 12px; }
   .stat { background: var(--card); border-radius: 14px; padding: 12px; text-align: center; }
   .stat b { display: block; font-size: 20px; }
@@ -60,10 +60,13 @@
 
   .progress { height: 10px; background: color-mix(in srgb, var(--muted) 25%, transparent); border-radius: 99px; overflow: hidden; margin: 10px 0 6px; }
   .progress > div { height: 100%; background: linear-gradient(90deg, var(--good), #7ee2a8); border-radius: 99px; transition: width .4s; }
-
   .class-next { border-left: 4px solid var(--gold); }
+  .ai-card { background: linear-gradient(135deg, color-mix(in srgb, var(--chem) 35%, var(--card)), var(--card)); }
+  .fee-due { border-left: 4px solid var(--bad); }
+  .ann { padding: 8px 0; border-top: 1px solid color-mix(in srgb, var(--muted) 18%, transparent); font-size: 14px; }
+  .ann:first-of-type { border-top: 0; }
+  .ann .d { font-size: 12px; color: var(--accent); font-weight: 700; }
 
-  /* Quiz */
   .q-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
   .timer { font-weight: 800; font-variant-numeric: tabular-nums; }
   .timer.low { color: var(--bad); }
@@ -82,45 +85,38 @@
   .unit span { font-size: 12px; color: var(--muted); }
   .result { text-align: center; padding: 28px 16px; }
   .result .score { font-size: 56px; font-weight: 800; }
+  .saving { font-size: 13px; color: var(--muted); margin: 4px 0 8px; }
 
-  /* Leaderboard */
   .tabs { display: flex; background: var(--card); border-radius: 12px; padding: 4px; margin-bottom: 12px; }
   .tabs button { flex: 1; border: 0; background: transparent; color: var(--muted); font: inherit; font-weight: 600; padding: 8px; border-radius: 9px; cursor: pointer; }
   .tabs button.on { background: var(--accent); color: var(--accent-text); }
   .podium { display: grid; grid-template-columns: 1fr 1.15fr 1fr; gap: 8px; align-items: end; margin-bottom: 12px; }
-  .pod { background: var(--card); border-radius: 14px; padding: 12px 6px; text-align: center; }
+  .pod { background: var(--card); border-radius: 14px; padding: 12px 6px; text-align: center; min-height: 92px; }
   .pod .medal { font-size: 26px; }
   .pod.first { padding-top: 20px; border: 2px solid var(--gold); }
+  .pod.me { outline: 2px solid var(--accent); }
   .pod b { display: block; font-size: 13px; margin-top: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .lb-row { display: flex; align-items: center; gap: 12px; padding: 10px 4px; border-bottom: 1px solid color-mix(in srgb, var(--muted) 18%, transparent); }
   .lb-row:last-child { border-bottom: 0; }
   .lb-row .rk { width: 24px; text-align: center; font-weight: 800; color: var(--muted); }
   .lb-row.me { background: color-mix(in srgb, var(--accent) 14%, transparent); border-radius: 10px; }
 
-  /* Timetable */
   .day { font-weight: 700; margin: 14px 0 8px; }
   .cls { display: flex; gap: 12px; }
   .cls .time { flex: none; width: 64px; font-weight: 700; }
-  .tag { font-size: 11px; font-weight: 700; padding: 2px 8px; border-radius: 6px; }
-  .tag.cancel { background: color-mix(in srgb, var(--bad) 20%, transparent); color: var(--bad); }
-  .tag.extra { background: color-mix(in srgb, var(--good) 20%, transparent); color: var(--good); }
 
-  /* Badges */
   .badges { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
   .badge { text-align: center; font-size: 11px; color: var(--muted); }
   .badge .b { font-size: 28px; width: 56px; height: 56px; margin: 0 auto 4px; border-radius: 50%; display: grid; place-items: center; background: var(--bg); }
   .badge.locked .b { filter: grayscale(1); opacity: .35; }
 
-  /* Bottom nav */
-  nav { position: fixed; left: 0; right: 0; bottom: 0; background: var(--card); border-top: 1px solid color-mix(in srgb, var(--muted) 20%, transparent); padding: 6px 0 calc(6px + env(safe-area-inset-bottom)); }
+  nav { position: fixed; left: 0; right: 0; bottom: 0; background: var(--card); border-top: 1px solid color-mix(in srgb, var(--muted) 20%, transparent); padding: 6px 0 calc(6px + env(safe-area-inset-bottom)); z-index: 10; }
   nav .inner { max-width: 480px; margin: 0 auto; display: grid; grid-template-columns: repeat(5, 1fr); }
   nav button { border: 0; background: transparent; color: var(--muted); font: inherit; font-size: 11px; padding: 6px 0; cursor: pointer; }
   nav button .i { display: block; font-size: 22px; line-height: 1.1; }
   nav button.on { color: var(--accent); font-weight: 700; }
-
   .demo-note { font-size: 11px; text-align: center; color: var(--muted); margin-top: 8px; }
 
-  /* Notes */
   .chips { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 4px; margin-bottom: 12px; scrollbar-width: none; }
   .chip { flex: none; border: 0; border-radius: 999px; padding: 7px 14px; font: inherit; font-size: 13px; font-weight: 600; background: var(--card); color: var(--muted); cursor: pointer; }
   .chip.on { background: var(--accent); color: var(--accent-text); }
@@ -132,9 +128,10 @@
   .note .meta span { font-size: 11px; color: var(--muted); }
   .empty { text-align: center; padding: 36px 16px; color: var(--muted); }
   .empty .ic { font-size: 44px; }
-  .fab { position: fixed; right: max(16px, calc(50% - 224px)); bottom: 84px; width: 56px; height: 56px; border-radius: 50%; border: 0; background: var(--accent); color: var(--accent-text); font-size: 26px; box-shadow: 0 6px 18px rgba(0,0,0,.35); cursor: pointer; display: none; }
+  .fab { position: fixed; right: max(16px, calc(50% - 224px)); bottom: 84px; width: 56px; height: 56px; border-radius: 50%; border: 0; background: var(--accent); color: var(--accent-text); font-size: 26px; box-shadow: 0 6px 18px rgba(0,0,0,.35); cursor: pointer; display: none; z-index: 11; }
   .fab.show { display: block; }
-  .snap { display: inline-flex; align-items: center; gap: 6px; margin-top: 10px; border: 1.5px dashed var(--accent); background: transparent; color: var(--accent); border-radius: 10px; padding: 8px 12px; font: inherit; font-size: 13px; font-weight: 700; cursor: pointer; }
+  .snap { display: inline-flex; align-items: center; gap: 6px; margin-top: 10px; margin-right: 6px; border: 1.5px dashed var(--accent); background: transparent; color: var(--accent); border-radius: 10px; padding: 8px 12px; font: inherit; font-size: 13px; font-weight: 700; cursor: pointer; }
+  .snap.ai { border-color: var(--chem); color: var(--chem); }
   .pnote { display: flex; gap: 12px; align-items: center; width: 100%; background: var(--card); color: var(--text); border: 0; border-radius: 14px; padding: 10px; margin-bottom: 10px; text-align: left; font: inherit; cursor: pointer; }
   .pnote img { flex: none; width: 64px; height: 64px; border-radius: 10px; object-fit: cover; background: var(--bg); }
   .pnote .q { font-size: 14px; font-weight: 600; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
@@ -145,7 +142,6 @@
   .note-hint { display: none; margin-bottom: 12px; border-left: 4px solid var(--chem); cursor: pointer; }
   .note-hint.show { display: block; }
 
-  /* Bottom sheet + viewer */
   .overlay { position: fixed; inset: 0; background: rgba(0,0,0,.6); display: none; z-index: 20; }
   .overlay.show { display: block; }
   .sheet { position: fixed; left: 0; right: 0; bottom: 0; max-width: 480px; margin: 0 auto; background: var(--card); border-radius: 20px 20px 0 0; padding: 16px 16px calc(16px + env(safe-area-inset-bottom)); z-index: 21; transform: translateY(105%); transition: transform .25s ease; max-height: 92vh; overflow-y: auto; }
@@ -156,12 +152,12 @@
   .linked { margin-top: 10px; font-size: 13px; padding: 8px 10px; border-radius: 10px; background: color-mix(in srgb, var(--chem) 15%, transparent); }
   .viewer { position: fixed; inset: 0; background: #000; z-index: 30; display: none; flex-direction: column; }
   .viewer.show { display: flex; }
-  .viewer .vtop { display: flex; align-items: center; gap: 10px; padding: 12px 16px; color: #fff; }
+  .viewer .vtop { display: flex; align-items: center; gap: 10px; padding: calc(12px + var(--tg-safe-area-inset-top, 0px) + var(--tg-content-safe-area-inset-top, 0px)) 16px 12px; color: #fff; }
   .viewer .vtop b { flex: 1; }
   .viewer .vimg { flex: 1; display: flex; align-items: center; justify-content: center; overflow: auto; touch-action: pinch-zoom; }
   .viewer .vimg img { max-width: 100%; max-height: 100%; }
   .viewer .vbot { white-space: pre-line; padding: 12px 16px calc(12px + env(safe-area-inset-bottom)); color: #ccc; font-size: 13px; }
-  /* Login gate */
+
   .gate { position: fixed; inset: 0; background: var(--bg); z-index: 60; display: none; align-items: center; justify-content: center; padding: 24px; }
   .gate.show { display: flex; }
   .gate-box { max-width: 360px; width: 100%; text-align: center; }
@@ -169,12 +165,12 @@
   .gate-box h2 { margin: 10px 0 6px; font-size: 20px; }
   .gate-box p { color: var(--muted); margin: 0 0 18px; font-size: 14px; }
   .spin { width: 42px; height: 42px; margin: 0 auto; border-radius: 50%; border: 4px solid color-mix(in srgb, var(--muted) 30%, transparent); border-top-color: var(--accent); animation: rot 0.9s linear infinite; }
+  .spin.sm { width: 18px; height: 18px; border-width: 3px; display: inline-block; vertical-align: middle; margin: 0 6px 0 0; }
   @keyframes rot { to { transform: rotate(360deg); } }
 
-  /* In-app camera */
   .cam { position: fixed; inset: 0; background: #000; z-index: 40; display: none; flex-direction: column; }
   .cam.show { display: flex; }
-  .cam video { flex: 1; width: 100%; min-height: 0; object-fit: contain; background: #000; } /* what you see = what is saved */
+  .cam video { flex: 1; width: 100%; min-height: 0; object-fit: contain; background: #000; }
   .cam .iconbtn { background: rgba(0,0,0,.55); font-size: 16px; }
   .cam .ctop { position: absolute; top: 0; left: 0; right: 0; display: flex; justify-content: space-between; padding: calc(12px + var(--tg-safe-area-inset-top, 0px) + var(--tg-content-safe-area-inset-top, 0px)) 16px 12px; }
   .cam .cbot { display: flex; align-items: center; justify-content: space-around; padding: 18px 16px calc(22px + env(safe-area-inset-bottom)); background: #000; }
@@ -183,6 +179,19 @@
   .cam .hint { position: absolute; left: 0; right: 0; bottom: 130px; text-align: center; color: #fff; font-size: 13px; text-shadow: 0 1px 3px #000; }
   .flash { position: fixed; inset: 0; background: #fff; z-index: 45; opacity: 0; pointer-events: none; transition: opacity .25s; }
   .iconbtn { border: 0; background: rgba(255,255,255,.12); color: #fff; border-radius: 10px; padding: 8px 12px; font: inherit; cursor: pointer; }
+
+  /* AI tutor chat */
+  .chat { display: flex; flex-direction: column; gap: 10px; margin-bottom: 12px; }
+  .bub { max-width: 88%; padding: 10px 12px; border-radius: 14px; white-space: pre-wrap; font-size: 14px; }
+  .bub.me { align-self: flex-end; background: var(--accent); color: var(--accent-text); border-bottom-right-radius: 4px; }
+  .bub.ai { align-self: flex-start; background: var(--card); border-bottom-left-radius: 4px; }
+  .bub.ctx { align-self: stretch; max-width: 100%; background: color-mix(in srgb, var(--chem) 15%, transparent); font-size: 13px; }
+  .askbar { position: fixed; left: 0; right: 0; bottom: calc(58px + env(safe-area-inset-bottom)); background: var(--bg); padding: 8px 16px; z-index: 9; }
+  .askbar .inner { max-width: 448px; margin: 0 auto; display: flex; gap: 8px; }
+  .askbar textarea { flex: 1; resize: none; height: 46px; margin: 0; }
+  .askbar button { width: 52px; flex: none; padding: 0; }
+  .sugs { display: flex; flex-wrap: wrap; gap: 8px; }
+  .sug { border: 1.5px solid color-mix(in srgb, var(--muted) 35%, transparent); background: transparent; color: var(--text); border-radius: 999px; padding: 7px 12px; font: inherit; font-size: 13px; cursor: pointer; text-align: left; }
 </style>
 </head>
 <body>
@@ -199,49 +208,51 @@
   <!-- ===== HOME ===== -->
   <section class="screen active" id="home">
     <div class="row hello">
-      <div class="avatar" id="av">K</div>
-      <div>
+      <div class="avatar" id="av">S</div>
+      <div style="min-width:0">
         <div class="muted si">ආයුබෝවන් 👋</div>
-        <h1 id="hiName">Kasun</h1>
+        <h1 id="hiName">Student</h1>
       </div>
-      <span class="pill" style="margin-left:auto" id="batchPill">A/L 2027 · සිංහල</span>
+      <span class="pill" style="margin-left:auto" id="batchPill"></span>
+      <button class="iconbtn2" onclick="refresh()" aria-label="Refresh">🔄</button>
     </div>
 
-    <div class="card countdown">
+    <div class="card countdown" id="cdCard">
       <div class="si" style="opacity:.9">A/L විභාගයට තව</div>
-      <div class="big"><span id="cdDays">0</span> <span style="font-size:20px">දින</span></div>
-      <div class="units"><div><b id="cdWeeks">0</b>සති</div><div><b id="cdMonths">0</b>මාස</div><div><b id="cdPapers">0</b>MCQ කළා</div></div>
+      <div class="big"><span id="cdDays">0</span> <span style="font-size:20px" class="si">දින</span></div>
+      <div class="units si"><div><b id="cdWeeks">0</b>සති</div><div><b id="cdMonths">0</b>මාස</div><div><b id="cdMcq">0</b>MCQ කළා</div></div>
     </div>
 
     <div class="stats">
-      <div class="stat"><b>🔥 12</b><span class="si">දින streak</span></div>
-      <div class="stat"><b>⭐ 340</b><span>points</span></div>
-      <div class="stat"><b>#5</b><span>rank</span></div>
+      <div class="stat tap" onclick="go('me')"><b id="stStreak">🔥 0</b><span class="si">දින streak</span></div>
+      <div class="stat tap" onclick="go('rank')"><b id="stPoints">⭐ 0</b><span>points</span></div>
+      <div class="stat tap" onclick="go('rank')"><b id="stRank">#–</b><span class="si">සතියේ rank</span></div>
     </div>
 
     <div class="card">
-      <div class="row between"><h3 class="si">🎯 අද ඉලක්කය</h3><span class="muted" id="goalTxt">6 / 10 MCQ</span></div>
-      <div class="progress"><div id="goalBar" style="width:60%"></div></div>
-      <div class="muted si" style="font-size:13px">තව ප්‍රශ්න 4ක් කළොත් streak එක 13 වෙනවා!</div>
+      <div class="row between"><h3 class="si">🎯 අද ඉලක්කය</h3><span class="muted" id="goalTxt">0 / 10 MCQ</span></div>
+      <div class="progress"><div id="goalBar" style="width:0%"></div></div>
+      <div class="muted si" style="font-size:13px" id="goalMsg"></div>
       <button class="btn" style="margin-top:12px" onclick="go('quiz')">⚡ MCQ පටන් ගන්න</button>
     </div>
 
-    <div class="card class-next" onclick="go('time')" style="cursor:pointer">
-      <div class="row between"><span class="muted si" style="font-size:13px">📅 ඊළඟ class එක</span><span class="si" style="font-size:13px;color:var(--accent)">Timetable ➜</span></div>
-      <h3 style="margin:4px 0">Organic Chemistry – Theory</h3>
-      <div class="si">සෙනසුරාදා · 2:00 PM – 6:00 PM</div>
-      <div class="muted" style="font-size:13px">Kandy Hall · Zoom recording 24h</div>
+    <div class="card fee-due tap" id="feeCard" style="display:none" onclick="go('me')"></div>
+
+    <div class="card class-next tap" id="nextCard" onclick="go('time')"></div>
+
+    <div class="card ai-card tap" onclick="openAsk()">
+      <div class="row between"><h3 class="si">🤖 AI Chemistry ගුරු</h3><span class="pill" id="aiLeftPill"></span></div>
+      <div class="muted si" style="font-size:13px;margin-top:4px">Theory ප්‍රශ්නයක් සිංහලෙන්, Singlish වලින් හරි English වලින් හරි අහන්න.</div>
     </div>
 
-    <div class="card" onclick="go('notes')" style="cursor:pointer">
+    <div class="card tap" onclick="go('notes')">
       <div class="row between"><h3 class="si">📒 මගේ Short Notes</h3><span class="pill" id="homeNoteCount">0</span></div>
       <div class="muted si" style="font-size:13px;margin-top:4px">Paper එකට කලින් ඔබේම notes ඉක්මනින් බලන්න.</div>
     </div>
 
-    <div class="card">
+    <div class="card" id="annCard">
       <h3 class="si" style="margin-bottom:6px">📣 නිවේදන</h3>
-      <div class="si" style="font-size:14px">• ලබන සතියේ අඟහරුවාදා extra paper class එකක් 4 PM.</div>
-      <div class="si" style="font-size:14px">• නොවැම්බර් fees 10ට කලින්.</div>
+      <div id="annList"></div>
     </div>
   </section>
 
@@ -249,14 +260,16 @@
   <section class="screen" id="quiz">
     <div id="quizPick">
       <h2 style="margin:4px 0 4px">🧪 MCQ Arena</h2>
-      <p class="muted si" style="margin:0 0 14px">Unit එකක් තෝරලා ප්‍රශ්න 5ක් කරන්න. හරි උත්තරයකට ⭐10.</p>
+      <p class="muted si" style="margin:0 0 14px">Unit එකක් තෝරලා ප්‍රශ්න 5ක් කරන්න. පළමු වතාවේ හරි උත්තරයකට ⭐10, වැරදුණත් ⭐2. දවසේ පළමු quiz එකට +5 bonus.</p>
+      <button class="btn" id="newBtn" style="margin-bottom:12px" onclick="startQuiz('new')">🆕 අලුත් ප්‍රශ්න</button>
       <div class="units-grid" id="unitGrid"></div>
       <button class="btn ghost" onclick="startQuiz('mixed')">🎲 Mixed paper</button>
     </div>
     <div id="quizPlay" style="display:none">
       <div class="q-top">
         <span class="pill" id="qCount">1 / 5</span>
-        <span class="timer" id="qTimer">⏱ 60</span>
+        <span class="muted" id="qUnit" style="font-size:12px"></span>
+        <span class="timer" id="qTimer">⏱ 90</span>
       </div>
       <div class="progress" style="margin-top:0"><div id="qBar" style="width:0%"></div></div>
       <div class="card note-hint si" id="qNoteHint" onclick="openUnitNotes()"></div>
@@ -267,21 +280,44 @@
     </div>
     <div id="quizDone" style="display:none" class="card result">
       <div style="font-size:40px">🎉</div>
-      <div class="score" id="rScore">4/5</div>
-      <div class="si" id="rMsg">නියමයි!</div>
-      <div class="pill" style="margin:12px 0" id="rPts">+40 ⭐</div>
+      <div class="score" id="rScore">0/5</div>
+      <div class="si" id="rMsg"></div>
+      <div class="saving si" id="rSave"></div>
+      <div class="pill" style="margin:4px 0 12px" id="rPts"></div>
       <div class="card si" id="rWrong" style="background:var(--bg);text-align:left;margin:4px 0 12px"></div>
       <button class="btn ghost" onclick="resetQuiz()">තව paper එකක්</button>
       <button class="btn ghost" style="margin-top:8px" onclick="go('rank')">🏆 Leaderboard බලන්න</button>
     </div>
   </section>
 
+  <!-- ===== AI TUTOR ===== -->
+  <section class="screen" id="askScr">
+    <div class="row between" style="margin:4px 0 12px">
+      <h2>🤖 AI ගුරු</h2>
+      <span class="pill" id="aiLeft2"></span>
+    </div>
+    <div class="chat si" id="chat"></div>
+    <div id="askSugs">
+      <p class="muted si" style="font-size:13px;margin:0 0 8px">උදාහරණ ප්‍රශ්න:</p>
+      <div class="sugs si">
+        <button class="sug" onclick="askSug(this)">NH₃ හැඩය trigonal pyramidal ඇයි?</button>
+        <button class="sug" onclick="askSug(this)">Mole concept eka simple widihata kiyanna</button>
+        <button class="sug" onclick="askSug(this)">Why does ionization energy increase across a period?</button>
+        <button class="sug" onclick="askSug(this)">SN1 සහ SN2 වෙනස මොකක්ද?</button>
+      </div>
+    </div>
+    <p class="muted si" style="font-size:11px;margin-top:14px">AI උත්තර සමහර වෙලාවට වැරදි වෙන්න පුළුවන්. සැකයක් තියෙනවා නම් ගුරුතුමාගෙන් අහන්න. ඔබේ ප්‍රශ්නය AI සේවාවකට (Anthropic Claude) යවනවා.</p>
+    <div style="height:70px"></div>
+  </section>
+
   <!-- ===== LEADERBOARD ===== -->
   <section class="screen" id="rank">
     <h2 style="margin:4px 0 12px">🏆 Leaderboard</h2>
-    <div class="tabs"><button class="on si" onclick="lbTab(this,'week')">මේ සතිය</button><button class="si" onclick="lbTab(this,'all')">සියලු කාලය</button></div>
+    <div class="tabs" id="lbTabs"><button class="on si" data-k="week" onclick="lbTab('week')">මේ සතිය</button><button class="si" data-k="all" onclick="lbTab('all')">සියලු කාලය</button></div>
     <div class="podium" id="podium"></div>
     <div class="card" id="lbList" style="padding:8px 12px"></div>
+    <p class="muted si" style="font-size:12px;text-align:center" id="lbMine"></p>
+    <p class="muted si" style="font-size:11px;text-align:center">🔒 Leaderboard එකේ පෙන්නන්නේ කෙටි නම සහ points විතරයි.</p>
   </section>
 
   <!-- ===== NOTES ===== -->
@@ -294,26 +330,29 @@
     <p class="muted si" id="noteIntro" style="margin:0 0 12px;font-size:13px"></p>
     <div class="chips" id="noteChips"></div>
     <div id="notesList"></div>
+    <p class="muted si" style="font-size:11px;text-align:center;margin-top:12px">🔒 Notes ඔබේ phone එකේ විතරයි save වෙන්නේ.</p>
   </section>
 
   <!-- ===== TIMETABLE ===== -->
   <section class="screen" id="time">
     <h2 style="margin:4px 0 4px">📅 Timetable</h2>
-    <p class="muted" style="margin:0 0 8px">A/L 2027 · Sinhala medium</p>
+    <p class="muted" style="margin:0 0 8px" id="ttSub"></p>
     <div id="tt"></div>
+    <h3 class="si" style="margin:18px 0 8px">📣 නිවේදන</h3>
+    <div class="card" id="annList2"></div>
   </section>
 
   <!-- ===== PROFILE ===== -->
   <section class="screen" id="me">
     <div class="card" style="text-align:center">
-      <div class="avatar" style="width:72px;height:72px;font-size:28px;margin:0 auto 8px" id="av2">K</div>
-      <h2 id="meName">Kasun Perera</h2>
-      <div class="muted" id="meInfo">A/L 2027 · Sinhala · ✅ ACTIVE</div>
+      <div class="avatar" style="width:72px;height:72px;font-size:28px;margin:0 auto 8px" id="av2">S</div>
+      <h2 id="meName"></h2>
+      <div class="muted" id="meInfo"></div>
     </div>
     <div class="stats">
-      <div class="stat"><b>128</b><span>MCQ</span></div>
-      <div class="stat"><b>78%</b><span class="si">නිවැරදි</span></div>
-      <div class="stat"><b>🔥 21</b><span>best streak</span></div>
+      <div class="stat"><b id="pMcq">0</b><span>MCQ</span></div>
+      <div class="stat"><b id="pAcc">0%</b><span class="si">නිවැරදි</span></div>
+      <div class="stat"><b id="pBest">🔥 0</b><span>best streak</span></div>
     </div>
     <div class="card">
       <h3 class="si" style="margin-bottom:10px">📊 Unit අනුව</h3>
@@ -321,21 +360,26 @@
     </div>
     <div class="card">
       <h3 style="margin-bottom:10px">🏅 Badges</h3>
-      <div class="badges">
-        <div class="badge"><div class="b">🔥</div>7-day streak</div>
-        <div class="badge"><div class="b">🧪</div>First 100 MCQ</div>
-        <div class="badge"><div class="b">⚗️</div>Organic Pro</div>
-        <div class="badge locked"><div class="b">👑</div>Top 3 week</div>
-      </div>
+      <div class="badges" id="badges"></div>
     </div>
-    <div class="card row between">
-      <div><div class="muted si" style="font-size:13px">💳 නොවැම්බර් fees</div><b class="si" style="color:var(--good)">✅ ගෙවා ඇත</b></div>
-      <span class="pill">Nov 2026</span>
+    <div class="card" id="feeBox"></div>
+    <div class="card">
+      <h3 class="si" style="margin-bottom:8px">🔒 Privacy සහ දත්ත</h3>
+      <div class="muted si" style="font-size:13px;margin-bottom:10px">ඔබේ නම, batch, ලකුණු ගුරුතුමා විතරයි බලන්නේ. Short notes photos ඔබේ phone එකේ විතරයි.</div>
+      <button class="btn ghost si" onclick="openPrivacy()">📄 Privacy විස්තර</button>
+      <button class="btn ghost si" style="margin-top:8px" onclick="clearNotes()">🧹 මේ phone එකේ notes මකන්න</button>
+      <button class="btn danger si" style="margin-top:8px" onclick="deleteMyData()">🗑 මගේ ගිණුමේ දත්ත මකන්න</button>
     </div>
   </section>
 
-  <div class="demo-note">Prototype v3 · demo data · notes saved on this phone only</div>
+  <div class="demo-note" id="verNote">v4</div>
 </div>
+
+<!-- AI ask bar (only on AI screen) -->
+<div class="askbar" id="askbar" style="display:none"><div class="inner">
+  <textarea class="field si" id="askIn" placeholder="ඔබේ chemistry ප්‍රශ්නය..." maxlength="800"></textarea>
+  <button class="btn" id="askBtn" onclick="sendAsk()">➤</button>
+</div></div>
 
 <button class="fab" id="fab" onclick="pickPhoto({ theory: true, unit: noteFilter })" aria-label="Add theory note">📸</button>
 <input type="file" id="photoIn" accept="image/*" style="display:none">
@@ -360,7 +404,7 @@
   <h3 class="si" style="margin-bottom:10px" id="shHead">📸 Short note එකක් save කරන්න</h3>
   <div class="linked si" id="shLinked" style="display:none;margin:0 0 10px"></div>
   <img id="shImg" alt="">
-  <input class="field si" id="shTitle" placeholder="Note එකේ නම (උදා: SN1 vs SN2)">
+  <input class="field si" id="shTitle" placeholder="Note එකේ නම">
   <select class="field" id="shUnit"></select>
   <div class="row" style="margin-top:14px">
     <button class="btn ghost" onclick="pickPhoto(draft.ctx)" style="flex:1">🔄 වෙනත් photo</button>
@@ -378,7 +422,7 @@
 <nav><div class="inner">
   <button class="on" data-s="home" onclick="go('home')"><span class="i">🏠</span>Home</button>
   <button data-s="quiz" onclick="go('quiz')"><span class="i">🧪</span>MCQ</button>
-  <button data-s="notes" onclick="go('notes')"><span class="i">📒</span>Notes</button>
+  <button data-s="askScr" onclick="openAsk()"><span class="i">🤖</span>AI</button>
   <button data-s="rank" onclick="go('rank')"><span class="i">🏆</span>Rank</button>
   <button data-s="me" onclick="go('me')"><span class="i">👤</span>Me</button>
 </div></nav>
@@ -389,221 +433,366 @@ const tg = window.Telegram && window.Telegram.WebApp;
 if (tg) { tg.ready(); tg.expand(); }
 // ---------- Config (one copy of the app per teacher bot) ----------
 const CONFIG = {
-  apiMe: 'https://budeeshasamarakoon.app.n8n.cloud/webhook/chembuddy-me',
+  api: 'https://budeeshasamarakoon.app.n8n.cloud/webhook/chembuddy-api',
   teacher: 'chem1',
-  botUsername: 'physics_demo_bot'
+  botUsername: 'physics_demo_bot',
+  dailyGoal: 10
 };
+const VERSION = 'v4';
 const DEMO = /[?&]demo=1\b/.test(location.search) || location.protocol === 'file:' || location.protocol === 'data:';
-let me = null; // the logged-in student (from n8n)
+let me = null;     // logged-in student (from n8n)
+let DATA = null;   // everything the app shows (from n8n)
 
-// ---------- Login ----------
-// Telegram gives signed initData; n8n verifies it with Telegram's public key and returns the student's status.
-function gate(html) { const g = document.getElementById('gate'); document.getElementById('gateBox').innerHTML = html; g.classList.add('show'); }
+// ---------- Small helpers ----------
+function esc(t) { return String(t ?? '').replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c])); }
+const $ = (id) => document.getElementById(id);
+const haptic = (t) => { try { tg && tg.HapticFeedback && tg.HapticFeedback.notificationOccurred(t); } catch (e) {} };
+const canPopup = () => { try { return !!(tg && tg.initData && tg.isVersionAtLeast && tg.isVersionAtLeast('6.2')); } catch (e) { return false; } };
+function toast(msg) { if (canPopup()) { try { return tg.showAlert(msg); } catch (e) {} } const t = document.createElement('div'); t.textContent = msg; t.style.cssText = 'position:fixed;left:50%;bottom:96px;transform:translateX(-50%);background:#222;color:#fff;padding:10px 16px;border-radius:12px;z-index:70;font-size:14px;max-width:90%'; document.body.appendChild(t); setTimeout(() => t.remove(), 2200); }
+function ask(msg, cb) { if (canPopup()) { try { return tg.showConfirm(msg, cb); } catch (e) {} } cb(confirm(msg)); }
+const store = { // per-viewer conveniences only (goal counter, unsent results)
+  get(k, d) { try { const v = localStorage.getItem(k); return v ? JSON.parse(v) : d; } catch (e) { return d; } },
+  set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} },
+  del(k) { try { localStorage.removeItem(k); } catch (e) {} }
+};
+const SI_DAYS = { monday: 'සඳුදා', tuesday: 'අඟහරුවාදා', wednesday: 'බදාදා', thursday: 'බ්‍රහස්පතින්දා', friday: 'සිකුරාදා', saturday: 'සෙනසුරාදා', sunday: 'ඉරිදා' };
+const siDay = (d) => SI_DAYS[String(d || '').toLowerCase()] || d;
+const ICONS = [['atom', '⚛️'], ['bond', '🔗'], ['mole', '⚖️'], ['gas', '🎈'], ['organic', '⚗️'], ['energ', '🔥'], ['thermo', '🔥'], ['periodic', '🧮'], ['redox', '⚡'], ['electro', '🔋'], ['equilib', '⚖️'], ['kinetic', '⏱️'], ['rate', '⏱️'], ['acid', '🧫'], ['industr', '🏭'], ['environ', '🌍'], ['s block', '🧂'], ['p block', '🧂'], ['d block', '🔩']];
+const unitIcon = (u) => { const l = String(u || '').toLowerCase(); const m = ICONS.find(x => l.includes(x[0])); return m ? m[1] : '🧪'; };
+
+// ---------- API ----------
+async function api(action, extra) {
+  const body = new URLSearchParams({ teacher: CONFIG.teacher, initData: tg ? tg.initData : '', action, ...(extra || {}) });
+  const res = await fetch(CONFIG.api, { method: 'POST', body }); // form body = no CORS preflight
+  return res.json();
+}
+
+// ---------- Login gate ----------
+function gate(html) { $('gateBox').innerHTML = html; $('gate').classList.add('show'); }
 function gateMsg(ic, title, text, btns) { gate(`<div class="ic">${ic}</div><h2>${title}</h2><p>${text}</p>${btns || ''}`); }
-function openBotRegister() {
-  const url = 'https://t.me/' + CONFIG.botUsername + '?start=register';
-  try { if (tg && tg.openTelegramLink) { tg.openTelegramLink(url); setTimeout(() => { try { tg.close(); } catch (e) {} }, 300); return; } } catch (e) {}
+function openBot(start) {
+  const url = 'https://t.me/' + CONFIG.botUsername + (start ? '?start=' + start : '');
+  try { if (tg && tg.openTelegramLink && tg.initData) { tg.openTelegramLink(url); setTimeout(() => { try { tg.close(); } catch (e) {} }, 300); return; } } catch (e) {}
   location.href = url;
 }
 async function login() {
-  if (DEMO) { me = { status: 'ACTIVE', name: 'Kasun Perera', firstName: 'Kasun', batch: 'A/L 2027', medium: 'Sinhala', id: 'demo' }; return startApp(); }
+  if (DEMO) { DATA = demoData(); me = { ...DATA, id: 'demo' }; return startApp(); }
   if (!(tg && tg.initData)) {
     return gateMsg('📱', 'Telegram එකෙන් open කරන්න', 'මේ app එක වැඩ කරන්නේ Telegram එකේ Rh ChemBuddy bot එක ඇතුළේ විතරයි.',
       `<a class="btn" style="text-decoration:none" href="https://t.me/${CONFIG.botUsername}">Rh ChemBuddy open කරන්න</a>`);
   }
   gate('<div class="spin"></div><div class="muted" style="margin-top:14px">ඔබව හඳුනාගන්නවා...</div>');
-  let r;
-  try {
-    const res = await fetch(CONFIG.apiMe, { method: 'POST', body: new URLSearchParams({ teacher: CONFIG.teacher, initData: tg.initData }) });
-    r = await res.json();
-  } catch (e) { r = null; }
+  let r = null;
+  try { r = await api('load'); } catch (e) { r = null; }
   if (!r) return gateMsg('📡', 'Connection ප්‍රශ්නයක්', 'Internet එක check කරලා ආයෙත් උත්සාහ කරන්න.', '<button class="btn" onclick="login()">🔄 ආයෙත් උත්සාහ කරන්න</button>');
   if (!r.ok) return gateMsg('🔒', 'ඔබව හඳුනාගන්න බැරි වුණා', 'App එක වහලා bot එකෙන් ආයෙත් open කරන්න.', '<button class="btn" onclick="login()">🔄 ආයෙත් උත්සාහ කරන්න</button>');
   const uid = String((tg.initDataUnsafe && tg.initDataUnsafe.user && tg.initDataUnsafe.user.id) || '');
-  me = { ...r, id: uid };
-  if (r.status === 'ACTIVE') return startApp();
+  if (r.status === 'ACTIVE') { DATA = r; me = { ...r, id: uid }; return startApp(); }
   if (r.status === 'PENDING') return gateMsg('⏳', 'තහවුරු කරනකම් ඉන්න', 'ඔබේ ලියාපදිංචිය ගුරුතුමා තවම තහවුරු කරලා නැහැ. තහවුරු කළාම bot එකෙන් පණිවිඩයක් එනවා.', '<button class="btn ghost" onclick="login()">🔄 ආයෙත් බලන්න</button>');
   if (r.status === 'REJECTED' || r.status === 'LEFT') return gateMsg('🚫', 'App එකට access නැහැ', 'වැඩි විස්තර සඳහා ගුරුතුමා අමතන්න.');
   return gateMsg('📝', 'Hi ' + esc(r.firstName || '') + '! මුලින් ලියාපදිංචි වෙන්න', 'App එක පාවිච්චි කරන්න class එකට ලියාපදිංචි වෙලා ගුරුතුමා තහවුරු කරන්න ඕනේ.',
-    '<button class="btn" onclick="openBotRegister()">📝 දැන් ලියාපදිංචි වෙන්න</button><button class="btn ghost" style="margin-top:8px" onclick="login()">🔄 මම දැනටමත් ලියාපදිංචියි</button>');
+    '<button class="btn" onclick="openBot(\'register\')">📝 දැන් ලියාපදිංචි වෙන්න</button><button class="btn ghost" style="margin-top:8px" onclick="login()">🔄 මම දැනටමත් ලියාපදිංචියි</button>');
 }
-function startApp() {
-  const first = (me.name || me.firstName || 'Student').split(' ')[0];
-  document.getElementById('hiName').textContent = first;
-  document.getElementById('av').textContent = first[0] || 'S';
-  document.getElementById('av2').textContent = first[0] || 'S';
-  document.getElementById('meName').textContent = me.name || me.firstName;
-  document.getElementById('batchPill').textContent = me.batch + ' · ' + me.medium;
-  document.getElementById('meInfo').textContent = me.batch + ' · ' + me.medium + ' · ✅ ACTIVE';
-  document.getElementById('gate').classList.remove('show');
+async function startApp() {
+  $('gate').classList.remove('show');
+  $('verNote').textContent = 'Rh ChemBuddy ' + VERSION + (DEMO ? ' · demo data' : '');
+  renderAll();
   loadNotes(); // notes are kept separately for each student on this phone
+  await flushPending();
 }
-const haptic = (t) => { try { tg && tg.HapticFeedback && tg.HapticFeedback.notificationOccurred(t); } catch (e) {} };
-// Telegram popups need app version 6.2+; fall back to browser dialogs elsewhere
-const canPopup = () => { try { return !!(tg && tg.initData && tg.isVersionAtLeast && tg.isVersionAtLeast('6.2')); } catch (e) { return false; } };
-function toast(msg) { if (canPopup()) { try { return tg.showAlert(msg); } catch (e) {} } const t = document.createElement('div'); t.textContent = msg; t.style.cssText = 'position:fixed;left:50%;bottom:96px;transform:translateX(-50%);background:#222;color:#fff;padding:10px 16px;border-radius:12px;z-index:50;font-size:14px'; document.body.appendChild(t); setTimeout(() => t.remove(), 1800); }
-function ask(msg, cb) { if (canPopup()) { try { return tg.showConfirm(msg, cb); } catch (e) {} } cb(confirm(msg)); }
+async function refresh() {
+  if (DEMO) return toast('Demo mode');
+  try { const r = await api('load'); if (r && r.ok && r.status === 'ACTIVE') { DATA = r; renderAll(); haptic('success'); } else toast('Update කරන්න බැරි වුණා'); }
+  catch (e) { toast('Internet එක check කරන්න'); }
+}
+function applyServer(r) { if (r && r.ok && r.status === 'ACTIVE' && r.questions) { DATA = r; renderAll(); } }
 
-// ---------- DEMO DATA (later: comes from n8n webhook) ----------
-const EXAM_DATE = '2027-08-10';
-const UNITS = [
-  { id: 'atomic', ic: '⚛️', name: 'Atomic Structure', done: 82 },
-  { id: 'bonding', ic: '🔗', name: 'Chemical Bonding', done: 74 },
-  { id: 'physical', ic: '🌡️', name: 'Physical Chem', done: 61 },
-  { id: 'organic', ic: '⚗️', name: 'Organic Chem', done: 88 }
-];
-const QUESTIONS = [
-  { unit: 'atomic', q: 'Which quantum number describes the shape of an orbital?', o: ['Principal (n)', 'Azimuthal (l)', 'Magnetic (mₗ)', 'Spin (mₛ)', 'None of these'], a: 1, e: 'Azimuthal quantum number l = orbital එකේ හැඩය (s, p, d, f) තීරණය කරයි.' },
-  { unit: 'atomic', q: 'How many unpaired electrons are in a ground-state Fe³⁺ ion?', o: ['3', '4', '5', '6', '0'], a: 2, e: 'Fe³⁺ = [Ar] 3d⁵. d orbitals 5ටම එක electron බැගින් → unpaired 5.' },
-  { unit: 'bonding', q: 'What is the shape of the SF₄ molecule?', o: ['Tetrahedral', 'Square planar', 'See-saw', 'Trigonal pyramidal', 'T-shaped'], a: 2, e: 'S: bond pairs 4 + lone pair 1 = 5 electron pairs → see-saw හැඩය.' },
-  { unit: 'bonding', q: 'Which molecule has the largest bond angle?', o: ['H₂O', 'NH₃', 'CH₄', 'BF₃', 'BeCl₂'], a: 4, e: 'BeCl₂ linear → 180°. අනිත් ඒවා ඊට අඩුයි.' },
-  { unit: 'physical', q: 'For an exothermic reaction, increasing temperature will…', o: ['Increase K', 'Decrease K', 'Not change K', 'Make ΔH positive', 'Stop the reaction'], a: 1, e: 'Exothermic (ΔH < 0) → T වැඩි කළාම equilibrium වමට යයි, K අඩු වෙයි.' },
-  { unit: 'physical', q: 'The unit of a first-order rate constant is…', o: ['mol dm⁻³ s⁻¹', 's⁻¹', 'mol⁻¹ dm³ s⁻¹', 'dm³ s⁻¹', 'no unit'], a: 1, e: 'First order: rate = k[A] → k = s⁻¹.' },
-  { unit: 'organic', q: 'Which reagent converts a primary alcohol into an aldehyde?', o: ['KMnO₄ / H⁺', 'PCC', 'LiAlH₄', 'NaBH₄', 'Conc. H₂SO₄ / 170°C'], a: 1, e: 'PCC mild oxidant → aldehyde එකේ නවතී. KMnO₄ carboxylic acid දක්වා යයි.' },
-  { unit: 'organic', q: 'SN1 reactions are fastest with which type of halide?', o: ['Methyl', 'Primary', 'Secondary', 'Tertiary', 'Vinyl'], a: 3, e: 'SN1 carbocation හරහා → tertiary carbocation වඩාත් ස්ථායී.' }
-];
-const LB = {
-  week: [['Nethmi S.', 420], ['Dulaj P.', 395], ['Sachini R.', 380], ['Hasitha K.', 352], ['Kasun P.', 340, true], ['Imesha W.', 318], ['Ravindu M.', 301], ['Tharushi D.', 287]],
-  all: [['Dulaj P.', 3820], ['Nethmi S.', 3710], ['Kasun P.', 3390, true], ['Sachini R.', 3205], ['Imesha W.', 2980], ['Hasitha K.', 2875], ['Ravindu M.', 2650], ['Tharushi D.', 2410]]
-};
-const TIMETABLE = [
-  { day: 'සෙනසුරාදා · Nov 14', items: [{ t: '2:00 PM', n: 'Organic Chemistry – Theory', p: 'Kandy Hall + Zoom' }] },
-  { day: 'ඉරිදා · Nov 15', items: [{ t: '8:00 AM', n: 'Physical Chemistry – Revision', p: 'Online (Zoom)', tag: ['cancel', 'Cancelled'] }] },
-  { day: 'අඟහරුවාදා · Nov 17', items: [{ t: '4:00 PM', n: 'Paper Class – MCQ 50', p: 'Kandy Hall', tag: ['extra', 'Extra class'] }] },
-  { day: 'සෙනසුරාදා · Nov 21', items: [{ t: '2:00 PM', n: 'Organic – Reaction mechanisms', p: 'Kandy Hall + Zoom' }] }
-];
+// ---------- Render everything from DATA ----------
+function renderAll() {
+  const d = DATA;
+  const first = (d.name || d.firstName || 'Student').split(' ')[0];
+  $('hiName').textContent = first;
+  $('av').textContent = $('av2').textContent = (first[0] || 'S').toUpperCase();
+  $('meName').textContent = d.name || d.firstName;
+  $('batchPill').textContent = d.batch;
+  $('meInfo').textContent = d.batch + ' · ' + d.medium + ' · ✅ ACTIVE';
+  renderHome(); renderUnits(); renderLB(lbKey); renderTimetable(); renderProfile(); renderAiLeft();
+}
+function goalKey() { return 'cb_goal_' + (me && me.id) + '_' + (DATA && DATA.today); }
+function renderHome() {
+  const d = DATA, m = d.me || {};
+  // Countdown (teacher sets the exam date in the sheet)
+  const cd = $('cdCard');
+  if (d.examDate) {
+    const days = Math.max(0, Math.ceil((new Date(d.examDate + 'T00:00:00+05:30') - new Date()) / 86400000));
+    cd.style.display = 'block';
+    $('cdDays').textContent = days; $('cdWeeks').textContent = Math.floor(days / 7); $('cdMonths').textContent = Math.floor(days / 30);
+  } else cd.style.display = 'none';
+  $('cdMcq').textContent = m.mcqTotal || 0;
+  $('stStreak').textContent = '🔥 ' + (m.streak || 0);
+  $('stPoints').textContent = '⭐ ' + (m.points || 0);
+  const wr = d.leaderboard && d.leaderboard.week && d.leaderboard.week.myRank;
+  $('stRank').textContent = wr ? '#' + wr : '#–';
+  // Daily goal (counted on this phone)
+  const done = store.get(goalKey(), 0), goal = CONFIG.dailyGoal;
+  $('goalTxt').textContent = Math.min(done, goal) + ' / ' + goal + ' MCQ';
+  $('goalBar').style.width = Math.min(100, done / goal * 100) + '%';
+  $('goalMsg').textContent = done >= goal ? '🎉 අද ඉලක්කය සම්පූර්ණයි! නියමයි!' : (m.doneToday ? 'අද streak එක ✅. තව ප්‍රශ්න ' + (goal - done) + 'ක් කරලා ඉලක්කය ඉවර කරන්න!' : 'අද එක quiz එකක් කළොත් streak එක ' + ((m.streak || 0) + 1) + ' වෙනවා!');
+  // Fees
+  const f = d.fees || {}, fc = $('feeCard');
+  const dayNo = Number(String(d.today || '').slice(8, 10)) || 1;
+  if (f.thisMonth && !f.paid) { fc.style.display = 'block'; fc.innerHTML = `<div class="row between"><b class="si">💳 ${monthName(f.thisMonth)} fees</b><span class="pill" style="background:color-mix(in srgb,var(--bad) 18%,transparent);color:var(--bad)">${dayNo > f.dueDay ? 'ප්‍රමාදයි' : f.dueDay + ' ට කලින්'}</span></div><div class="muted si" style="font-size:13px;margin-top:4px">ගෙව්වා නම් slip එකේ photo එක bot එකට එවන්න.</div>`; }
+  else fc.style.display = 'none';
+  // Next class
+  const n = d.nextClass;
+  $('nextCard').innerHTML = n
+    ? `<div class="row between"><span class="muted si" style="font-size:13px">📅 ඊළඟ class එක</span><span class="si" style="font-size:13px;color:var(--accent)">Timetable ➜</span></div><h3 style="margin:4px 0">${esc(n.title)}</h3><div class="si">${relDay(n.at)} · ${esc(n.start)}${n.end ? ' – ' + esc(n.end) : ''}</div><div class="muted" style="font-size:13px">${esc(n.mode)}${n.venue ? ' · ' + esc(n.venue) : ''}</div>`
+    : `<div class="muted si">📅 ඔබේ batch එකට class එකක් Timetable එකේ නැහැ.</div>`;
+  // Announcements
+  const anns = d.announcements || [];
+  const annHtml = anns.length ? anns.map(a => `<div class="ann si">${a.date ? `<div class="d">${fmtD(a.date)}</div>` : ''}${esc(a.msg)}</div>`).join('') : '<div class="muted si" style="font-size:14px">දැනට නිවේදන නැහැ.</div>';
+  $('annList').innerHTML = annHtml; $('annList2').innerHTML = annHtml;
+  $('homeNoteCount').textContent = notes.length + ' notes';
+}
+const monthName = (ym) => { try { return new Date(ym + '-01T00:00:00').toLocaleDateString('en-GB', { month: 'long' }); } catch (e) { return ym; } };
+const fmtD = (iso) => { try { return new Date(iso + 'T00:00:00').toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short' }); } catch (e) { return iso; } };
+function relDay(at) {
+  const t = new Date(at); const today = new Date(); const d0 = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+  const diff = Math.round((new Date(t.getFullYear(), t.getMonth(), t.getDate()) - d0) / 86400000);
+  if (diff === 0) return 'අද'; if (diff === 1) return 'හෙට';
+  return siDay(t.toLocaleDateString('en-US', { weekday: 'long' })) + ' · ' + t.toLocaleDateString('en-GB', { day: 'numeric', month: 'short' });
+}
 
 // ---------- Navigation ----------
 function go(id) {
   document.querySelectorAll('.screen').forEach(s => s.classList.toggle('active', s.id === id));
   document.querySelectorAll('nav button').forEach(b => b.classList.toggle('on', b.dataset.s === id));
-  document.getElementById('fab').classList.toggle('show', id === 'notes' && noteTab === 'theory');
+  $('fab').classList.toggle('show', id === 'notes' && noteTab === 'theory');
+  $('askbar').style.display = id === 'askScr' ? 'block' : 'none';
   window.scrollTo(0, 0);
   try { tg && tg.HapticFeedback && tg.HapticFeedback.selectionChanged(); } catch (e) {}
 }
 
-// ---------- Home ----------
-(function countdown() {
-  const days = Math.max(0, Math.ceil((new Date(EXAM_DATE) - new Date()) / 86400000));
-  let n = 0; const el = document.getElementById('cdDays');
-  const step = Math.max(1, Math.round(days / 40));
-  const t = setInterval(() => { n = Math.min(days, n + step); el.textContent = n; if (n >= days) clearInterval(t); }, 20);
-  document.getElementById('cdWeeks').textContent = Math.floor(days / 7);
-  document.getElementById('cdMonths').textContent = Math.floor(days / 30);
-  document.getElementById('cdPapers').textContent = 128;
-})();
-
 // ---------- Quiz ----------
-document.getElementById('unitGrid').innerHTML = UNITS.map(u =>
-  `<button class="unit" onclick="startQuiz('${u.id}')"><span class="ic">${u.ic}</span><b>${u.name}</b><span>${u.done}% නිවැරදි</span></button>`).join('');
-// Every question needs a stable ID so a problem note stays attached to it (later: Question ID column in the sheet)
-QUESTIONS.forEach((q, i) => { q.id = q.id || 'Q' + (i + 1); });
-const qById = (id) => QUESTIONS.find(q => q.id === id);
-let qs = [], qi = 0, score = 0, timer = null, left = 60, quizUnit = 'mixed', wrongQs = [];
+const allQs = () => (DATA && DATA.questions) || [];
+const qById = (id) => allQs().find(q => q.id === id);
+const doneSet = () => new Set((DATA && DATA.me && DATA.me.done) || []);
+function unitsList() {
+  const map = {};
+  allQs().forEach(q => { map[q.unit] = (map[q.unit] || 0) + 1; });
+  return Object.keys(map).sort().map(u => ({ id: u, name: u, ic: unitIcon(u), count: map[u] }));
+}
+function renderUnits() {
+  const stats = {}; ((DATA.me && DATA.me.units) || []).forEach(s => stats[s.unit] = s);
+  const ds = doneSet();
+  const fresh = allQs().filter(q => !ds.has(q.id)).length;
+  $('newBtn').textContent = fresh ? `🆕 අලුත් ප්‍රශ්න (${fresh}ක් ඉතුරුයි)` : '✅ ඔක්කොම ප්‍රශ්න කරලා! (practice)';
+  const us = unitsList();
+  $('unitGrid').innerHTML = us.length ? us.map(u => {
+    const s = stats[u.id];
+    return `<button class="unit" onclick="startQuiz(${JSON.stringify(u.id).replace(/"/g, '&quot;')})"><span class="ic">${u.ic}</span><b>${esc(u.name)}</b><span class="si">${u.count} ප්‍රශ්න${s ? ' · ' + s.pct + '% හරි' : ''}</span></button>`;
+  }).join('') : '<div class="muted si" style="grid-column:1/-1">ගුරුතුමා තවම ප්‍රශ්න දාලා නැහැ.</div>';
+}
+let qs = [], qi = 0, score = 0, timer = null, left = 90, quizUnit = 'mixed', wrongQs = [], answers = [];
+const shuffle = (a) => { const b = [...a]; for (let i = b.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [b[i], b[j]] = [b[j], b[i]]; } return b; };
 function startQuiz(unit, onlyIds) {
+  const all = allQs(); if (!all.length) return toast('ප්‍රශ්න නැහැ');
   quizUnit = unit;
+  const ds = doneSet();
+  let pool;
+  if (onlyIds) pool = onlyIds.map(qById).filter(Boolean);
+  else if (unit === 'new') { const fresh = all.filter(q => !ds.has(q.id)); pool = [...shuffle(fresh), ...shuffle(all.filter(q => ds.has(q.id)))]; }
+  else if (unit === 'mixed') pool = shuffle(all);
+  else { const inUnit = all.filter(q => q.unit === unit); pool = [...shuffle(inUnit.filter(q => !ds.has(q.id))), ...shuffle(inUnit.filter(q => ds.has(q.id))), ...shuffle(all.filter(q => q.unit !== unit))]; }
+  qs = pool.slice(0, onlyIds ? pool.length : 5);
+  qi = 0; score = 0; wrongQs = []; answers = [];
   showUnitHint();
-  const pool = unit === 'mixed' ? QUESTIONS : QUESTIONS.filter(q => q.unit === unit);
-  const shuffle = (a) => [...a].sort(() => Math.random() - .5);
-  // Selected unit first; top up with other units only if the unit has fewer than 5 questions
-  qs = onlyIds ? onlyIds.map(qById).filter(Boolean) : [...shuffle(pool), ...shuffle(QUESTIONS.filter(q => !pool.includes(q)))].slice(0, 5);
-  qi = 0; score = 0; wrongQs = [];
-  document.getElementById('quizPick').style.display = 'none';
-  document.getElementById('quizDone').style.display = 'none';
-  document.getElementById('quizPlay').style.display = 'block';
+  $('quizPick').style.display = 'none'; $('quizDone').style.display = 'none'; $('quizPlay').style.display = 'block';
   showQ();
 }
 function showQ() {
   const q = qs[qi];
-  document.getElementById('qCount').textContent = (qi + 1) + ' / ' + qs.length;
-  document.getElementById('qBar').style.width = (qi / qs.length * 100) + '%';
-  document.getElementById('qText').textContent = q.q;
-  document.getElementById('qOpts').innerHTML = q.o.map((o, i) =>
-    `<button class="opt" onclick="answer(${i})"><span class="n">${i + 1}</span><span>${o}</span></button>`).join('');
-  document.getElementById('qExplain').classList.remove('show');
-  document.getElementById('qNext').style.display = 'none';
-  left = 60; tick(); clearInterval(timer); timer = setInterval(tick, 1000);
+  $('qCount').textContent = (qi + 1) + ' / ' + qs.length;
+  $('qUnit').textContent = unitIcon(q.unit) + ' ' + q.unit + (doneSet().has(q.id) ? ' · practice' : ' · 🆕');
+  $('qBar').style.width = (qi / qs.length * 100) + '%';
+  $('qText').textContent = q.q;
+  $('qOpts').innerHTML = q.o.map((o, i) => `<button class="opt" onclick="answer(${i})"><span class="n">${'ABCDE'[i]}</span><span>${esc(o)}</span></button>`).join('');
+  $('qExplain').classList.remove('show');
+  $('qNext').style.display = 'none';
+  left = 90; tick(); clearInterval(timer); timer = setInterval(tick, 1000);
 }
 function tick() {
-  const el = document.getElementById('qTimer');
-  el.textContent = '⏱ ' + left; el.classList.toggle('low', left <= 10);
+  const el = $('qTimer'); el.textContent = '⏱ ' + left; el.classList.toggle('low', left <= 10);
   if (left-- <= 0) { clearInterval(timer); answer(-1); }
 }
 function answer(i) {
   clearInterval(timer);
-  const q = qs[qi]; const btns = document.querySelectorAll('#qOpts .opt');
-  btns.forEach((b, k) => { b.disabled = true; if (k === q.a) b.classList.add('correct'); if (k === i && i !== q.a) b.classList.add('wrong'); });
+  const q = qs[qi]; if (answers.some(a => a.qid === q.id)) return;
+  document.querySelectorAll('#qOpts .opt').forEach((b, k) => { b.disabled = true; if (k === q.a) b.classList.add('correct'); if (k === i && i !== q.a) b.classList.add('wrong'); });
+  answers.push({ qid: q.id, choice: i });
+  store.set(goalKey(), store.get(goalKey(), 0) + 1);
   if (i === q.a) { score++; haptic('success'); } else { haptic('error'); wrongQs.push(q); }
-  const ex = document.getElementById('qExplain');
-  ex.innerHTML = (i === q.a ? '✅ <b>හරි!</b> ' : (i === -1 ? '⏰ <b>වෙලාව ඉවරයි.</b> ' : '❌ <b>වැරදියි.</b> ')) + q.e + '<br>' + noteButton(q, i !== q.a);
+  const ex = $('qExplain');
+  ex.innerHTML = (i === q.a ? '✅ <b>හරි!</b> ' : (i === -1 ? '⏰ <b>වෙලාව ඉවරයි.</b> ' : '❌ <b>වැරදියි.</b> හරි උත්තරය: <b>' + 'ABCDE'[q.a] + '</b><br>')) + esc(q.ex) + '<br>' + noteButton(q, i !== q.a) + aiButton(q, i);
   ex.classList.add('show');
-  const nx = document.getElementById('qNext'); nx.style.display = 'block';
+  const nx = $('qNext'); nx.style.display = 'block';
   nx.textContent = qi === qs.length - 1 ? 'ප්‍රතිඵලය බලන්න 🎯' : 'ඊළඟ ➜';
 }
 function nextQ() {
   qi++;
   if (qi < qs.length) return showQ();
-  document.getElementById('quizPlay').style.display = 'none';
-  document.getElementById('quizDone').style.display = 'block';
-  document.getElementById('rScore').textContent = score + '/' + qs.length;
-  document.getElementById('rMsg').textContent = score >= 4 ? 'නියමයි! දිගටම කරගෙන යන්න 💪' : score >= 2 ? 'හොඳයි! වැරදුණ ඒවා ආයෙත් බලන්න 📖' : 'කමක් නැහැ, ආයෙත් උත්සාහ කරමු 🙂';
-  document.getElementById('rPts').textContent = '+' + score * 10 + ' ⭐';
+  $('quizPlay').style.display = 'none'; $('quizDone').style.display = 'block';
+  $('rScore').textContent = score + '/' + qs.length;
+  $('rMsg').textContent = score >= 4 ? 'නියමයි! දිගටම කරගෙන යන්න 💪' : score >= 2 ? 'හොඳයි! වැරදුණ ඒවා ආයෙත් බලන්න 📖' : 'කමක් නැහැ, ආයෙත් උත්සාහ කරමු 🙂';
+  $('rPts').textContent = '';
   renderWrongList();
-  // Later: send the result to n8n here
+  renderHome();
+  submitResult(answers.slice());
 }
-// Result screen: each wrong question gets its own "add note" button
+// Send answers to n8n. The server checks them against the Question Bank and adds points.
+async function submitResult(list) {
+  const box = $('rSave');
+  if (DEMO) { const pts = list.filter(a => { const q = qById(a.qid); return q && q.a === a.choice; }).length * 10; box.textContent = 'Demo: points save වෙන්නේ නැහැ'; $('rPts').textContent = '+' + pts + ' ⭐ (demo)'; return; }
+  box.innerHTML = '<span class="spin sm"></span>Points save කරනවා...';
+  try {
+    const r = await api('submit', { answers: JSON.stringify(list) });
+    if (!r || !r.ok) throw new Error('fail');
+    const lr = r.lastResult || {};
+    applyServer(r);
+    box.textContent = lr.dailyBonus ? '🔥 අද දවසේ පළමු quiz එක: +' + lr.dailyBonus + ' bonus!' : '✅ Save වුණා';
+    $('rPts').textContent = '+' + (lr.gained || 0) + ' ⭐ · මුළු ' + (lr.points || 0) + (lr.streak > 1 ? ' · 🔥 ' + lr.streak : '');
+    if (!lr.gained) box.textContent = 'ℹ️ මේ ප්‍රශ්න කලින් කරපු ඒවා නිසා අලුත් points නැහැ. 🆕 අලුත් ප්‍රශ්න කරන්න!';
+  } catch (e) {
+    const k = 'cb_pending_' + me.id; const p = store.get(k, []); p.push(list); store.set(k, p);
+    box.innerHTML = '⚠️ Internet නැති නිසා save වුණේ නැහැ. App එක ආයෙත් open කළාම ඉබේම save වෙනවා.';
+  }
+}
+async function flushPending() {
+  if (DEMO || !me) return;
+  const k = 'cb_pending_' + me.id; const p = store.get(k, []); if (!p.length) return;
+  const all = [].concat(...p);
+  try { const r = await api('submit', { answers: JSON.stringify(all) }); if (r && r.ok) { store.del(k); applyServer(r); toast('✅ කලින් save නොවුණු quiz එක save වුණා'); } } catch (e) {}
+}
 function renderWrongList() {
-  const box = document.getElementById('rWrong');
+  const box = $('rWrong');
   box.style.display = wrongQs.length ? 'block' : 'none';
   box.innerHTML = `<b>📸 වැරදුණ ප්‍රශ්න වලට short notes දාන්න</b><div class="muted" style="font-size:12px;margin:2px 0 6px">Note එක ඒ ප්‍රශ්නයටම attach වෙනවා. ඊළඟ පාර ඒ ප්‍රශ්නය ආවම බලන්න පුළුවන්.</div>` +
     wrongQs.map(q => `<div class="wrong-row"><span>${esc(q.q)}</span>${noteButton(q, true, true)}</div>`).join('');
 }
-// "Add note" for a question, or "View my note" if it already has one
 function noteButton(q, offerAdd, short) {
   const n = problemNote(q.id);
-  if (n) return `<button class="snap" onclick="openViewer('${n.id}')">📒 ${short ? 'බලන්න' : 'මගේ note එක බලන්න'}</button>`;
-  return offerAdd ? `<button class="snap" onclick="pickPhoto({ qid: '${q.id}' })">📸 ${short ? 'Note' : 'මේකට short note එකක් දාන්න'}</button>` : '';
+  if (n) return `<button class="snap" onclick="openViewer('${n.id}')">📒 ${short ? 'බලන්න' : 'මගේ note එක'}</button>`;
+  return offerAdd ? `<button class="snap" onclick="pickPhoto({ qid: '${q.id}' })">📸 ${short ? 'Note' : 'Short note එකක් දාන්න'}</button>` : '';
 }
-function resetQuiz() {
-  document.getElementById('quizDone').style.display = 'none';
-  document.getElementById('quizPick').style.display = 'block';
+function aiButton(q, choice) { return `<button class="snap ai" onclick="askAboutQ('${q.id}', ${choice})">🤖 AI එකෙන් අහන්න</button>`; }
+function resetQuiz() { $('quizDone').style.display = 'none'; $('quizPick').style.display = 'block'; }
+
+// ---------- AI tutor ----------
+let aiCtx = '';
+function renderAiLeft() { const l = (DATA.me && DATA.me.aiLeft) ?? 0; $('aiLeftPill').textContent = 'අද ' + l + ' ඉතුරුයි'; $('aiLeft2').textContent = 'අද ' + l + ' ඉතුරුයි'; }
+function openAsk() { go('askScr'); setTimeout(() => $('askIn').focus(), 200); }
+function askSug(b) { $('askIn').value = b.textContent; sendAsk(); }
+function askAboutQ(id, choice) {
+  const q = qById(id); if (!q) return;
+  aiCtx = 'Question: ' + q.q + '\nOptions: ' + q.o.map((o, i) => 'ABCDE'[i] + ') ' + o).join(' | ') + '\nCorrect answer: ' + 'ABCDE'[q.a] + '\nStudent chose: ' + (choice >= 0 ? 'ABCDE'[choice] : 'no answer (time up)') + '\nTeacher explanation: ' + q.ex;
+  addBubble('ctx', '🧩 ' + q.q);
+  $('askIn').value = choice >= 0 && choice !== q.a ? 'මම ' + 'ABCDE'[choice] + ' තේරුවා. ඒක වැරදි ඇයි? හරි උත්තරය පැහැදිලි කරන්න.' : 'මේ ප්‍රශ්නය step by step පැහැදිලි කරන්න.';
+  openAsk();
+}
+function addBubble(cls, text) { const b = document.createElement('div'); b.className = 'bub ' + cls; b.textContent = text; $('chat').appendChild(b); $('askSugs').style.display = 'none'; b.scrollIntoView({ behavior: 'smooth', block: 'end' }); return b; }
+async function sendAsk() {
+  const q = $('askIn').value.trim(); if (!q) return;
+  $('askIn').value = ''; addBubble('me', q);
+  const wait = addBubble('ai', '...'); wait.innerHTML = '<span class="spin sm"></span>හිතනවා...';
+  $('askBtn').disabled = true;
+  try {
+    let r;
+    if (DEMO) { await new Promise(res => setTimeout(res, 700)); r = { ok: true, ai: { ok: true, answer: 'Demo mode: ඇත්ත app එකේ AI ගුරු මෙතනට උත්තරය දෙනවා.', left: 19 } }; }
+    else r = await api('ask', { question: q, context: aiCtx });
+    const a = (r && r.ai) || {};
+    wait.textContent = a.answer || 'සමාවෙන්න, උත්තරයක් ගන්න බැරි වුණා.';
+    if (a.ok) { DATA.me.aiLeft = a.left; renderAiLeft(); }
+  } catch (e) { wait.textContent = '⚠️ Internet එක check කරලා ආයෙත් අහන්න.'; }
+  aiCtx = ''; $('askBtn').disabled = false;
+}
+$('askIn').addEventListener('keydown', e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendAsk(); } });
+
+// ---------- Leaderboard ----------
+let lbKey = 'week';
+function renderLB(k) {
+  const b = (DATA.leaderboard && DATA.leaderboard[k]) || { top: [], myRank: 0, total: 0 };
+  const top = b.top || []; const m = ['🥇', '🥈', '🥉'];
+  const slot = (i) => top[i] ? `<div class="pod ${i === 0 ? 'first' : ''} ${top[i].me ? 'me' : ''}"><div class="medal">${m[i]}</div><b>${esc(top[i].name)}${top[i].me ? ' (ඔබ)' : ''}</b><span class="muted" style="font-size:12px">${top[i].pts} ⭐</span></div>` : `<div class="pod"><div class="medal" style="opacity:.3">${m[i]}</div><b class="muted">–</b></div>`;
+  $('podium').innerHTML = [1, 0, 2].map(slot).join('');
+  const rest = top.slice(3);
+  $('lbList').style.display = rest.length ? 'block' : 'none';
+  $('lbList').innerHTML = rest.map(r => `<div class="lb-row ${r.me ? 'me' : ''}"><span class="rk">${r.rank}</span><div class="avatar" style="width:34px;height:34px;font-size:14px">${esc(r.name[0] || '?')}</div><b style="flex:1">${esc(r.name)}${r.me ? ' (ඔබ)' : ''}</b><span>${r.streak > 1 ? '🔥' + r.streak + ' ' : ''}${r.pts} ⭐</span></div>`).join('');
+  $('lbMine').textContent = b.myRank ? `ඔබ #${b.myRank} / ${b.total}` : (k === 'week' ? 'මේ සතියේ MCQ කරලා leaderboard එකට එන්න!' : '');
+}
+function lbTab(k) { lbKey = k; document.querySelectorAll('#lbTabs button').forEach(b => b.classList.toggle('on', b.dataset.k === k)); renderLB(k); }
+
+// ---------- Timetable ----------
+function renderTimetable() {
+  $('ttSub').textContent = DATA.batch + ' · ' + DATA.medium + ' medium';
+  const cs = (DATA.classes || []).slice().sort((a, b) => (a.dayNo || 9) - (b.dayNo || 9) || String(a.start).localeCompare(String(b.start)));
+  $('tt').innerHTML = cs.length ? cs.map(c => `<div class="day si">${esc(siDay(c.day))}</div><div class="card cls"><div class="time">${esc(c.start)}<div class="muted" style="font-size:12px;font-weight:400">${esc(c.end)}</div></div><div style="flex:1"><b>${esc(c.title)}</b><div class="muted" style="font-size:13px">${esc(c.mode)}${c.venue ? ' · ' + esc(c.venue) : ''}</div>${c.fee ? `<div class="muted si" style="font-size:12px">මාසික fees: LKR ${c.fee.toLocaleString('en-US')}</div>` : ''}</div></div>`).join('')
+    : '<div class="card muted si">ඔබේ batch එකට class එකක් නැහැ.</div>';
 }
 
-// ---------- Short notes (photos) ----------
-// Prototype: saved in this phone's browser storage (IndexedDB). Later: uploaded via n8n to cloud storage.
-const unitName = (id) => (UNITS.find(u => u.id === id) || { name: 'General' }).name;
-const unitIcon = (id) => (UNITS.find(u => u.id === id) || { ic: '📝' }).ic;
+// ---------- Profile ----------
+function renderProfile() {
+  const m = DATA.me || {};
+  $('pMcq').textContent = m.mcqTotal || 0;
+  $('pAcc').textContent = (m.mcqTotal ? Math.round(100 * m.mcqCorrect / m.mcqTotal) : 0) + '%';
+  $('pBest').textContent = '🔥 ' + (m.bestStreak || 0);
+  const us = (m.units || []).slice().sort((a, b) => b.t - a.t);
+  $('unitStats').innerHTML = us.length ? us.map(u => `<div style="margin-bottom:10px"><div class="row between" style="font-size:14px"><span>${unitIcon(u.unit)} ${esc(u.unit)} <span class="muted" style="font-size:12px">(${u.c}/${u.t})</span></span><b>${u.pct}%</b></div><div class="progress" style="margin:4px 0 0;height:8px"><div style="width:${u.pct}%;${u.pct < 50 ? 'background:var(--bad)' : ''}"></div></div></div>`).join('')
+    : '<div class="muted si" style="font-size:14px">MCQ කළාම මෙතන ඔබේ unit අනුව ප්‍රගතිය පෙනෙනවා.</div>';
+  const wk = DATA.leaderboard && DATA.leaderboard.week;
+  const B = [
+    ['🔥', '7-day streak', (m.bestStreak || 0) >= 7],
+    ['🧪', '100 MCQ', (m.mcqTotal || 0) >= 100],
+    ['🎯', '80% accuracy', m.mcqTotal >= 20 && m.mcqCorrect / m.mcqTotal >= 0.8],
+    ['👑', 'Top 3 week', wk && wk.myRank > 0 && wk.myRank <= 3]
+  ];
+  $('badges').innerHTML = B.map(b => `<div class="badge ${b[2] ? '' : 'locked'}"><div class="b">${b[0]}</div>${b[1]}</div>`).join('');
+  const f = DATA.fees || {};
+  $('feeBox').innerHTML = `<div class="row between"><div><div class="muted si" style="font-size:13px">💳 ${monthName(f.thisMonth)} fees</div><b class="si" style="color:${f.paid ? 'var(--good)' : 'var(--bad)'}">${f.paid ? '✅ ගෙවා ඇත' : '⏳ තවම සටහන් වෙලා නැහැ'}</b></div><span class="pill">${esc(f.paidMonth || '—')}</span></div>` +
+    (f.paid ? '' : `<div class="muted si" style="font-size:13px;margin-top:8px">ගෙව්වා නම් bank slip එකේ photo එක bot එකට එවන්න. ගුරුතුමා තහවුරු කළාම මෙතන ✅ වෙනවා.</div><button class="btn ghost si" style="margin-top:10px" onclick="openBot()">🧾 Slip එක bot එකට එවන්න</button>`);
+}
+function openPrivacy() {
+  const url = new URL('privacy.html', location.href).href;
+  try { if (tg && tg.openLink && tg.initData) return tg.openLink(url); } catch (e) {}
+  window.open(url, '_blank');
+}
+function deleteMyData() {
+  ask('ඔබේ ලියාපදිංචිය, ලකුණු සහ bot එකට එවූ ප්‍රශ්න මකන්න bot එකට යනවා. ඉදිරියට යන්නද?', ok => ok && openBot('deleteme'));
+}
+function clearNotes() {
+  ask('මේ phone එකේ ඔබේ short notes ඔක්කොම මකන්නද? ආපහු ගන්න බැහැ.', async ok => {
+    if (!ok) return;
+    for (const n of notes) await dbDel(n.id);
+    await loadNotes(); toast('🧹 Notes මැකුවා');
+  });
+}
+
+// ---------- Short notes (photos, this phone only) ----------
+const unitName = (id) => id || 'General';
 let notes = [], noteFilter = 'all', draft = null, viewing = null;
 const memStore = [];
 function db() {
   return new Promise((res, rej) => {
     try {
-      // One storage per student, so two students on the same phone never see each other's notes
       const r = indexedDB.open('chembuddy_' + (me && me.id ? me.id : 'guest'), 1);
       r.onupgradeneeded = () => r.result.createObjectStore('notes', { keyPath: 'id' });
       r.onsuccess = () => res(r.result); r.onerror = () => rej(r.error);
     } catch (e) { rej(e); }
   });
 }
-async function dbAll() {
-  try { const d = await db(); return await new Promise((res, rej) => { const q = d.transaction('notes').objectStore('notes').getAll(); q.onsuccess = () => res(q.result); q.onerror = () => rej(q.error); }); }
-  catch (e) { return memStore; }
-}
-async function dbPut(n) {
-  try { const d = await db(); await new Promise((res, rej) => { const t = d.transaction('notes', 'readwrite'); t.objectStore('notes').put(n); t.oncomplete = res; t.onerror = () => rej(t.error); }); }
-  catch (e) { memStore.push(n); }
-}
-async function dbDel(id) {
-  try { const d = await db(); await new Promise((res, rej) => { const t = d.transaction('notes', 'readwrite'); t.objectStore('notes').delete(id); t.oncomplete = res; t.onerror = () => rej(t.error); }); }
-  catch (e) { const i = memStore.findIndex(n => n.id === id); if (i >= 0) memStore.splice(i, 1); }
-}
-async function loadNotes() {
-  notes = (await dbAll()).sort((a, b) => b.created - a.created);
-  renderNotes();
-  document.getElementById('homeNoteCount').textContent = notes.length + ' notes';
-}
-
-// Shrink photo so it stays small (max 1280px, JPEG)
+async function dbAll() { try { const d = await db(); return await new Promise((res, rej) => { const q = d.transaction('notes').objectStore('notes').getAll(); q.onsuccess = () => res(q.result); q.onerror = () => rej(q.error); }); } catch (e) { return memStore; } }
+async function dbPut(n) { try { const d = await db(); await new Promise((res, rej) => { const t = d.transaction('notes', 'readwrite'); t.objectStore('notes').put(n); t.oncomplete = res; t.onerror = () => rej(t.error); }); } catch (e) { memStore.push(n); } }
+async function dbDel(id) { try { const d = await db(); await new Promise((res, rej) => { const t = d.transaction('notes', 'readwrite'); t.objectStore('notes').delete(id); t.oncomplete = res; t.onerror = () => rej(t.error); }); } catch (e) { const i = memStore.findIndex(n => n.id === id); if (i >= 0) memStore.splice(i, 1); } }
+async function loadNotes() { notes = (await dbAll()).sort((a, b) => b.created - a.created); renderNotes(); $('homeNoteCount').textContent = notes.length + ' notes'; }
 async function compress(file) {
   const url = URL.createObjectURL(file);
   const img = await new Promise((res, rej) => { const i = new Image(); i.onload = () => res(i); i.onerror = rej; i.src = url; });
@@ -613,180 +802,153 @@ async function compress(file) {
   URL.revokeObjectURL(url);
   return c.toDataURL('image/jpeg', 0.8);
 }
-
 let pendingCtx = {};
-// 📸 opens the live in-app camera; if the phone/Telegram blocks it, fall back to the photo picker
 let camStream = null, camFacing = 'environment';
-function pickPhoto(ctx) { pendingCtx = ctx || {}; closeSheet(true); openCamera(); }
-function openGallery() { const inp = document.getElementById('photoIn'); inp.value = ''; inp.click(); }
+function pickPhoto(ctx) { pendingCtx = ctx || {}; closeSheet(); openCamera(); }
+function openGallery() { const inp = $('photoIn'); inp.value = ''; inp.click(); }
 async function openCamera() {
   if (!(navigator.mediaDevices && navigator.mediaDevices.getUserMedia)) { toast('Camera එක open කරන්න බැහැ. Gallery එකෙන් තෝරන්න.'); return openGallery(); }
   try {
     stopStream();
     camStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: { ideal: camFacing }, width: { ideal: 1920 }, height: { ideal: 1080 } }, audio: false });
-    const v = document.getElementById('camVideo'); v.srcObject = camStream; await v.play().catch(() => {});
-    document.getElementById('cam').classList.add('show');
-  } catch (e) {
-    toast('Camera අවසරය නැහැ. Gallery එකෙන් තෝරන්න.');
-    openGallery();
-  }
+    const v = $('camVideo'); v.srcObject = camStream; await v.play().catch(() => {});
+    $('cam').classList.add('show');
+  } catch (e) { toast('Camera අවසරය නැහැ. Gallery එකෙන් තෝරන්න.'); openGallery(); }
 }
 function stopStream() { if (camStream) { camStream.getTracks().forEach(t => t.stop()); camStream = null; } }
-function closeCamera() { stopStream(); document.getElementById('cam').classList.remove('show'); }
+function closeCamera() { stopStream(); $('cam').classList.remove('show'); }
 function flipCamera() { camFacing = camFacing === 'environment' ? 'user' : 'environment'; openCamera(); }
 function snap() {
-  const v = document.getElementById('camVideo'); if (!v.videoWidth) return;
+  const v = $('camVideo'); if (!v.videoWidth) return;
   const s = Math.min(1, 1280 / Math.max(v.videoWidth, v.videoHeight));
   const c = document.createElement('canvas'); c.width = Math.round(v.videoWidth * s); c.height = Math.round(v.videoHeight * s);
   c.getContext('2d').drawImage(v, 0, 0, c.width, c.height);
-  const f = document.getElementById('flash'); f.style.opacity = '.8'; setTimeout(() => f.style.opacity = '0', 120);
+  const f = $('flash'); f.style.opacity = '.8'; setTimeout(() => f.style.opacity = '0', 120);
   haptic('success');
   const img = c.toDataURL('image/jpeg', 0.8);
-  closeCamera();
-  openSheet(img, pendingCtx);
+  closeCamera(); openSheet(img, pendingCtx);
 }
-document.getElementById('photoIn').addEventListener('change', async (e) => {
-  const f = e.target.files && e.target.files[0]; if (!f) return;
-  const img = await compress(f);
-  openSheet(img, pendingCtx);
-});
+$('photoIn').addEventListener('change', async (e) => { const f = e.target.files && e.target.files[0]; if (!f) return; openSheet(await compress(f), pendingCtx); });
 
-// Two kinds of note:
-//  problem = photo attached to ONE question (qid)  ·  theory = photo filed under a unit/category
 let noteTab = 'problem';
 const noteType = (n) => n.type || (n.qid || n.question ? 'problem' : 'theory');
 const problemNote = (qid) => notes.find(n => noteType(n) === 'problem' && n.qid === qid);
 const fmtDate = (t) => new Date(t).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' });
+const noteUnits = () => { const u = unitsList().map(x => x.id); notes.forEach(n => { if (n.unit && !u.includes(n.unit)) u.push(n.unit); }); return u.length ? u : ['General']; };
 
 function openSheet(img, ctx) {
   draft = { img, ctx };
   const q = ctx.qid ? qById(ctx.qid) : null;
-  document.getElementById('shImg').src = img;
-  document.getElementById('shHead').textContent = q ? '🧩 ප්‍රශ්නයට note එකක්' : '📚 Theory note එකක්';
-  const lk = document.getElementById('shLinked');
-  lk.style.display = q ? 'block' : 'none';
-  lk.textContent = q ? '🔗 ' + q.q : '';
-  // Problem note: no category to choose (it belongs to the question). Theory note: pick the unit.
-  const title = document.getElementById('shTitle'), sel = document.getElementById('shUnit');
+  $('shImg').src = img;
+  $('shHead').textContent = q ? '🧩 ප්‍රශ්නයට note එකක්' : '📚 Theory note එකක්';
+  const lk = $('shLinked'); lk.style.display = q ? 'block' : 'none'; lk.textContent = q ? '🔗 ' + q.q : '';
+  const title = $('shTitle'), sel = $('shUnit');
   title.value = '';
   title.placeholder = q ? 'මතක් කරගන්න කෙටි වචනයක් (optional)' : 'Note එකේ නම (උදා: VSEPR shapes)';
   sel.style.display = q ? 'none' : 'block';
-  const unit = ctx.unit && ctx.unit !== 'all' && ctx.unit !== 'mixed' ? ctx.unit : UNITS[0].id;
-  sel.innerHTML = UNITS.map(u => `<option value="${u.id}" ${u.id === unit ? 'selected' : ''}>${u.ic} ${u.name}</option>`).join('');
-  document.getElementById('ov').classList.add('show');
-  document.getElementById('sheet').classList.add('show');
+  const us = noteUnits();
+  const unit = ctx.unit && us.includes(ctx.unit) ? ctx.unit : us[0];
+  sel.innerHTML = us.map(u => `<option value="${esc(u)}" ${u === unit ? 'selected' : ''}>${unitIcon(u)} ${esc(u)}</option>`).join('');
+  $('ov').classList.add('show'); $('sheet').classList.add('show');
 }
-function closeSheet() { document.getElementById('ov').classList.remove('show'); document.getElementById('sheet').classList.remove('show'); draft = null; }
+function closeSheet() { $('ov').classList.remove('show'); $('sheet').classList.remove('show'); draft = null; }
 async function saveNote() {
   if (!draft) return;
   const q = draft.ctx.qid ? qById(draft.ctx.qid) : null;
-  const typed = document.getElementById('shTitle').value.trim();
+  const typed = $('shTitle').value.trim();
   const n = q
     ? { id: 'n' + Date.now(), type: 'problem', img: draft.img, qid: q.id, unit: q.unit, question: q.q, answer: q.o[q.a], title: typed || q.q.slice(0, 50), created: Date.now() }
-    : { id: 'n' + Date.now(), type: 'theory', img: draft.img, unit: document.getElementById('shUnit').value, title: typed || 'Theory note', created: Date.now() };
-  // One note per question: a new photo replaces the old one
+    : { id: 'n' + Date.now(), type: 'theory', img: draft.img, unit: $('shUnit').value, title: typed || 'Theory note', created: Date.now() };
   const old = q && problemNote(q.id);
   if (old) await dbDel(old.id);
   await dbPut(n);
   closeSheet(); haptic('success');
-  await loadNotes(); showUnitHint();
-  refreshQuizNoteButtons();
+  await loadNotes(); showUnitHint(); refreshQuizNoteButtons();
   toast('✅ Note එක save වුණා!');
 }
-// After saving from inside a quiz, swap "📸 add" buttons to "📒 view"
 function refreshQuizNoteButtons() {
-  const ex = document.getElementById('qExplain');
-  if (ex.classList.contains('show') && qs[qi]) {
-    const q = qs[qi]; const old = ex.querySelector('.snap'); if (old) old.outerHTML = noteButton(q, true);
-  }
-  if (document.getElementById('quizDone').style.display === 'block') renderWrongList();
+  const ex = $('qExplain');
+  if (ex.classList.contains('show') && qs[qi]) { const q = qs[qi]; const old = ex.querySelector('.snap:not(.ai)'); if (old) old.outerHTML = noteButton(q, true); }
+  if ($('quizDone').style.display === 'block') renderWrongList();
 }
-
 function setNoteTab(t) {
   noteTab = t; noteFilter = 'all';
   document.querySelectorAll('#noteTabs button').forEach(b => b.classList.toggle('on', b.dataset.t === t));
-  document.getElementById('fab').classList.toggle('show', t === 'theory' && document.getElementById('notes').classList.contains('active'));
+  $('fab').classList.toggle('show', t === 'theory' && $('notes').classList.contains('active'));
   renderNotes();
 }
 function renderNotes() {
   const probs = notes.filter(n => noteType(n) === 'problem');
   const theo = notes.filter(n => noteType(n) === 'theory');
-  document.querySelectorAll('#noteTabs button').forEach(b => {
-    b.textContent = b.dataset.t === 'problem' ? `🧩 ප්‍රශ්න notes (${probs.length})` : `📚 Theory notes (${theo.length})`;
-  });
-  const intro = document.getElementById('noteIntro'), chips = document.getElementById('noteChips'), box = document.getElementById('notesList');
+  document.querySelectorAll('#noteTabs button').forEach(b => { b.textContent = b.dataset.t === 'problem' ? `🧩 ප්‍රශ්න notes (${probs.length})` : `📚 Theory notes (${theo.length})`; });
+  const intro = $('noteIntro'), chips = $('noteChips'), box = $('notesList');
   if (noteTab === 'problem') {
     intro.textContent = 'MCQ වලදී වැරදුණ ප්‍රශ්න වලට දාපු notes. Note එක tap කරලා ප්‍රශ්නය ආයෙත් කරන්න පුළුවන්.';
     chips.innerHTML = '';
     box.innerHTML = probs.length
-      ? probs.map(n => `<button class="pnote" onclick="openViewer('${n.id}')"><img src="${n.img}" alt=""><div style="min-width:0"><div class="q">${esc(n.question)}</div><div class="m">${unitIcon(n.unit)} ${unitName(n.unit)} · ${fmtDate(n.created)}</div></div></button>`).join('')
-      : `<div class="empty si"><div class="ic">🧩</div><b>තාම ප්‍රශ්න notes නැහැ</b><div style="font-size:13px;margin:6px 0 14px">MCQ එකක ප්‍රශ්නයක් වැරදුණාම "📸 මේකට short note එකක් දාන්න" ඔබන්න.</div><button class="btn" onclick="go('quiz')">🧪 MCQ කරන්න</button></div>`;
+      ? probs.map(n => `<button class="pnote" onclick="openViewer('${n.id}')"><img src="${n.img}" alt=""><div style="min-width:0"><div class="q">${esc(n.question)}</div><div class="m">${unitIcon(n.unit)} ${esc(unitName(n.unit))} · ${fmtDate(n.created)}</div></div></button>`).join('')
+      : `<div class="empty si"><div class="ic">🧩</div><b>තාම ප්‍රශ්න notes නැහැ</b><div style="font-size:13px;margin:6px 0 14px">MCQ එකක ප්‍රශ්නයක් වැරදුණාම "📸 Short note එකක් දාන්න" ඔබන්න.</div><button class="btn" onclick="go('quiz')">🧪 MCQ කරන්න</button></div>`;
     return;
   }
   intro.textContent = 'Unit එක අනුව ඔබේ theory notes. 📸 බොත්තමෙන් අලුත් එකක් දාන්න.';
   const counts = {}; theo.forEach(n => counts[n.unit] = (counts[n.unit] || 0) + 1);
   chips.innerHTML = `<button class="chip ${noteFilter === 'all' ? 'on' : ''}" onclick="setNoteFilter('all')">සියල්ල (${theo.length})</button>` +
-    UNITS.map(u => `<button class="chip ${noteFilter === u.id ? 'on' : ''}" onclick="setNoteFilter('${u.id}')">${u.ic} ${u.name} (${counts[u.id] || 0})</button>`).join('');
+    noteUnits().map(u => `<button class="chip ${noteFilter === u ? 'on' : ''}" onclick='setNoteFilter(${JSON.stringify(u).replace(/'/g, "&#39;")})'>${unitIcon(u)} ${esc(u)} (${counts[u] || 0})</button>`).join('');
   const list = noteFilter === 'all' ? theo : theo.filter(n => n.unit === noteFilter);
   box.innerHTML = list.length
     ? '<div class="notes-grid">' + list.map(n => `<button class="note" onclick="openViewer('${n.id}')"><img src="${n.img}" alt=""><div class="meta"><b>${esc(n.title)}</b><span>${unitIcon(n.unit)} ${fmtDate(n.created)}</span></div></button>`).join('') + '</div>'
     : `<div class="empty si"><div class="ic">📚</div><b>මේ කොටසේ theory notes නැහැ</b><div style="font-size:13px;margin:6px 0 14px">ඔබේ පොතේ theory note එකක photo එකක් ගන්න.</div><button class="btn" onclick="pickPhoto({ theory: true, unit: noteFilter })">📸 Theory note එකක් දාන්න</button></div>`;
 }
 function setNoteFilter(f) { noteFilter = f; renderNotes(); }
-function esc(t) { return String(t).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c])); }
-
 function openViewer(id) {
   viewing = notes.find(n => n.id === id); if (!viewing) return;
   const isProb = noteType(viewing) === 'problem';
-  document.getElementById('vImg').src = viewing.img;
-  document.getElementById('vTitle').textContent = isProb ? '🧩 ප්‍රශ්න note' : viewing.title;
-  document.getElementById('vMeta').textContent = isProb
+  $('vImg').src = viewing.img;
+  $('vTitle').textContent = isProb ? '🧩 ප්‍රශ්න note' : viewing.title;
+  $('vMeta').textContent = isProb
     ? '❓ ' + viewing.question + (viewing.answer ? '\n✅ හරි උත්තරය: ' + viewing.answer : '') + '\n' + unitIcon(viewing.unit) + ' ' + unitName(viewing.unit) + ' · ' + fmtDate(viewing.created)
     : unitIcon(viewing.unit) + ' ' + unitName(viewing.unit) + ' · ' + new Date(viewing.created).toLocaleString('en-GB');
-  document.getElementById('vRetry').style.display = isProb && viewing.qid && qById(viewing.qid) ? 'block' : 'none';
-  document.getElementById('viewer').classList.add('show');
+  $('vRetry').style.display = isProb && viewing.qid && qById(viewing.qid) ? 'block' : 'none';
+  $('viewer').classList.add('show');
 }
-function retryFromViewer() {
-  const id = viewing && viewing.qid; closeViewer(); if (!id) return;
-  go('quiz'); startQuiz(qById(id).unit, [id]);
-}
-function closeViewer() { document.getElementById('viewer').classList.remove('show'); viewing = null; }
-async function deleteNote() {
-  if (!viewing) return;
-  const go2 = () => dbDel(viewing.id).then(() => { closeViewer(); loadNotes(); });
-  ask('මේ note එක delete කරන්නද?', ok => ok && go2());
-}
-
-// In a quiz: "you have N theory notes for this unit" -> open them
+function retryFromViewer() { const id = viewing && viewing.qid; closeViewer(); if (!id) return; go('quiz'); startQuiz(qById(id).unit, [id]); }
+function closeViewer() { $('viewer').classList.remove('show'); viewing = null; }
+async function deleteNote() { if (!viewing) return; const v = viewing; ask('මේ note එක delete කරන්නද?', ok => ok && dbDel(v.id).then(() => { closeViewer(); loadNotes(); })); }
 function showUnitHint() {
-  const h = document.getElementById('qNoteHint');
-  const n = quizUnit === 'mixed' ? 0 : notes.filter(x => noteType(x) === 'theory' && x.unit === quizUnit).length;
+  const h = $('qNoteHint');
+  const n = ['mixed', 'new'].includes(quizUnit) ? 0 : notes.filter(x => noteType(x) === 'theory' && x.unit === quizUnit).length;
   h.classList.toggle('show', n > 0);
-  h.innerHTML = `📚 <b>${unitName(quizUnit)}</b> theory notes ${n}ක් තියෙනවා → බලන්න`;
+  h.innerHTML = `📚 <b>${esc(unitName(quizUnit))}</b> theory notes ${n}ක් තියෙනවා → බලන්න`;
 }
 function openUnitNotes() { go('notes'); setNoteTab('theory'); noteFilter = quizUnit; renderNotes(); }
 
-login();
-
-// ---------- Leaderboard ----------
-function renderLB(k) {
-  const d = LB[k]; const m = ['🥇', '🥈', '🥉'];
-  const order = [1, 0, 2];
-  document.getElementById('podium').innerHTML = order.map(i =>
-    `<div class="pod ${i === 0 ? 'first' : ''}"><div class="medal">${m[i]}</div><b>${d[i][0]}</b><span class="muted" style="font-size:12px">${d[i][1]} ⭐</span></div>`).join('');
-  document.getElementById('lbList').innerHTML = d.slice(3).map((r, i) =>
-    `<div class="lb-row ${r[2] ? 'me' : ''}"><span class="rk">${i + 4}</span><div class="avatar" style="width:34px;height:34px;font-size:14px">${r[0][0]}</div><b style="flex:1">${r[0]}${r[2] ? ' (ඔබ)' : ''}</b><span>${r[1]} ⭐</span></div>`).join('');
+// ---------- Demo data (only for ?demo=1 or opening the file directly) ----------
+function demoData() {
+  const Q = [
+    ['Atomic structure', 'How many unpaired electrons does a ground-state Fe atom (Z = 26) have?', ['2', '3', '4', '5', '6'], 2, 'Fe is [Ar] 3d⁶ 4s². 3d⁶ → 4 unpaired electrons.'],
+    ['Atomic structure', 'Which set of quantum numbers (n, l, mₗ) is NOT allowed?', ['1, 0, 0', '2, 1, -1', '3, 2, 2', '2, 2, 0', '4, 3, -3'], 3, 'l must be smaller than n.'],
+    ['Chemical bonding', 'Which of the following molecules is non-polar?', ['H₂O', 'CO₂', 'NH₃', 'HCl', 'SO₂'], 1, 'CO₂ is linear, dipoles cancel.'],
+    ['Chemical bonding', 'What is the hybridisation of each carbon in ethyne?', ['sp³', 'sp²', 'dsp²', 'sp³d', 'sp'], 4, 'Two σ bonds in a line → sp.'],
+    ['Mole concept', 'Mass of 0.25 mol CaCO₃? (Ca 40, C 12, O 16)', ['25 g', '10 g', '50 g', '20 g', '100 g'], 0, '0.25 × 100 = 25 g.'],
+    ['Gaseous state', 'Ideal gas heated from 27 °C to 327 °C at constant P. Volume…', ['halves', 'doubles', 'same', '×12', '÷4'], 1, '300 K → 600 K, V doubles.'],
+    ['Redox', 'Oxidation number of Mn in KMnO₄?', ['+2', '+4', '+6', '+3', '+7'], 4, '+1 + x − 8 = 0 → +7.']
+  ].map((r, i) => ({ id: 'D' + i, unit: r[0], q: r[1], o: r[2], a: r[3], ex: r[4] }));
+  const today = new Date().toISOString().slice(0, 10);
+  return {
+    ok: true, status: 'ACTIVE', name: 'Kasun Perera', firstName: 'Kasun', batch: 'A/L 2027', medium: 'Sinhala', today, examDate: '2027-08-10',
+    questions: Q, classes: [{ title: 'Chemistry - A/L 2027 (Theory)', day: 'Sunday', dayNo: 7, start: '08:00', end: '12:00', mode: 'Both', venue: 'Main Hall / Zoom', fee: 3000 }],
+    nextClass: { title: 'Chemistry - A/L 2027 (Theory)', day: 'Sunday', start: '08:00', end: '12:00', mode: 'Both', venue: 'Main Hall / Zoom', at: new Date(Date.now() + 86400000).toISOString() },
+    announcements: [{ date: today, msg: 'A/L 2027 practical session (Titration) on Saturday 2pm at the lab.' }],
+    fees: { paidMonth: '', thisMonth: today.slice(0, 7), paid: false, dueDay: 10 },
+    me: { points: 340, weekPoints: 120, streak: 4, bestStreak: 9, doneToday: false, mcqTotal: 58, mcqCorrect: 44, done: ['D0', 'D2'], units: [{ unit: 'Atomic structure', t: 20, c: 16, pct: 80 }, { unit: 'Chemical bonding', t: 18, c: 12, pct: 67 }, { unit: 'Redox', t: 8, c: 3, pct: 38 }], aiLeft: 20 },
+    leaderboard: {
+      week: { top: [['Nethmi S.', 180], ['Dulaj P.', 150], ['Kasun P.', 120, true], ['Sachini R.', 95], ['Hasitha K.', 60]].map((r, i) => ({ rank: i + 1, name: r[0], pts: r[1], streak: 2, me: !!r[2] })), myRank: 3, total: 5 },
+      all: { top: [['Dulaj P.', 820], ['Nethmi S.', 610], ['Kasun P.', 340, true]].map((r, i) => ({ rank: i + 1, name: r[0], pts: r[1], streak: 0, me: !!r[2] })), myRank: 3, total: 3 }
+    }
+  };
 }
-function lbTab(btn, k) { document.querySelectorAll('.tabs button').forEach(b => b.classList.toggle('on', b === btn)); renderLB(k); }
-renderLB('week');
 
-// ---------- Timetable ----------
-document.getElementById('tt').innerHTML = TIMETABLE.map(d => `<div class="day si">${d.day}</div>` + d.items.map(c =>
-  `<div class="card cls"><div class="time">${c.t}</div><div style="flex:1"><b>${c.n}</b><div class="muted" style="font-size:13px">${c.p}</div>${c.tag ? `<span class="tag ${c.tag[0]}">${c.tag[1]}</span>` : ''}</div></div>`).join('')).join('');
-
-// ---------- Profile ----------
-document.getElementById('unitStats').innerHTML = UNITS.map(u =>
-  `<div style="margin-bottom:10px"><div class="row between" style="font-size:14px"><span>${u.ic} ${u.name}</span><b>${u.done}%</b></div><div class="progress" style="margin:4px 0 0;height:8px"><div style="width:${u.done}%"></div></div></div>`).join('');
+login();
 </script>
 </body>
 </html>
