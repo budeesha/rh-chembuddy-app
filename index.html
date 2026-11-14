@@ -100,6 +100,11 @@
   .lb-row:last-child { border-bottom: 0; }
   .lb-row .rk { width: 24px; text-align: center; font-weight: 800; color: var(--muted); }
   .lb-row.me { background: color-mix(in srgb, var(--accent) 14%, transparent); border-radius: 10px; }
+  .aichip { display: inline-block; font-size: 9px; font-weight: 700; letter-spacing: .3px; padding: 1px 5px; border-radius: 5px; margin-left: 5px; vertical-align: middle; color: var(--muted); border: 1px solid color-mix(in srgb, var(--muted) 45%, transparent); }
+  .rival { border-left: 4px solid var(--chem); }
+  .live { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; color: var(--muted); }
+  .live i { width: 8px; height: 8px; border-radius: 50%; background: var(--good); box-shadow: 0 0 0 0 rgba(47,191,113,.6); animation: pulse 1.8s infinite; }
+  @keyframes pulse { 70% { box-shadow: 0 0 0 7px rgba(47,191,113,0); } 100% { box-shadow: 0 0 0 0 rgba(47,191,113,0); } }
 
   .day { font-weight: 700; margin: 14px 0 8px; }
   .cls { display: flex; gap: 12px; }
@@ -236,6 +241,8 @@
       <button class="btn" style="margin-top:12px" onclick="go('quiz')">⚡ MCQ පටන් ගන්න</button>
     </div>
 
+    <div class="card rival tap" id="rivalCard" style="display:none" onclick="go('quiz')"></div>
+
     <div class="card fee-due tap" id="feeCard" style="display:none" onclick="go('me')"></div>
 
     <div class="card class-next tap" id="nextCard" onclick="go('time')"></div>
@@ -260,7 +267,7 @@
   <section class="screen" id="quiz">
     <div id="quizPick">
       <h2 style="margin:4px 0 4px">🧪 MCQ Arena</h2>
-      <p class="muted si" style="margin:0 0 14px">Unit එකක් තෝරලා ප්‍රශ්න 5ක් කරන්න. පළමු වතාවේ හරි උත්තරයකට ⭐10, වැරදුණත් ⭐2. දවසේ පළමු quiz එකට +5 bonus.</p>
+      <p class="muted si" style="margin:0 0 14px">Unit එකක් තෝරලා ප්‍රශ්න 5ක් කරන්න. පළමු වතාවේ හරි උත්තරයකට ⭐10, වැරදුණත් ⭐2. ආයෙත් කරද්දී හරි නම් ⭐1. දවසේ පළමු quiz එකට +5 bonus.</p>
       <button class="btn" id="newBtn" style="margin-bottom:12px" onclick="startQuiz('new')">🆕 අලුත් ප්‍රශ්න</button>
       <div class="units-grid" id="unitGrid"></div>
       <button class="btn ghost" onclick="startQuiz('mixed')">🎲 Mixed paper</button>
@@ -317,6 +324,7 @@
     <div class="podium" id="podium"></div>
     <div class="card" id="lbList" style="padding:8px 12px"></div>
     <p class="muted si" style="font-size:12px;text-align:center" id="lbMine"></p>
+    <p class="muted si" style="font-size:11px;text-align:center"><span class="aichip" style="margin:0 4px 0 0">AI</span> = ChemBuddy League practice rivals. ඔවුන්ව පරද්දලා ඉහළට යන්න! 💪</p>
   </section>
 
   <!-- ===== NOTES ===== -->
@@ -530,6 +538,13 @@ function renderHome() {
   $('goalTxt').textContent = Math.min(done, goal) + ' / ' + goal + ' MCQ';
   $('goalBar').style.width = Math.min(100, done / goal * 100) + '%';
   $('goalMsg').textContent = done >= goal ? '🎉 අද ඉලක්කය සම්පූර්ණයි! නියමයි!' : (m.doneToday ? 'අද streak එක ✅. තව ප්‍රශ්න ' + (goal - done) + 'ක් කරලා ඉලක්කය ඉවර කරන්න!' : 'අද එක quiz එකක් කළොත් streak එක ' + ((m.streak || 0) + 1) + ' වෙනවා!');
+  // Daily rival goal (the player just above me this week)
+  const rv = m.rival, rc = $('rivalCard');
+  if (rv) {
+    rc.style.display = 'block';
+    rc.innerHTML = `<div class="row between"><h3 class="si">🥊 අද rival: ${esc(rv.name)}${rv.ai ? '<span class="aichip">AI</span>' : ''}</h3><span class="live"><i></i>${d.activeToday || 0} අද active</span></div><div class="si" style="font-size:14px;margin-top:6px">මේ සතියේ ඔබට ඉහළින්ම ඉන්නේ ${esc(rv.name)} — පරද්දන්න තව <b>${rv.gap} points</b> ඕනේ 💪</div><div class="muted si" style="font-size:12px;margin-top:4px">අලුත් ප්‍රශ්න 2–3ක් හරියට කළොත් ඇති!</div>`;
+  } else if (m.points) { rc.style.display = 'block'; rc.innerHTML = '<h3 class="si">👑 මේ සතියේ ඔබ #1!</h3><div class="muted si" style="font-size:13px;margin-top:4px">තැන රැකගන්න අද MCQ ටිකක් කරන්න.</div>'; }
+  else rc.style.display = 'none';
   // Fees
   const f = d.fees || {}, fc = $('feeCard');
   const dayNo = Number(String(d.today || '').slice(8, 10)) || 1;
@@ -653,7 +668,8 @@ async function submitResult(list) {
     applyServer(r);
     box.textContent = lr.dailyBonus ? '🔥 අද දවසේ පළමු quiz එක: +' + lr.dailyBonus + ' bonus!' : '✅ Save වුණා';
     $('rPts').textContent = '+' + (lr.gained || 0) + ' ⭐ · මුළු ' + (lr.points || 0) + (lr.streak > 1 ? ' · 🔥 ' + lr.streak : '');
-    if (!lr.gained) box.textContent = 'ℹ️ මේ ප්‍රශ්න කලින් කරපු ඒවා නිසා අලුත් points නැහැ. 🆕 අලුත් ප්‍රශ්න කරන්න!';
+    if (lr.gained && lr.gained < 6 && !lr.dailyBonus) box.textContent = 'ℹ️ කලින් කරපු ප්‍රශ්න නිසා points අඩුයි. වැඩිපුර points වලට 🆕 අලුත් ප්‍රශ්න කරන්න!';
+    if (!lr.gained) box.textContent = 'ℹ️ මේ පාර points නැහැ. 🆕 අලුත් ප්‍රශ්න කරන්න!';
   } catch (e) {
     const k = 'cb_pending_' + me.id; const p = store.get(k, []); p.push(list); store.set(k, p);
     box.innerHTML = '⚠️ Internet නැති නිසා save වුණේ නැහැ. App එක ආයෙත් open කළාම ඉබේම save වෙනවා.';
@@ -714,11 +730,12 @@ let lbKey = 'week';
 function renderLB(k) {
   const b = (DATA.leaderboard && DATA.leaderboard[k]) || { top: [], myRank: 0, total: 0 };
   const top = b.top || []; const m = ['🥇', '🥈', '🥉'];
-  const slot = (i) => top[i] ? `<div class="pod ${i === 0 ? 'first' : ''} ${top[i].me ? 'me' : ''}"><div class="medal">${m[i]}</div><b>${esc(top[i].name)}${top[i].me ? ' (ඔබ)' : ''}</b><span class="muted" style="font-size:12px">${top[i].pts} ⭐</span></div>` : `<div class="pod"><div class="medal" style="opacity:.3">${m[i]}</div><b class="muted">–</b></div>`;
+  const chip = (r) => r.ai ? '<span class="aichip">AI</span>' : '';
+  const slot = (i) => top[i] ? `<div class="pod ${i === 0 ? 'first' : ''} ${top[i].me ? 'me' : ''}"><div class="medal">${m[i]}</div><b>${esc(top[i].name)}${top[i].me ? ' (ඔබ)' : ''}</b>${chip(top[i])}<br><span class="muted" style="font-size:12px">${top[i].pts} ⭐</span></div>` : `<div class="pod"><div class="medal" style="opacity:.3">${m[i]}</div><b class="muted">–</b></div>`;
   $('podium').innerHTML = [1, 0, 2].map(slot).join('');
   const rest = top.slice(3);
   $('lbList').style.display = rest.length ? 'block' : 'none';
-  $('lbList').innerHTML = rest.map(r => `<div class="lb-row ${r.me ? 'me' : ''}"><span class="rk">${r.rank}</span><div class="avatar" style="width:34px;height:34px;font-size:14px">${esc(r.name[0] || '?')}</div><b style="flex:1">${esc(r.name)}${r.me ? ' (ඔබ)' : ''}</b><span>${r.streak > 1 ? '🔥' + r.streak + ' ' : ''}${r.pts} ⭐</span></div>`).join('');
+  $('lbList').innerHTML = rest.map(r => `<div class="lb-row ${r.me ? 'me' : ''}"><span class="rk">${r.rank}</span><div class="avatar" style="width:34px;height:34px;font-size:14px">${esc(r.name[0] || '?')}</div><b style="flex:1">${esc(r.name)}${r.me ? ' (ඔබ)' : ''}${chip(r)}</b><span>${r.streak > 1 ? '<span class="muted" style="font-size:12px">🔥' + r.streak + '</span> · ' : ''}${r.pts} ⭐</span></div>`).join('');
   $('lbMine').textContent = b.myRank ? `ඔබ #${b.myRank} / ${b.total}` : (k === 'week' ? 'මේ සතියේ MCQ කරලා leaderboard එකට එන්න!' : '');
 }
 function lbTab(k) { lbKey = k; document.querySelectorAll('#lbTabs button').forEach(b => b.classList.toggle('on', b.dataset.k === k)); renderLB(k); }
@@ -917,10 +934,11 @@ function demoData() {
     nextClass: { title: 'Chemistry - A/L 2027 (Theory)', day: 'Sunday', start: '08:00', end: '12:00', mode: 'Both', venue: 'Main Hall / Zoom', at: new Date(Date.now() + 86400000).toISOString() },
     announcements: [{ date: today, msg: 'A/L 2027 practical session (Titration) on Saturday 2pm at the lab.' }],
     fees: { paidMonth: '', thisMonth: today.slice(0, 7), paid: false, dueDay: 10 },
-    me: { points: 340, weekPoints: 120, streak: 4, bestStreak: 9, doneToday: false, mcqTotal: 58, mcqCorrect: 44, done: ['D0', 'D2'], units: [{ unit: 'Atomic structure', t: 20, c: 16, pct: 80 }, { unit: 'Chemical bonding', t: 18, c: 12, pct: 67 }, { unit: 'Redox', t: 8, c: 3, pct: 38 }], aiLeft: 20 },
+    me: { points: 340, weekPoints: 120, streak: 4, bestStreak: 9, doneToday: false, mcqTotal: 58, mcqCorrect: 44, done: ['D0', 'D2'], units: [{ unit: 'Atomic structure', t: 20, c: 16, pct: 80 }, { unit: 'Chemical bonding', t: 18, c: 12, pct: 67 }, { unit: 'Redox', t: 8, c: 3, pct: 38 }], aiLeft: 20, rival: { name: 'Dulaj W.', ai: true, gap: 31 } },
+    activeToday: 14,
     leaderboard: {
-      week: { top: [['Nethmi S.', 180], ['Dulaj P.', 150], ['Kasun P.', 120, true], ['Sachini R.', 95], ['Hasitha K.', 60]].map((r, i) => ({ rank: i + 1, name: r[0], pts: r[1], streak: 2, me: !!r[2] })), myRank: 3, total: 5 },
-      all: { top: [['Dulaj P.', 820], ['Nethmi S.', 610], ['Kasun P.', 340, true]].map((r, i) => ({ rank: i + 1, name: r[0], pts: r[1], streak: 0, me: !!r[2] })), myRank: 3, total: 3 }
+      week: { top: [['Nethmi A.', 180, 0, 1], ['Dulaj W.', 150, 0, 1], ['Kasun P.', 120, true], ['Sachini R.', 95, 0, 1], ['Hasitha K.', 60]].map((r, i) => ({ rank: i + 1, name: r[0], pts: r[1], streak: 2, me: !!r[2], ai: !!r[3] })), myRank: 3, total: 5 },
+      all: { top: [['Dulaj W.', 820, 0, 1], ['Nethmi A.', 610, 0, 1], ['Kasun P.', 340, true]].map((r, i) => ({ rank: i + 1, name: r[0], pts: r[1], streak: 0, me: !!r[2], ai: !!r[3] })), myRank: 3, total: 3 }
     }
   };
 }
