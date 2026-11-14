@@ -161,6 +161,16 @@
   .viewer .vimg { flex: 1; display: flex; align-items: center; justify-content: center; overflow: auto; touch-action: pinch-zoom; }
   .viewer .vimg img { max-width: 100%; max-height: 100%; }
   .viewer .vbot { white-space: pre-line; padding: 12px 16px calc(12px + env(safe-area-inset-bottom)); color: #ccc; font-size: 13px; }
+  /* Login gate */
+  .gate { position: fixed; inset: 0; background: var(--bg); z-index: 60; display: none; align-items: center; justify-content: center; padding: 24px; }
+  .gate.show { display: flex; }
+  .gate-box { max-width: 360px; width: 100%; text-align: center; }
+  .gate-box .ic { font-size: 56px; }
+  .gate-box h2 { margin: 10px 0 6px; font-size: 20px; }
+  .gate-box p { color: var(--muted); margin: 0 0 18px; font-size: 14px; }
+  .spin { width: 42px; height: 42px; margin: 0 auto; border-radius: 50%; border: 4px solid color-mix(in srgb, var(--muted) 30%, transparent); border-top-color: var(--accent); animation: rot 0.9s linear infinite; }
+  @keyframes rot { to { transform: rotate(360deg); } }
+
   /* In-app camera */
   .cam { position: fixed; inset: 0; background: #000; z-index: 40; display: none; flex-direction: column; }
   .cam.show { display: flex; }
@@ -176,6 +186,14 @@
 </style>
 </head>
 <body>
+<!-- Login gate: shown until n8n confirms who this student is -->
+<div class="gate show" id="gate">
+  <div class="gate-box si" id="gateBox">
+    <div class="spin"></div>
+    <div class="muted" style="margin-top:14px">ඔබව හඳුනාගන්නවා...</div>
+  </div>
+</div>
+
 <div class="app">
 
   <!-- ===== HOME ===== -->
@@ -186,7 +204,7 @@
         <div class="muted si">ආයුබෝවන් 👋</div>
         <h1 id="hiName">Kasun</h1>
       </div>
-      <span class="pill" style="margin-left:auto">A/L 2027 · සිංහල</span>
+      <span class="pill" style="margin-left:auto" id="batchPill">A/L 2027 · සිංහල</span>
     </div>
 
     <div class="card countdown">
@@ -290,7 +308,7 @@
     <div class="card" style="text-align:center">
       <div class="avatar" style="width:72px;height:72px;font-size:28px;margin:0 auto 8px" id="av2">K</div>
       <h2 id="meName">Kasun Perera</h2>
-      <div class="muted">A/L 2027 · Sinhala · ✅ ACTIVE</div>
+      <div class="muted" id="meInfo">A/L 2027 · Sinhala · ✅ ACTIVE</div>
     </div>
     <div class="stats">
       <div class="stat"><b>128</b><span>MCQ</span></div>
@@ -316,7 +334,7 @@
     </div>
   </section>
 
-  <div class="demo-note">Prototype v2 · demo data · notes saved on this phone only</div>
+  <div class="demo-note">Prototype v3 · demo data · notes saved on this phone only</div>
 </div>
 
 <button class="fab" id="fab" onclick="pickPhoto({ theory: true, unit: noteFilter })" aria-label="Add theory note">📸</button>
@@ -369,10 +387,56 @@
 // ---------- Telegram setup ----------
 const tg = window.Telegram && window.Telegram.WebApp;
 if (tg) { tg.ready(); tg.expand(); }
-const tgUser = tg && tg.initDataUnsafe && tg.initDataUnsafe.user;
-if (tgUser) {
-  document.getElementById('hiName').textContent = tgUser.first_name;
-  document.getElementById('av').textContent = tgUser.first_name[0];
+// ---------- Config (one copy of the app per teacher bot) ----------
+const CONFIG = {
+  apiMe: 'https://budeeshasamarakoon.app.n8n.cloud/webhook/chembuddy-me',
+  teacher: 'chem1',
+  botUsername: 'physics_demo_bot'
+};
+const DEMO = /[?&]demo=1\b/.test(location.search) || location.protocol === 'file:' || location.protocol === 'data:';
+let me = null; // the logged-in student (from n8n)
+
+// ---------- Login ----------
+// Telegram gives signed initData; n8n verifies it with Telegram's public key and returns the student's status.
+function gate(html) { const g = document.getElementById('gate'); document.getElementById('gateBox').innerHTML = html; g.classList.add('show'); }
+function gateMsg(ic, title, text, btns) { gate(`<div class="ic">${ic}</div><h2>${title}</h2><p>${text}</p>${btns || ''}`); }
+function openBotRegister() {
+  const url = 'https://t.me/' + CONFIG.botUsername + '?start=register';
+  try { if (tg && tg.openTelegramLink) { tg.openTelegramLink(url); setTimeout(() => { try { tg.close(); } catch (e) {} }, 300); return; } } catch (e) {}
+  location.href = url;
+}
+async function login() {
+  if (DEMO) { me = { status: 'ACTIVE', name: 'Kasun Perera', firstName: 'Kasun', batch: 'A/L 2027', medium: 'Sinhala', id: 'demo' }; return startApp(); }
+  if (!(tg && tg.initData)) {
+    return gateMsg('📱', 'Telegram එකෙන් open කරන්න', 'මේ app එක වැඩ කරන්නේ Telegram එකේ Rh ChemBuddy bot එක ඇතුළේ විතරයි.',
+      `<a class="btn" style="text-decoration:none" href="https://t.me/${CONFIG.botUsername}">Rh ChemBuddy open කරන්න</a>`);
+  }
+  gate('<div class="spin"></div><div class="muted" style="margin-top:14px">ඔබව හඳුනාගන්නවා...</div>');
+  let r;
+  try {
+    const res = await fetch(CONFIG.apiMe, { method: 'POST', body: new URLSearchParams({ teacher: CONFIG.teacher, initData: tg.initData }) });
+    r = await res.json();
+  } catch (e) { r = null; }
+  if (!r) return gateMsg('📡', 'Connection ප්‍රශ්නයක්', 'Internet එක check කරලා ආයෙත් උත්සාහ කරන්න.', '<button class="btn" onclick="login()">🔄 ආයෙත් උත්සාහ කරන්න</button>');
+  if (!r.ok) return gateMsg('🔒', 'ඔබව හඳුනාගන්න බැරි වුණා', 'App එක වහලා bot එකෙන් ආයෙත් open කරන්න.', '<button class="btn" onclick="login()">🔄 ආයෙත් උත්සාහ කරන්න</button>');
+  const uid = String((tg.initDataUnsafe && tg.initDataUnsafe.user && tg.initDataUnsafe.user.id) || '');
+  me = { ...r, id: uid };
+  if (r.status === 'ACTIVE') return startApp();
+  if (r.status === 'PENDING') return gateMsg('⏳', 'තහවුරු කරනකම් ඉන්න', 'ඔබේ ලියාපදිංචිය ගුරුතුමා තවම තහවුරු කරලා නැහැ. තහවුරු කළාම bot එකෙන් පණිවිඩයක් එනවා.', '<button class="btn ghost" onclick="login()">🔄 ආයෙත් බලන්න</button>');
+  if (r.status === 'REJECTED' || r.status === 'LEFT') return gateMsg('🚫', 'App එකට access නැහැ', 'වැඩි විස්තර සඳහා ගුරුතුමා අමතන්න.');
+  return gateMsg('📝', 'Hi ' + esc(r.firstName || '') + '! මුලින් ලියාපදිංචි වෙන්න', 'App එක පාවිච්චි කරන්න class එකට ලියාපදිංචි වෙලා ගුරුතුමා තහවුරු කරන්න ඕනේ.',
+    '<button class="btn" onclick="openBotRegister()">📝 දැන් ලියාපදිංචි වෙන්න</button><button class="btn ghost" style="margin-top:8px" onclick="login()">🔄 මම දැනටමත් ලියාපදිංචියි</button>');
+}
+function startApp() {
+  const first = (me.name || me.firstName || 'Student').split(' ')[0];
+  document.getElementById('hiName').textContent = first;
+  document.getElementById('av').textContent = first[0] || 'S';
+  document.getElementById('av2').textContent = first[0] || 'S';
+  document.getElementById('meName').textContent = me.name || me.firstName;
+  document.getElementById('batchPill').textContent = me.batch + ' · ' + me.medium;
+  document.getElementById('meInfo').textContent = me.batch + ' · ' + me.medium + ' · ✅ ACTIVE';
+  document.getElementById('gate').classList.remove('show');
+  loadNotes(); // notes are kept separately for each student on this phone
 }
 const haptic = (t) => { try { tg && tg.HapticFeedback && tg.HapticFeedback.notificationOccurred(t); } catch (e) {} };
 // Telegram popups need app version 6.2+; fall back to browser dialogs elsewhere
@@ -514,7 +578,8 @@ const memStore = [];
 function db() {
   return new Promise((res, rej) => {
     try {
-      const r = indexedDB.open('chembuddy', 1);
+      // One storage per student, so two students on the same phone never see each other's notes
+      const r = indexedDB.open('chembuddy_' + (me && me.id ? me.id : 'guest'), 1);
       r.onupgradeneeded = () => r.result.createObjectStore('notes', { keyPath: 'id' });
       r.onsuccess = () => res(r.result); r.onerror = () => rej(r.error);
     } catch (e) { rej(e); }
@@ -701,7 +766,7 @@ function showUnitHint() {
 }
 function openUnitNotes() { go('notes'); setNoteTab('theory'); noteFilter = quizUnit; renderNotes(); }
 
-loadNotes();
+login();
 
 // ---------- Leaderboard ----------
 function renderLB(k) {
