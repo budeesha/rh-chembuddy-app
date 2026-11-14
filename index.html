@@ -109,6 +109,8 @@
   .lb-row.me { background: color-mix(in srgb, var(--accent) 14%, transparent); border-radius: 10px; }
   .aichip { display: inline-block; font-size: 9px; font-weight: 700; letter-spacing: .3px; padding: 1px 5px; border-radius: 5px; margin-left: 5px; vertical-align: middle; color: var(--muted); border: 1px solid color-mix(in srgb, var(--muted) 45%, transparent); }
   .rival { border-left: 4px solid var(--chem); }
+  .pp-row { display: flex; align-items: center; gap: 12px; width: 100%; background: var(--bg); color: var(--text); border: 0; border-radius: 12px; padding: 10px; margin-top: 8px; font: inherit; text-align: left; cursor: pointer; }
+  .pp-y { flex: none; width: 52px; height: 52px; border-radius: 10px; display: grid; place-items: center; font-weight: 800; color: #fff; background: linear-gradient(135deg, #b45309, #92400e); }
   .backbtn { flex: none; width: 34px; height: 34px; border-radius: 10px; border: 0; background: var(--card); color: var(--text); font-size: 17px; font-weight: 700; cursor: pointer; display: grid; place-items: center; }
   /* Rich questions */
   .struct { background: #fff; border-radius: 12px; padding: 8px; margin: 10px 0; text-align: center; }
@@ -319,6 +321,11 @@
       <button class="btn" id="newBtn" style="margin-bottom:12px" onclick="startQuiz('new')">🆕 අලුත් ප්‍රශ්න</button>
       <div class="units-grid" id="unitGrid"></div>
       <button class="btn ghost" onclick="startQuiz('mixed')">🎲 Mixed paper</button>
+      <div class="card" id="ppBox" style="display:none;margin-top:16px">
+        <h3 class="si" style="margin-bottom:4px">📜 Past Papers</h3>
+        <p class="muted si" style="font-size:13px;margin:0 0 8px">පසුගිය A/L ප්‍රශ්න පත්‍ර, විභාගයේ පිළිවෙළටම.</p>
+        <div id="ppList"></div>
+      </div>
     </div>
     <div id="quizPlay" style="display:none">
       <div class="q-top">
@@ -678,17 +685,30 @@ function go(id, isBack) {
 
 // ---------- Quiz ----------
 const allQs = () => (DATA && DATA.questions) || [];
+// Past paper questions (Sheet column "Past paper (year)") live only in the Past Papers section
+const practiceQs = () => allQs().filter(q => !q.pp);
+const paperQs = (year) => allQs().filter(q => String(q.pp) === String(year)).sort((a, b) => (a.ppNo || 0) - (b.ppNo || 0));
 const qById = (id) => allQs().find(q => q.id === id);
 const doneSet = () => new Set((DATA && DATA.me && DATA.me.done) || []);
 function unitsList() {
   const map = {};
-  allQs().forEach(q => { map[q.unit] = (map[q.unit] || 0) + 1; });
+  practiceQs().forEach(q => { map[q.unit] = (map[q.unit] || 0) + 1; });
   return Object.keys(map).sort().map(u => ({ id: u, name: u, ic: unitIcon(u), count: map[u] }));
 }
+function renderPapers() {
+  const years = [...new Set(allQs().filter(q => q.pp).map(q => String(q.pp)))].sort((a, b) => b.localeCompare(a));
+  const ds = doneSet();
+  $('ppBox').style.display = years.length ? 'block' : 'none';
+  $('ppList').innerHTML = years.map(y => {
+    const qsY = paperQs(y), done = qsY.filter(q => ds.has(q.id)).length;
+    return `<button class="pp-row" onclick="startQuiz('pp:${esc(y)}')"><span class="pp-y">${esc(y)}</span><span style="flex:1;min-width:0"><b class="si">A/L ${esc(y)} – රසායන විද්‍යාව I</b><span class="muted si" style="display:block;font-size:12px">ප්‍රශ්න ${qsY.length} · ${done ? '✅ ' + done + 'ක් කළා' : 'තාම කරලා නැහැ'}</span></span><span style="color:var(--accent)">➜</span></button>`;
+  }).join('');
+}
 function renderUnits() {
+  renderPapers();
   const stats = {}; ((DATA.me && DATA.me.units) || []).forEach(s => stats[s.unit] = s);
   const ds = doneSet();
-  const fresh = allQs().filter(q => !ds.has(q.id)).length;
+  const fresh = practiceQs().filter(q => !ds.has(q.id)).length;
   $('newBtn').textContent = fresh ? `🆕 අලුත් ප්‍රශ්න (${fresh}ක් ඉතුරුයි)` : '✅ ඔක්කොම ප්‍රශ්න කරලා! (practice)';
   const us = unitsList();
   $('unitGrid').innerHTML = us.length ? us.map(u => {
@@ -699,15 +719,18 @@ function renderUnits() {
 let qs = [], qi = 0, score = 0, timer = null, left = 90, quizUnit = 'mixed', wrongQs = [], answers = [];
 const shuffle = (a) => { const b = [...a]; for (let i = b.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [b[i], b[j]] = [b[j], b[i]]; } return b; };
 function startQuiz(unit, onlyIds) {
-  const all = allQs(); if (!all.length) return toast('ප්‍රශ්න නැහැ');
+  const all = practiceQs(); if (!allQs().length) return toast('ප්‍රශ්න නැහැ');
   quizUnit = unit;
   const ds = doneSet();
   let pool;
+  const isPaper = String(unit).startsWith('pp:');
   if (onlyIds) pool = onlyIds.map(qById).filter(Boolean);
+  else if (isPaper) pool = paperQs(unit.slice(3)); // whole paper, in paper order
   else if (unit === 'new') { const fresh = all.filter(q => !ds.has(q.id)); pool = [...shuffle(fresh), ...shuffle(all.filter(q => ds.has(q.id)))]; }
   else if (unit === 'mixed') pool = shuffle(all);
   else { const inUnit = all.filter(q => q.unit === unit); pool = [...shuffle(inUnit.filter(q => !ds.has(q.id))), ...shuffle(inUnit.filter(q => ds.has(q.id))), ...shuffle(all.filter(q => q.unit !== unit))]; }
-  qs = pool.slice(0, onlyIds ? pool.length : 5);
+  if (!pool.length) return toast('ප්‍රශ්න නැහැ');
+  qs = pool.slice(0, (onlyIds || isPaper) ? pool.length : 5);
   qi = 0; score = 0; wrongQs = []; answers = [];
   showUnitHint();
   $('quizPick').style.display = 'none'; $('quizDone').style.display = 'none'; $('quizPlay').style.display = 'block';
@@ -771,7 +794,7 @@ window.addEventListener('load', () => { ['qText', 'qOpts', 'qExplain'].forEach(i
 function showQ() {
   const q = qs[qi];
   $('qCount').textContent = (qi + 1) + ' / ' + qs.length;
-  $('qUnit').textContent = unitIcon(q.unit) + ' ' + q.unit + (doneSet().has(q.id) ? ' · practice' : ' · 🆕');
+  $('qUnit').textContent = q.pp ? '📜 A/L ' + q.pp + ' · ප්‍රශ්නය ' + (q.ppNo || qi + 1) : unitIcon(q.unit) + ' ' + q.unit + (doneSet().has(q.id) ? ' · practice' : ' · 🆕');
   $('qBar').style.width = (qi / qs.length * 100) + '%';
   $('qText').innerHTML = richQuestion(q);
   $('qOpts').innerHTML = q.o.map((o, i) => `<button class="opt" onclick="answer(${i})"><span class="n">${i + 1}</span><span style="flex:1;min-width:0">${richText(o)}</span></button>`).join('');
@@ -1111,8 +1134,8 @@ function demoData() {
     ['Mole concept', '$\\ce{CaCO3}$ මවුල 0.25ක ස්කන්ධය කීයද? (Ca = 40, C = 12, O = 16)', ['25 g', '10 g', '50 g', '20 g', '100 g'], 0, '0.25 × 100 = 25 g.'],
     ['Gaseous state', '27 °C හි ඇති පරිපූර්ණ වායුවක් නියත පීඩනයේදී 327 °C දක්වා රත් කළ විට පරිමාව…', ['අඩකට අඩු වේ', 'දෙගුණ වේ', 'නොවෙනස්ව පවතී', '12 ගුණයකින් වැඩි වේ', 'හතරෙන් එකක් වේ'], 1, '300 K → 600 K නිසා V දෙගුණ වේ.'],
     ['Redox', '$\\ce{KMnO4}$ හි Mn හි ඔක්සිකරණ අංකය කීයද?', ['+2', '+4', '+6', '+3', '+7'], 4, '+1 + x − 8 = 0 → +7.'],
-    ['Organic chemistry', 'පහත සඳහන් සංයෝගයේ IUPAC නාමය කුමක් ද?', ['1-hydroxy-2-methylpent-4-yn-3-one', '2-methyl-3-oxopent-4-yn-1-ol', '2-methyl-4-pentyn-1-ol-3-one', '5-hydroxy-4-methylpent-1-yn-3-one', '5-hydroxy-4-methyl-1-yne-3-pentanone'], 3, 'කීටෝනයට අංක 3, ත්‍රිත්ව බන්ධනයට අංක 1.', { smiles: 'C#CC(=O)C(C)CO' }],
-    ['Atomic structure', 'ක්වොන්ටම් අංක ($n, l, m_l, m_s$) කුලකයක් ලෙස පිළිගත නොහැකි කුමක්ද?', ['$\\left(4,\\ 2,\\ 0,\\ +\\frac{1}{2}\\right)$', '$\\left(3,\\ 1,\\ -1,\\ +\\frac{1}{2}\\right)$', '$\\left(3,\\ 2,\\ -3,\\ +\\frac{1}{2}\\right)$', '$\\left(2,\\ 1,\\ 1,\\ +\\frac{1}{2}\\right)$', '$\\left(4,\\ 0,\\ 0,\\ -\\frac{1}{2}\\right)$'], 2, '$l = 2$ නම් $m_l = -3$ විය නොහැක.'],
+    ['Organic chemistry', 'පහත සඳහන් සංයෝගයේ IUPAC නාමය කුමක් ද?', ['1-hydroxy-2-methylpent-4-yn-3-one', '2-methyl-3-oxopent-4-yn-1-ol', '2-methyl-4-pentyn-1-ol-3-one', '5-hydroxy-4-methylpent-1-yn-3-one', '5-hydroxy-4-methyl-1-yne-3-pentanone'], 3, 'කීටෝනයට අංක 3, ත්‍රිත්ව බන්ධනයට අංක 1.', { smiles: 'C#CC(=O)C(C)CO', pp: '2012', ppNo: 3 }],
+    ['Atomic structure', 'ක්වොන්ටම් අංක ($n, l, m_l, m_s$) කුලකයක් ලෙස පිළිගත නොහැකි කුමක්ද?', ['$\\left(4,\\ 2,\\ 0,\\ +\\frac{1}{2}\\right)$', '$\\left(3,\\ 1,\\ -1,\\ +\\frac{1}{2}\\right)$', '$\\left(3,\\ 2,\\ -3,\\ +\\frac{1}{2}\\right)$', '$\\left(2,\\ 1,\\ 1,\\ +\\frac{1}{2}\\right)$', '$\\left(4,\\ 0,\\ 0,\\ -\\frac{1}{2}\\right)$'], 2, '$l = 2$ නම් $m_l = -3$ විය නොහැක.', { pp: '2012', ppNo: 5 }],
     ['Kinetics', '$\\ce{A + B -> C}$ ප්‍රතික්‍රියාව සඳහා පහත දත්ත ලැබිණි. A ට සාපේක්ෂව පෙළ කීයද?', ['0', '1', '2', '3', '$\\frac{1}{2}$'], 2, '[A] දෙගුණ කළ විට (පරීක්ෂණ 1→2) සීඝ්‍රතාව 4 ගුණ වන නිසා පෙළ = 2.', { table: 'පරීක්ෂණය | [A] / mol dm⁻³ | [B] / mol dm⁻³ | සීඝ්‍රතාව\n1 | 0.10 | 0.10 | 2.0×10⁻³\n2 | 0.20 | 0.10 | 8.0×10⁻³\n3 | 0.10 | 0.20 | 2.0×10⁻³', graph: 'x: 0,10,20,30,40; y: 0.80,0.40,0.20,0.10,0.05; xlabel: කාලය / s; ylabel: [A] / mol dm⁻³' }],
     ['Organic chemistry', 'propan-2-ol වන්නේ පහත කුමන සංයෝගයද?', ['smiles:CCCO', 'smiles:CC(C)O', 'smiles:CC(=O)C', 'smiles:CCC=O', 'smiles:COCC'], 1, 'propan-2-ol හි OH කාණ්ඩය මැද කාබනයට බැඳී ඇත.']
   ].map((r, i) => ({ id: 'D' + i, unit: r[0], q: r[1], o: r[2], a: r[3], ex: r[4], ...(r[5] || {}) }));
