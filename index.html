@@ -306,7 +306,7 @@
         <button class="sug" onclick="askSug(this)">SN1 සහ SN2 වෙනස මොකක්ද?</button>
       </div>
     </div>
-    <p class="muted si" style="font-size:11px;margin-top:14px">AI උත්තර සමහර වෙලාවට වැරදි වෙන්න පුළුවන්. සැකයක් තියෙනවා නම් ගුරුතුමාගෙන් අහන්න. ඔබේ ප්‍රශ්නය AI සේවාවකට (Anthropic Claude) යවනවා.</p>
+    <p class="muted si" style="font-size:11px;margin-top:14px">AI උත්තර සමහර වෙලාවට වැරදි වෙන්න පුළුවන්. සැකයක් තියෙනවා නම් ගුරුතුමාගෙන් අහන්න.</p>
     <div style="height:70px"></div>
   </section>
 
@@ -317,7 +317,6 @@
     <div class="podium" id="podium"></div>
     <div class="card" id="lbList" style="padding:8px 12px"></div>
     <p class="muted si" style="font-size:12px;text-align:center" id="lbMine"></p>
-    <p class="muted si" style="font-size:11px;text-align:center">🔒 Leaderboard එකේ පෙන්නන්නේ කෙටි නම සහ points විතරයි.</p>
   </section>
 
   <!-- ===== NOTES ===== -->
@@ -363,13 +362,6 @@
       <div class="badges" id="badges"></div>
     </div>
     <div class="card" id="feeBox"></div>
-    <div class="card">
-      <h3 class="si" style="margin-bottom:8px">🔒 Privacy සහ දත්ත</h3>
-      <div class="muted si" style="font-size:13px;margin-bottom:10px">ඔබේ නම, batch, ලකුණු ගුරුතුමා විතරයි බලන්නේ. Short notes photos ඔබේ phone එකේ විතරයි.</div>
-      <button class="btn ghost si" onclick="openPrivacy()">📄 Privacy විස්තර</button>
-      <button class="btn ghost si" style="margin-top:8px" onclick="clearNotes()">🧹 මේ phone එකේ notes මකන්න</button>
-      <button class="btn danger si" style="margin-top:8px" onclick="deleteMyData()">🗑 මගේ ගිණුමේ දත්ත මකන්න</button>
-    </div>
   </section>
 
   <div class="demo-note" id="verNote">v4</div>
@@ -759,21 +751,6 @@ function renderProfile() {
   const f = DATA.fees || {};
   $('feeBox').innerHTML = `<div class="row between"><div><div class="muted si" style="font-size:13px">💳 ${monthName(f.thisMonth)} fees</div><b class="si" style="color:${f.paid ? 'var(--good)' : 'var(--bad)'}">${f.paid ? '✅ ගෙවා ඇත' : '⏳ තවම සටහන් වෙලා නැහැ'}</b></div><span class="pill">${esc(f.paidMonth || '—')}</span></div>` +
     (f.paid ? '' : `<div class="muted si" style="font-size:13px;margin-top:8px">ගෙව්වා නම් bank slip එකේ photo එක bot එකට එවන්න. ගුරුතුමා තහවුරු කළාම මෙතන ✅ වෙනවා.</div><button class="btn ghost si" style="margin-top:10px" onclick="openBot()">🧾 Slip එක bot එකට එවන්න</button>`);
-}
-function openPrivacy() {
-  const url = new URL('privacy.html', location.href).href;
-  try { if (tg && tg.openLink && tg.initData) return tg.openLink(url); } catch (e) {}
-  window.open(url, '_blank');
-}
-function deleteMyData() {
-  ask('ඔබේ ලියාපදිංචිය, ලකුණු සහ bot එකට එවූ ප්‍රශ්න මකන්න bot එකට යනවා. ඉදිරියට යන්නද?', ok => ok && openBot('deleteme'));
-}
-function clearNotes() {
-  ask('මේ phone එකේ ඔබේ short notes ඔක්කොම මකන්නද? ආපහු ගන්න බැහැ.', async ok => {
-    if (!ok) return;
-    for (const n of notes) await dbDel(n.id);
-    await loadNotes(); toast('🧹 Notes මැකුවා');
-  });
 }
 
 // ---------- Short notes (photos, this phone only) ----------
