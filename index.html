@@ -102,6 +102,35 @@
   .lb-row.me { background: color-mix(in srgb, var(--accent) 14%, transparent); border-radius: 10px; }
   .aichip { display: inline-block; font-size: 9px; font-weight: 700; letter-spacing: .3px; padding: 1px 5px; border-radius: 5px; margin-left: 5px; vertical-align: middle; color: var(--muted); border: 1px solid color-mix(in srgb, var(--muted) 45%, transparent); }
   .rival { border-left: 4px solid var(--chem); }
+  /* Periodic League */
+  .el { flex: none; width: 58px; height: 64px; border-radius: 10px; background: linear-gradient(135deg, var(--elc, #6d28d9), color-mix(in srgb, var(--elc, #6d28d9) 55%, #000)); color: #fff; position: relative; display: grid; place-items: center; box-shadow: 0 4px 14px rgba(0,0,0,.25); }
+  .el .z { position: absolute; top: 4px; left: 6px; font-size: 10px; font-weight: 700; opacity: .9; }
+  .el .sy { font-size: 26px; font-weight: 800; line-height: 1; }
+  .el .nm { position: absolute; bottom: 4px; left: 0; right: 0; text-align: center; font-size: 8px; opacity: .9; }
+  .el.big { width: 84px; height: 92px; } .el.big .sy { font-size: 38px; } .el.big .z { font-size: 12px; } .el.big .nm { font-size: 10px; }
+  .el.sm { width: 40px; height: 44px; border-radius: 8px; } .el.sm .sy { font-size: 17px; } .el.sm .z { font-size: 8px; top: 2px; left: 4px; } .el.sm .nm { display: none; }
+  .el.lock { filter: grayscale(1); opacity: .35; }
+  .el.cur { outline: 3px solid var(--gold); outline-offset: 2px; }
+  .league-card { background: linear-gradient(135deg, color-mix(in srgb, var(--elc, #6d28d9) 30%, var(--card)), var(--card)); }
+  .zone-up { border-left: 3px solid var(--good); }
+  .zone-down { border-left: 3px solid var(--bad); }
+  .zline { font-size: 11px; font-weight: 700; text-align: center; padding: 4px; margin: 2px 0; border-radius: 6px; }
+  .zline.up { color: var(--good); background: color-mix(in srgb, var(--good) 12%, transparent); }
+  .zline.down { color: var(--bad); background: color-mix(in srgb, var(--bad) 12%, transparent); }
+  .newtag { font-size: 10px; font-weight: 700; color: var(--gold); margin-left: 4px; }
+  .ladder { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; justify-items: center; }
+  .quest { display: flex; align-items: center; gap: 10px; padding: 8px 0; border-top: 1px solid color-mix(in srgb, var(--muted) 15%, transparent); }
+  .quest:first-child { border-top: 0; }
+  .quest .qi { font-size: 20px; width: 28px; text-align: center; }
+  .quest .qb { flex: 1; min-width: 0; }
+  .quest .progress { height: 7px; margin: 5px 0 0; }
+  .quest.done .qb b { text-decoration: line-through; opacity: .6; }
+  .promo { position: fixed; inset: 0; z-index: 80; background: rgba(0,0,0,.82); display: none; align-items: center; justify-content: center; flex-direction: column; color: #fff; text-align: center; padding: 24px; }
+  .promo.show { display: flex; animation: fade .3s ease; }
+  .promo .el { animation: pop .7s cubic-bezier(.2,1.6,.4,1); margin: 18px auto; }
+  @keyframes pop { 0% { transform: scale(.2) rotate(-25deg); opacity: 0; } 100% { transform: none; opacity: 1; } }
+  .confetti { position: fixed; top: -12px; width: 9px; height: 14px; z-index: 81; border-radius: 2px; animation: fall linear forwards; }
+  @keyframes fall { to { transform: translateY(110vh) rotate(720deg); } }
   .live { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; color: var(--muted); }
   .live i { width: 8px; height: 8px; border-radius: 50%; background: var(--good); box-shadow: 0 0 0 0 rgba(47,191,113,.6); animation: pulse 1.8s infinite; }
   @keyframes pulse { 70% { box-shadow: 0 0 0 7px rgba(47,191,113,0); } 100% { box-shadow: 0 0 0 0 rgba(47,191,113,0); } }
@@ -231,13 +260,14 @@
     <div class="stats">
       <div class="stat tap" onclick="go('me')"><b id="stStreak">🔥 0</b><span class="si">දින streak</span></div>
       <div class="stat tap" onclick="go('rank')"><b id="stPoints">⭐ 0</b><span>points</span></div>
-      <div class="stat tap" onclick="go('rank')"><b id="stRank">#–</b><span class="si">සතියේ rank</span></div>
+      <div class="stat tap" onclick="go('rank')"><b id="stRank">#–</b><span class="si">League rank</span></div>
     </div>
 
+    <div class="card league-card tap" id="leagueCard" onclick="go('rank')"></div>
+
     <div class="card">
-      <div class="row between"><h3 class="si">🎯 අද ඉලක්කය</h3><span class="muted" id="goalTxt">0 / 10 MCQ</span></div>
-      <div class="progress"><div id="goalBar" style="width:0%"></div></div>
-      <div class="muted si" style="font-size:13px" id="goalMsg"></div>
+      <div class="row between"><h3 class="si">🎯 අද quests</h3><span class="muted" id="questSum"></span></div>
+      <div id="questList" style="margin-top:8px"></div>
       <button class="btn" style="margin-top:12px" onclick="go('quiz')">⚡ MCQ පටන් ගන්න</button>
     </div>
 
@@ -319,12 +349,10 @@
 
   <!-- ===== LEADERBOARD ===== -->
   <section class="screen" id="rank">
-    <h2 style="margin:4px 0 12px">🏆 Leaderboard</h2>
-    <div class="tabs" id="lbTabs"><button class="on si" data-k="week" onclick="lbTab('week')">මේ සතිය</button><button class="si" data-k="all" onclick="lbTab('all')">සියලු කාලය</button></div>
-    <div class="podium" id="podium"></div>
-    <div class="card" id="lbList" style="padding:8px 12px"></div>
-    <p class="muted si" style="font-size:12px;text-align:center" id="lbMine"></p>
-    <p class="muted si" style="font-size:11px;text-align:center"><span class="aichip" style="margin:0 4px 0 0">AI</span> = ChemBuddy League practice rivals. ඔවුන්ව පරද්දලා ඉහළට යන්න! 💪</p>
+    <h2 style="margin:4px 0 12px">🧪 Periodic League</h2>
+    <div class="tabs" id="lbTabs"><button class="on si" data-k="league" onclick="lbTab('league')">මගේ League</button><button class="si" data-k="ladder" onclick="lbTab('ladder')">League 20</button><button class="si" data-k="class" onclick="lbTab('class')">🏫 Class</button></div>
+    <div id="lbBody"></div>
+    <p class="muted si" style="font-size:11px;text-align:center" id="lbFoot"><span class="aichip" style="margin:0 4px 0 0">AI</span> = ChemBuddy League practice rivals. ඔවුන්ව පරද්දලා ඉහළට යන්න! 💪</p>
   </section>
 
   <!-- ===== NOTES ===== -->
@@ -374,6 +402,9 @@
 
   <div class="demo-note" id="verNote">v4</div>
 </div>
+
+<!-- League promotion celebration -->
+<div class="promo si" id="promo" onclick="closePromo()"></div>
 
 <!-- AI ask bar (only on AI screen) -->
 <div class="askbar" id="askbar" style="display:none"><div class="inner">
@@ -515,7 +546,7 @@ function renderAll() {
   $('av').textContent = $('av2').textContent = (first[0] || 'S').toUpperCase();
   $('meName').textContent = d.name || d.firstName;
   $('batchPill').textContent = d.batch;
-  $('meInfo').textContent = d.batch + ' · ' + d.medium + ' · ✅ ACTIVE';
+  $('meInfo').textContent = d.batch + ' · ' + d.medium + (d.league ? ' · 🧪 ' + d.league.name + ' League' : '');
   renderHome(); renderUnits(); renderLB(lbKey); renderTimetable(); renderProfile(); renderAiLeft();
 }
 function goalKey() { return 'cb_goal_' + (me && me.id) + '_' + (DATA && DATA.today); }
@@ -531,19 +562,25 @@ function renderHome() {
   $('cdMcq').textContent = m.mcqTotal || 0;
   $('stStreak').textContent = '🔥 ' + (m.streak || 0);
   $('stPoints').textContent = '⭐ ' + (m.points || 0);
-  const wr = d.leaderboard && d.leaderboard.week && d.leaderboard.week.myRank;
-  $('stRank').textContent = wr ? '#' + wr : '#–';
-  // Daily goal (counted on this phone)
-  const done = store.get(goalKey(), 0), goal = CONFIG.dailyGoal;
-  $('goalTxt').textContent = Math.min(done, goal) + ' / ' + goal + ' MCQ';
-  $('goalBar').style.width = Math.min(100, done / goal * 100) + '%';
-  $('goalMsg').textContent = done >= goal ? '🎉 අද ඉලක්කය සම්පූර්ණයි! නියමයි!' : (m.doneToday ? 'අද streak එක ✅. තව ප්‍රශ්න ' + (goal - done) + 'ක් කරලා ඉලක්කය ඉවර කරන්න!' : 'අද එක quiz එකක් කළොත් streak එක ' + ((m.streak || 0) + 1) + ' වෙනවා!');
-  // Daily rival goal (the player just above me this week)
+  const L = d.league || {};
+  $('stRank').textContent = L.myRank ? '#' + L.myRank : '#–';
+  // League card
+  const lc = $('leagueCard');
+  lc.style.setProperty('--elc', elColor(L.level || 1));
+  const goalTxt = L.mode === 'fast'
+    ? (L.next ? `${esc(L.next.name)} league එකට තව <b>${Math.max(0, L.threshold - (L.weekPoints || 0))} XP</b> 🚀` : '')
+    : (L.up && L.myRank > L.up ? `Promote වෙන්න Top ${L.up} එකට එන්න ⬆️` : (L.up ? '⬆️ ඔබ promotion zone එකේ! තැන රැකගන්න.' : '👑 ඉහළම league එක!'));
+  lc.innerHTML = `<div class="row">${elTile(L.level || 1)}<div style="flex:1;min-width:0"><div class="muted si" style="font-size:12px">ඔබේ league · #${L.myRank || '–'} / ${L.size || '–'}</div><h3>${esc(L.name || 'Hydrogen')} League</h3><div class="si" style="font-size:13px;margin-top:2px">${goalTxt}</div>${L.mode === 'fast' ? `<div class="progress" style="height:7px;margin:6px 0 0"><div style="width:${Math.min(100, 100 * (L.weekPoints || 0) / (L.threshold || 1))}%"></div></div>` : `<div class="muted si" style="font-size:12px;margin-top:2px">⏳ ${timeLeft(L.endsAt)} කින් සතිය ඉවරයි</div>`}</div></div>`;
+  // Daily quests (from the server)
+  const qs2 = d.quests || [];
+  $('questSum').textContent = qs2.filter(q => q.done).length + ' / ' + qs2.length;
+  $('questList').innerHTML = qs2.map(q => `<div class="quest ${q.done ? 'done' : ''}"><span class="qi">${q.done ? '✅' : q.icon}</span><div class="qb"><div class="row between"><b class="si" style="font-size:14px">${esc(q.text)}</b><span class="pill">+${q.xp} XP</span></div><div class="progress"><div style="width:${Math.min(100, 100 * q.value / q.target)}%"></div></div></div></div>`).join('') || '<div class="muted si">අද quests නැහැ.</div>';
+  // Daily rival (the player just above me in my league)
   const rv = m.rival, rc = $('rivalCard');
   if (rv) {
     rc.style.display = 'block';
-    rc.innerHTML = `<div class="row between"><h3 class="si">🥊 අද rival: ${esc(rv.name)}${rv.ai ? '<span class="aichip">AI</span>' : ''}</h3><span class="live"><i></i>${d.activeToday || 0} අද active</span></div><div class="si" style="font-size:14px;margin-top:6px">මේ සතියේ ඔබට ඉහළින්ම ඉන්නේ ${esc(rv.name)} — පරද්දන්න තව <b>${rv.gap} points</b> ඕනේ 💪</div><div class="muted si" style="font-size:12px;margin-top:4px">අලුත් ප්‍රශ්න 2–3ක් හරියට කළොත් ඇති!</div>`;
-  } else if (m.points) { rc.style.display = 'block'; rc.innerHTML = '<h3 class="si">👑 මේ සතියේ ඔබ #1!</h3><div class="muted si" style="font-size:13px;margin-top:4px">තැන රැකගන්න අද MCQ ටිකක් කරන්න.</div>'; }
+    rc.innerHTML = `<div class="row between"><h3 class="si">🥊 අද rival: ${esc(rv.name)}${rv.ai ? '<span class="aichip">AI</span>' : ''}</h3><span class="live"><i></i>${d.activeToday || 0} අද active</span></div><div class="si" style="font-size:14px;margin-top:6px">League එකේ ඔබට ඉහළින්ම ඉන්නේ ${esc(rv.name)} — පරද්දන්න තව <b>${rv.gap} XP</b> ඕනේ 💪</div><div class="muted si" style="font-size:12px;margin-top:4px">අලුත් ප්‍රශ්න 2–3ක් හරියට කළොත් ඇති!</div>`;
+  } else if (m.points) { rc.style.display = 'block'; rc.innerHTML = '<h3 class="si">👑 League එකේ ඔබ #1!</h3><div class="muted si" style="font-size:13px;margin-top:4px">තැන රැකගන්න අද quests ඉවර කරන්න.</div>'; }
   else rc.style.display = 'none';
   // Fees
   const f = d.fees || {}, fc = $('feeCard');
@@ -666,9 +703,10 @@ async function submitResult(list) {
     if (!r || !r.ok) throw new Error('fail');
     const lr = r.lastResult || {};
     applyServer(r);
-    box.textContent = lr.dailyBonus ? '🔥 අද දවසේ පළමු quiz එක: +' + lr.dailyBonus + ' bonus!' : '✅ Save වුණා';
-    $('rPts').textContent = '+' + (lr.gained || 0) + ' ⭐ · මුළු ' + (lr.points || 0) + (lr.streak > 1 ? ' · 🔥 ' + lr.streak : '');
-    if (lr.gained && lr.gained < 6 && !lr.dailyBonus) box.textContent = 'ℹ️ කලින් කරපු ප්‍රශ්න නිසා points අඩුයි. වැඩිපුර points වලට 🆕 අලුත් ප්‍රශ්න කරන්න!';
+    box.textContent = (lr.dailyBonus ? '🔥 අද දවසේ පළමු quiz එක: +' + lr.dailyBonus + ' bonus! ' : '✅ Save වුණා. ') + (lr.questXp ? '🎯 Quests ' + (lr.questsCompleted || []).length + 'ක් ඉවරයි: +' + lr.questXp + ' XP!' : '');
+    if (lr.promoted) setTimeout(() => showPromo(lr.promoted), 600);
+    $('rPts').textContent = '+' + (lr.gained || 0) + ' XP · මේ සතිය ' + (lr.weekPoints || 0) + (lr.streak > 1 ? ' · 🔥 ' + lr.streak : '');
+    if (lr.gained && lr.gained < 6 && !lr.dailyBonus && !lr.questXp) box.textContent = 'ℹ️ කලින් කරපු ප්‍රශ්න නිසා points අඩුයි. වැඩිපුර points වලට 🆕 අලුත් ප්‍රශ්න කරන්න!';
     if (!lr.gained) box.textContent = 'ℹ️ මේ පාර points නැහැ. 🆕 අලුත් ප්‍රශ්න කරන්න!';
   } catch (e) {
     const k = 'cb_pending_' + me.id; const p = store.get(k, []); p.push(list); store.set(k, p);
@@ -725,20 +763,52 @@ async function sendAsk() {
 }
 $('askIn').addEventListener('keydown', e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendAsk(); } });
 
-// ---------- Leaderboard ----------
-let lbKey = 'week';
+// ---------- Periodic League ----------
+const ELEMENTS = [['H', 'Hydrogen'], ['He', 'Helium'], ['Li', 'Lithium'], ['Be', 'Beryllium'], ['B', 'Boron'], ['C', 'Carbon'], ['N', 'Nitrogen'], ['O', 'Oxygen'], ['F', 'Fluorine'], ['Ne', 'Neon'], ['Na', 'Sodium'], ['Mg', 'Magnesium'], ['Al', 'Aluminium'], ['Si', 'Silicon'], ['P', 'Phosphorus'], ['S', 'Sulfur'], ['Cl', 'Chlorine'], ['Ar', 'Argon'], ['K', 'Potassium'], ['Ca', 'Calcium']];
+const elColor = (L) => ['#64748b', '#0ea5e9', '#14b8a6', '#22c55e', '#84cc16', '#eab308', '#f59e0b', '#f97316', '#ef4444', '#ec4899', '#d946ef', '#a855f7', '#8b5cf6', '#6366f1', '#3b82f6', '#06b6d4', '#10b981', '#f43f5e', '#c026d3', '#ca8a04'][(L - 1) % 20];
+const elTile = (L, cls) => `<div class="el ${cls || ''}" style="--elc:${elColor(L)}"><span class="z">${L}</span><span class="sy">${ELEMENTS[L - 1][0]}</span><span class="nm">${ELEMENTS[L - 1][1]}</span></div>`;
+function timeLeft(iso) {
+  const ms = new Date(iso) - new Date(); if (!(ms > 0)) return 'ටික වෙලාවක';
+  const h = Math.floor(ms / 3600000), d = Math.floor(h / 24);
+  return d >= 1 ? d + ' දවස් ' + (h % 24) + ' පැය' : h + ' පැය ' + Math.floor(ms / 60000 % 60) + ' විනාඩි';
+}
+let lbKey = 'league';
 function renderLB(k) {
-  const b = (DATA.leaderboard && DATA.leaderboard[k]) || { top: [], myRank: 0, total: 0 };
-  const top = b.top || []; const m = ['🥇', '🥈', '🥉'];
+  const L = DATA.league || { board: [] };
   const chip = (r) => r.ai ? '<span class="aichip">AI</span>' : '';
-  const slot = (i) => top[i] ? `<div class="pod ${i === 0 ? 'first' : ''} ${top[i].me ? 'me' : ''}"><div class="medal">${m[i]}</div><b>${esc(top[i].name)}${top[i].me ? ' (ඔබ)' : ''}</b>${chip(top[i])}<br><span class="muted" style="font-size:12px">${top[i].pts} ⭐</span></div>` : `<div class="pod"><div class="medal" style="opacity:.3">${m[i]}</div><b class="muted">–</b></div>`;
-  $('podium').innerHTML = [1, 0, 2].map(slot).join('');
-  const rest = top.slice(3);
-  $('lbList').style.display = rest.length ? 'block' : 'none';
-  $('lbList').innerHTML = rest.map(r => `<div class="lb-row ${r.me ? 'me' : ''}"><span class="rk">${r.rank}</span><div class="avatar" style="width:34px;height:34px;font-size:14px">${esc(r.name[0] || '?')}</div><b style="flex:1">${esc(r.name)}${r.me ? ' (ඔබ)' : ''}${chip(r)}</b><span>${r.streak > 1 ? '<span class="muted" style="font-size:12px">🔥' + r.streak + '</span> · ' : ''}${r.pts} ⭐</span></div>`).join('');
-  $('lbMine').textContent = b.myRank ? `ඔබ #${b.myRank} / ${b.total}` : (k === 'week' ? 'මේ සතියේ MCQ කරලා leaderboard එකට එන්න!' : '');
+  const row = (r) => `<div class="lb-row ${r.me ? 'me' : ''} ${r.zone ? 'zone-' + r.zone : ''}"><span class="rk">${r.rank}</span><div class="avatar" style="width:34px;height:34px;font-size:14px">${esc((r.name || '?')[0])}</div><b style="flex:1;min-width:0">${esc(r.name)}${r.me ? ' (ඔබ)' : ''}${chip(r)}${r.isNew && !r.me ? '<span class="newtag">🆕 new</span>' : ''}</b><span>${r.streak > 1 ? '<span class="muted" style="font-size:12px">🔥' + r.streak + '</span> · ' : ''}${r.pts} XP</span></div>`;
+  $('lbFoot').style.display = k === 'class' ? 'none' : 'block';
+  if (k === 'league') {
+    const b = L.board || [];
+    let rows = '';
+    b.forEach((r, i) => {
+      if (L.mode === 'week' && L.down && i === b.length - L.down) rows += '<div class="zline down si">⬇️ Demotion zone</div>';
+      rows += row(r);
+      if (L.mode === 'week' && L.up && i === L.up - 1 && b.length > L.up) rows += '<div class="zline up si">⬆️ Promotion zone · Top ' + L.up + '</div>';
+    });
+    const rule = L.mode === 'fast'
+      ? `🚀 Fast-track: මේ සතියේ <b>${L.threshold} XP</b> ගත්තාම එදාම ${L.next ? esc(L.next.name) : ''} league එකට!`
+      : `ඉරිදා රෑ 9.30ට: Top ${L.up || 0} ⬆️ promote${L.down ? ' · අන්තිම ' + L.down + ' ⬇️ demote' : ''}`;
+    $('lbBody').innerHTML = `<div class="card league-card" style="--elc:${elColor(L.level || 1)}"><div class="row">${elTile(L.level || 1, 'big')}<div style="flex:1"><h3>${esc(L.name || '')} League</h3><div class="muted si" style="font-size:13px">League ${L.level} / 20 · ඔබ #${L.myRank} / ${L.size}</div><div class="si" style="font-size:13px;margin-top:6px">${rule}</div><div class="muted si" style="font-size:12px;margin-top:4px">⏳ සතිය ඉවර වෙන්න ${timeLeft(L.endsAt)}</div></div></div></div><div class="card" style="padding:8px 12px">${rows}</div>`;
+  } else if (k === 'ladder') {
+    const cur = L.level || 1, best = L.best || cur;
+    $('lbBody').innerHTML = `<div class="card"><p class="muted si" style="font-size:13px;margin:0 0 12px">H සිට Ca දක්වා leagues 20යි. මුල් 5 (H–B) fast-track, ඊට පස්සේ සතිපතා තරග. 👑 Calcium league එකේ #1 = Master of the Week!</p><div class="ladder">${ELEMENTS.map((e, i) => elTile(i + 1, 'sm ' + (i + 1 === cur ? 'cur' : (i + 1 > best ? 'lock' : '')))).join('')}</div><p class="si" style="font-size:13px;margin:12px 0 0">ඔබ දැන්: <b>${esc(ELEMENTS[cur - 1][1])}</b> · ඉහළම: <b>${esc(ELEMENTS[best - 1][1])}</b></p></div>`;
+  } else {
+    const cb = DATA.classBoard || [];
+    $('lbBody').innerHTML = `<p class="muted si" style="font-size:13px;margin:0 0 8px">ඔබේ class එකේ සිසුන් (සියලු කාලයේ XP)</p><div class="card" style="padding:8px 12px">${cb.length ? cb.map(r => `<div class="lb-row ${r.me ? 'me' : ''}"><span class="rk">${r.rank}</span>${elTile(ELEMENTS.findIndex(e => e[0] === r.lg) + 1 || 1, 'sm')}<b style="flex:1">${esc(r.name)}${r.me ? ' (ඔබ)' : ''}</b><span>${r.pts} XP</span></div>`).join('') : '<div class="muted si">තාම කවුරුත් නැහැ.</div>'}</div>`;
+  }
 }
 function lbTab(k) { lbKey = k; document.querySelectorAll('#lbTabs button').forEach(b => b.classList.toggle('on', b.dataset.k === k)); renderLB(k); }
+
+// Promotion celebration
+function showPromo(level) {
+  const p = $('promo');
+  p.innerHTML = `<div style="font-size:15px;opacity:.85">🎉 PROMOTED!</div>${elTile(level, 'big')}<h2>${esc(ELEMENTS[level - 1][1])} League</h2><p style="opacity:.85;max-width:300px">නියමයි! ඔබ League ${level} / 20 ට ආවා. දිගටම කරගෙන යන්න 🚀</p><button class="btn" style="max-width:220px">හරි! 💪</button>`;
+  p.classList.add('show'); haptic('success');
+  const colors = ['#f5b82e', '#2fbf71', '#3b9cf6', '#ef5350', '#8b5cf6'];
+  for (let i = 0; i < 40; i++) { const c = document.createElement('div'); c.className = 'confetti'; c.style.left = Math.random() * 100 + 'vw'; c.style.background = colors[i % 5]; c.style.animationDuration = (1.5 + Math.random() * 1.5) + 's'; c.style.animationDelay = Math.random() * 0.4 + 's'; document.body.appendChild(c); setTimeout(() => c.remove(), 3500); }
+}
+function closePromo() { $('promo').classList.remove('show'); }
 
 // ---------- Timetable ----------
 function renderTimetable() {
@@ -757,12 +827,12 @@ function renderProfile() {
   const us = (m.units || []).slice().sort((a, b) => b.t - a.t);
   $('unitStats').innerHTML = us.length ? us.map(u => `<div style="margin-bottom:10px"><div class="row between" style="font-size:14px"><span>${unitIcon(u.unit)} ${esc(u.unit)} <span class="muted" style="font-size:12px">(${u.c}/${u.t})</span></span><b>${u.pct}%</b></div><div class="progress" style="margin:4px 0 0;height:8px"><div style="width:${u.pct}%;${u.pct < 50 ? 'background:var(--bad)' : ''}"></div></div></div>`).join('')
     : '<div class="muted si" style="font-size:14px">MCQ කළාම මෙතන ඔබේ unit අනුව ප්‍රගතිය පෙනෙනවා.</div>';
-  const wk = DATA.leaderboard && DATA.leaderboard.week;
+  const lg = DATA.league || {};
   const B = [
     ['🔥', '7-day streak', (m.bestStreak || 0) >= 7],
     ['🧪', '100 MCQ', (m.mcqTotal || 0) >= 100],
     ['🎯', '80% accuracy', m.mcqTotal >= 20 && m.mcqCorrect / m.mcqTotal >= 0.8],
-    ['👑', 'Top 3 week', wk && wk.myRank > 0 && wk.myRank <= 3]
+    ['⚛️', 'Carbon league', (lg.best || 0) >= 6]
   ];
   $('badges').innerHTML = B.map(b => `<div class="badge ${b[2] ? '' : 'locked'}"><div class="b">${b[0]}</div>${b[1]}</div>`).join('');
   const f = DATA.fees || {};
@@ -936,10 +1006,13 @@ function demoData() {
     fees: { paidMonth: '', thisMonth: today.slice(0, 7), paid: false, dueDay: 10 },
     me: { points: 340, weekPoints: 120, streak: 4, bestStreak: 9, doneToday: false, mcqTotal: 58, mcqCorrect: 44, done: ['D0', 'D2'], units: [{ unit: 'Atomic structure', t: 20, c: 16, pct: 80 }, { unit: 'Chemical bonding', t: 18, c: 12, pct: 67 }, { unit: 'Redox', t: 8, c: 3, pct: 38 }], aiLeft: 20, rival: { name: 'Dulaj W.', ai: true, gap: 31 } },
     activeToday: 14,
-    leaderboard: {
-      week: { top: [['Nethmi A.', 180, 0, 1], ['Dulaj W.', 150, 0, 1], ['Kasun P.', 120, true], ['Sachini R.', 95, 0, 1], ['Hasitha K.', 60]].map((r, i) => ({ rank: i + 1, name: r[0], pts: r[1], streak: 2, me: !!r[2], ai: !!r[3] })), myRank: 3, total: 5 },
-      all: { top: [['Dulaj W.', 820, 0, 1], ['Nethmi A.', 610, 0, 1], ['Kasun P.', 340, true]].map((r, i) => ({ rank: i + 1, name: r[0], pts: r[1], streak: 0, me: !!r[2], ai: !!r[3] })), myRank: 3, total: 3 }
-    }
+    league: (() => {
+      const names = [['Nethmi A.', 180, 1], ['Dulaj W.', 150, 1], ['Kasun P.', 120, 0, 1], ['Sachini R.', 112, 1], ['Hasitha K.', 98, 0, 0, 1], ['Nimal P.', 90, 1], ['Piumi E.', 77, 1], ['Akila V.', 70, 1], ['Senuri T.', 61, 1], ['Isuru H.', 55, 1], ['Chamod B.', 41, 1], ['Malith C.', 33, 1], ['Hiruni U.', 25, 1], ['Dinuka R.', 18, 1], ['Oshadi M.', 9, 1]];
+      const board = names.map((r, i) => ({ rank: i + 1, name: r[0], pts: r[1], ai: !!r[2], me: !!r[3], isNew: !!r[4], streak: 2, zone: i < 5 ? 'up' : '' }));
+      return { level: 7, sym: 'N', name: 'Nitrogen', next: { sym: 'O', name: 'Oxygen' }, mode: 'week', threshold: 0, up: 5, down: 0, endsAt: new Date(Date.now() + 2.3 * 86400000).toISOString(), best: 7, weekPoints: 120, board, myRank: 3, size: 15 };
+    })(),
+    quests: [{ id: 'total', icon: '🧪', text: 'MCQ 5ක් කරන්න', target: 5, xp: 10, value: 5, done: true }, { id: 'correct', icon: '✅', text: '4ක් හරි කරන්න', target: 4, xp: 10, value: 3, done: false }, { id: 'run', icon: '🔥', text: 'පිළිවෙළට 3ක් හරි', target: 3, xp: 15, value: 1, done: false }],
+    classBoard: [{ rank: 1, name: 'Kasun P.', pts: 340, lg: 'N', me: true }, { rank: 2, name: 'Hasitha K.', pts: 210, lg: 'C' }]
   };
 }
 
