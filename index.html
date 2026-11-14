@@ -109,6 +109,7 @@
   .lb-row.me { background: color-mix(in srgb, var(--accent) 14%, transparent); border-radius: 10px; }
   .aichip { display: inline-block; font-size: 9px; font-weight: 700; letter-spacing: .3px; padding: 1px 5px; border-radius: 5px; margin-left: 5px; vertical-align: middle; color: var(--muted); border: 1px solid color-mix(in srgb, var(--muted) 45%, transparent); }
   .rival { border-left: 4px solid var(--chem); }
+  .backbtn { flex: none; width: 34px; height: 34px; border-radius: 10px; border: 0; background: var(--card); color: var(--text); font-size: 17px; font-weight: 700; cursor: pointer; display: grid; place-items: center; }
   /* Rich questions */
   .struct { background: #fff; border-radius: 12px; padding: 8px; margin: 10px 0; text-align: center; }
   .struct svg, .struct img { width: 100%; max-width: 360px; height: 180px; }
@@ -321,6 +322,7 @@
     </div>
     <div id="quizPlay" style="display:none">
       <div class="q-top">
+        <button class="backbtn" onclick="goBack()" aria-label="Quiz එක නවත්තන්න">✕</button>
         <span class="pill" id="qCount">1 / 5</span>
         <span class="muted" id="qUnit" style="font-size:12px"></span>
         <span class="timer" id="qTimer">⏱ 90</span>
@@ -374,7 +376,7 @@
 
   <!-- ===== NOTES ===== -->
   <section class="screen" id="notes">
-    <h2 style="margin:4px 0 12px">📒 මගේ Short Notes</h2>
+    <div class="row" style="gap:8px;margin:4px 0 12px"><button class="backbtn" onclick="goBack()" aria-label="Back">←</button><h2>📒 මගේ Short Notes</h2></div>
     <div class="tabs" id="noteTabs">
       <button class="si on" data-t="problem" onclick="setNoteTab('problem')">🧩 ප්‍රශ්න notes</button>
       <button class="si" data-t="theory" onclick="setNoteTab('theory')">📚 Theory notes</button>
@@ -387,7 +389,7 @@
 
   <!-- ===== TIMETABLE ===== -->
   <section class="screen" id="time">
-    <h2 style="margin:4px 0 4px">📅 Timetable</h2>
+    <div class="row" style="gap:8px;margin:4px 0 4px"><button class="backbtn" onclick="goBack()" aria-label="Back">←</button><h2>📅 Timetable</h2></div>
     <p class="muted" style="margin:0 0 8px" id="ttSub"></p>
     <div id="tt"></div>
     <h3 class="si" style="margin:18px 0 8px">📣 නිවේදන</h3>
@@ -625,13 +627,47 @@ function relDay(at) {
 }
 
 // ---------- Navigation ----------
-function go(id) {
+// Back navigation: Telegram's own ← Back button (and the phone's back key) + small in-app back buttons
+let curScreen = 'home';
+const navStack = [];
+const isOpen = (id) => $(id) && $(id).classList.contains('show');
+const quizActive = () => $('quizPlay').style.display === 'block';
+const quizDoneShown = () => $('quizDone').style.display === 'block';
+function updateBack() {
+  const need = curScreen !== 'home' || ['viewer', 'cam', 'sheet', 'promo'].some(isOpen);
+  try { if (tg && tg.BackButton && tg.isVersionAtLeast && tg.isVersionAtLeast('6.1')) { if (need) tg.BackButton.show(); else tg.BackButton.hide(); } } catch (e) {}
+}
+function goBack() {
+  if (isOpen('promo')) return closePromo();
+  if (isOpen('cam')) return closeCamera();
+  if (isOpen('viewer')) return closeViewer();
+  if (isOpen('sheet')) return closeSheet();
+  if (curScreen === 'quiz' && quizActive()) return ask('Quiz එක නවත්තන්නද? මේ වෙනකම් දීපු උත්තර save වෙනවා.', ok => { if (ok) quitQuiz(); });
+  if (curScreen === 'quiz' && quizDoneShown()) { resetQuiz(); return; }
+  go(navStack.pop() || 'home', true);
+}
+function quitQuiz() {
+  clearInterval(timer);
+  const done = answers.slice();
+  $('quizPlay').style.display = 'none';
+  resetQuiz();
+  if (done.length) { submitResult(done); toast('උත්තර ' + done.length + 'ක් save කරනවා ✅'); }
+}
+try { if (tg && tg.BackButton) tg.BackButton.onClick(goBack); } catch (e) {}
+// Overlays open/close in many places: watch them and keep the Telegram back button in sync
+try { const mo = new MutationObserver(updateBack); ['viewer', 'cam', 'sheet', 'promo'].forEach(id => $(id) && mo.observe($(id), { attributes: true, attributeFilter: ['class'] })); } catch (e) {}
+
+function go(id, isBack) {
+  if (!isBack && id !== curScreen) { if (id === 'home') navStack.length = 0; else { navStack.push(curScreen); if (navStack.length > 20) navStack.shift(); } }
+  if (curScreen === 'quiz' && id !== 'quiz' && quizActive()) { clearInterval(timer); }
+  curScreen = id;
   document.querySelectorAll('.screen').forEach(s => s.classList.toggle('active', s.id === id));
   document.querySelectorAll('nav button').forEach(b => b.classList.toggle('on', b.dataset.s === id));
   $('fab').classList.toggle('show', id === 'notes' && noteTab === 'theory');
   $('askbar').style.display = id === 'askScr' ? 'block' : 'none';
   window.scrollTo(0, 0);
   try { tg && tg.HapticFeedback && tg.HapticFeedback.selectionChanged(); } catch (e) {}
+  updateBack();
 }
 
 // ---------- Quiz ----------
