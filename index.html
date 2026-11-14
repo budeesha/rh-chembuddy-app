@@ -548,6 +548,12 @@ async function startApp() {
   $('verNote').textContent = 'Rh ChemBuddy ' + VERSION + (DEMO ? ' · demo data' : '');
   renderAll();
   loadNotes(); // notes are kept separately for each student on this phone
+  // Opened from the group's "📱 App එකේ බලන්න" button: t.me/<bot>?startapp=q_Q0021 -> open that question
+  try {
+    const sp = String((tg && tg.initDataUnsafe && tg.initDataUnsafe.start_param) || (location.search.match(/[?&]q=(Q\w+)/) || [])[1] || '');
+    const qid = sp.replace(/^q_/, '');
+    if (qid && qById(qid)) { go('quiz'); startQuiz(qById(qid).unit, [qid]); }
+  } catch (e) {}
   await flushPending();
 }
 async function refresh() {
@@ -1098,24 +1104,24 @@ function openUnitNotes() { go('notes'); setNoteTab('theory'); noteFilter = quizU
 // ---------- Demo data (only for ?demo=1 or opening the file directly) ----------
 function demoData() {
   const Q = [
-    ['Atomic structure', 'How many unpaired electrons does a ground-state Fe atom (Z = 26) have?', ['2', '3', '4', '5', '6'], 2, 'Fe is [Ar] 3d⁶ 4s². 3d⁶ → 4 unpaired electrons.'],
-    ['Atomic structure', 'Which set of quantum numbers (n, l, mₗ) is NOT allowed?', ['1, 0, 0', '2, 1, -1', '3, 2, 2', '2, 2, 0', '4, 3, -3'], 3, 'l must be smaller than n.'],
-    ['Chemical bonding', 'Which of the following molecules is non-polar?', ['H₂O', 'CO₂', 'NH₃', 'HCl', 'SO₂'], 1, 'CO₂ is linear, dipoles cancel.'],
-    ['Chemical bonding', 'What is the hybridisation of each carbon in ethyne?', ['sp³', 'sp²', 'dsp²', 'sp³d', 'sp'], 4, 'Two σ bonds in a line → sp.'],
-    ['Mole concept', 'Mass of 0.25 mol CaCO₃? (Ca 40, C 12, O 16)', ['25 g', '10 g', '50 g', '20 g', '100 g'], 0, '0.25 × 100 = 25 g.'],
-    ['Gaseous state', 'Ideal gas heated from 27 °C to 327 °C at constant P. Volume…', ['halves', 'doubles', 'same', '×12', '÷4'], 1, '300 K → 600 K, V doubles.'],
-    ['Redox', 'Oxidation number of Mn in $\\ce{KMnO4}$?', ['+2', '+4', '+6', '+3', '+7'], 4, '+1 + x − 8 = 0 → +7.'],
+    ['Atomic structure', 'භූමි අවස්ථාවේ ඇති Fe පරමාණුවක (Z = 26) යුගල නොවූ ඉලෙක්ට්‍රෝන කීයක් තිබේද?', ['2', '3', '4', '5', '6'], 2, 'Fe = [Ar] 3d⁶ 4s². 3d⁶ හි යුගල නොවූ ඉලෙක්ට්‍රෝන 4කි.'],
+    ['Atomic structure', 'පහත ($n, l, m_l$) ක්වොන්ටම් අංක කුලක අතුරෙන් අවසර නැත්තේ කුමකටද?', ['1, 0, 0', '2, 1, -1', '3, 2, 2', '2, 2, 0', '4, 3, -3'], 3, '$l$ හි අගය $n$ ට වඩා කුඩා විය යුතුය.'],
+    ['Chemical bonding', 'පහත අණු අතුරෙන් ධ්‍රැවීය නොවන අණුව කුමක්ද?', ['$\\ce{H2O}$', '$\\ce{CO2}$', '$\\ce{NH3}$', '$\\ce{HCl}$', '$\\ce{SO2}$'], 1, '$\\ce{CO2}$ රේඛීය නිසා ද්විධ්‍රැව අවලංගු වේ.'],
+    ['Chemical bonding', 'ඊතයින් ($\\ce{C2H2}$) හි කාබන් පරමාණුවේ මුහුම්කරණය කුමක්ද?', ['sp³', 'sp²', 'dsp²', 'sp³d', 'sp'], 4, 'සරල රේඛාවක σ බන්ධන දෙකක් → sp.'],
+    ['Mole concept', '$\\ce{CaCO3}$ මවුල 0.25ක ස්කන්ධය කීයද? (Ca = 40, C = 12, O = 16)', ['25 g', '10 g', '50 g', '20 g', '100 g'], 0, '0.25 × 100 = 25 g.'],
+    ['Gaseous state', '27 °C හි ඇති පරිපූර්ණ වායුවක් නියත පීඩනයේදී 327 °C දක්වා රත් කළ විට පරිමාව…', ['අඩකට අඩු වේ', 'දෙගුණ වේ', 'නොවෙනස්ව පවතී', '12 ගුණයකින් වැඩි වේ', 'හතරෙන් එකක් වේ'], 1, '300 K → 600 K නිසා V දෙගුණ වේ.'],
+    ['Redox', '$\\ce{KMnO4}$ හි Mn හි ඔක්සිකරණ අංකය කීයද?', ['+2', '+4', '+6', '+3', '+7'], 4, '+1 + x − 8 = 0 → +7.'],
     ['Organic chemistry', 'පහත සඳහන් සංයෝගයේ IUPAC නාමය කුමක් ද?', ['1-hydroxy-2-methylpent-4-yn-3-one', '2-methyl-3-oxopent-4-yn-1-ol', '2-methyl-4-pentyn-1-ol-3-one', '5-hydroxy-4-methylpent-1-yn-3-one', '5-hydroxy-4-methyl-1-yne-3-pentanone'], 3, 'කීටෝනයට අංක 3, ත්‍රිත්ව බන්ධනයට අංක 1.', { smiles: 'C#CC(=O)C(C)CO' }],
     ['Atomic structure', 'ක්වොන්ටම් අංක ($n, l, m_l, m_s$) කුලකයක් ලෙස පිළිගත නොහැකි කුමක්ද?', ['$\\left(4,\\ 2,\\ 0,\\ +\\frac{1}{2}\\right)$', '$\\left(3,\\ 1,\\ -1,\\ +\\frac{1}{2}\\right)$', '$\\left(3,\\ 2,\\ -3,\\ +\\frac{1}{2}\\right)$', '$\\left(2,\\ 1,\\ 1,\\ +\\frac{1}{2}\\right)$', '$\\left(4,\\ 0,\\ 0,\\ -\\frac{1}{2}\\right)$'], 2, '$l = 2$ නම් $m_l = -3$ විය නොහැක.'],
-    ['Kinetics', 'For $\\ce{A + B -> C}$ the data below were obtained. What is the order with respect to A?', ['0', '1', '2', '3', '1/2'], 2, 'Doubling [A] (Expt 1→2) makes the rate 4 times, so order = 2.', { table: 'Expt | [A] / mol dm⁻³ | [B] / mol dm⁻³ | Rate\n1 | 0.10 | 0.10 | 2.0×10⁻³\n2 | 0.20 | 0.10 | 8.0×10⁻³\n3 | 0.10 | 0.20 | 2.0×10⁻³', graph: 'x: 0,10,20,30,40; y: 0.80,0.40,0.20,0.10,0.05; xlabel: Time / s; ylabel: [A] / mol dm⁻³' }],
-    ['Organic chemistry', 'Which compound is propan-2-ol?', ['smiles:CCCO', 'smiles:CC(C)O', 'smiles:CC(=O)C', 'smiles:CCC=O', 'smiles:COCC'], 1, 'Propan-2-ol: OH on the middle carbon.']
+    ['Kinetics', '$\\ce{A + B -> C}$ ප්‍රතික්‍රියාව සඳහා පහත දත්ත ලැබිණි. A ට සාපේක්ෂව පෙළ කීයද?', ['0', '1', '2', '3', '$\\frac{1}{2}$'], 2, '[A] දෙගුණ කළ විට (පරීක්ෂණ 1→2) සීඝ්‍රතාව 4 ගුණ වන නිසා පෙළ = 2.', { table: 'පරීක්ෂණය | [A] / mol dm⁻³ | [B] / mol dm⁻³ | සීඝ්‍රතාව\n1 | 0.10 | 0.10 | 2.0×10⁻³\n2 | 0.20 | 0.10 | 8.0×10⁻³\n3 | 0.10 | 0.20 | 2.0×10⁻³', graph: 'x: 0,10,20,30,40; y: 0.80,0.40,0.20,0.10,0.05; xlabel: කාලය / s; ylabel: [A] / mol dm⁻³' }],
+    ['Organic chemistry', 'propan-2-ol වන්නේ පහත කුමන සංයෝගයද?', ['smiles:CCCO', 'smiles:CC(C)O', 'smiles:CC(=O)C', 'smiles:CCC=O', 'smiles:COCC'], 1, 'propan-2-ol හි OH කාණ්ඩය මැද කාබනයට බැඳී ඇත.']
   ].map((r, i) => ({ id: 'D' + i, unit: r[0], q: r[1], o: r[2], a: r[3], ex: r[4], ...(r[5] || {}) }));
   const today = new Date().toISOString().slice(0, 10);
   return {
     ok: true, status: 'ACTIVE', name: 'Kasun Perera', firstName: 'Kasun', batch: 'A/L 2027', medium: 'Sinhala', today, examDate: '2027-08-10',
     questions: Q, classes: [{ title: 'Chemistry - A/L 2027 (Theory)', day: 'Sunday', dayNo: 7, start: '08:00', end: '12:00', mode: 'Both', venue: 'Main Hall / Zoom', fee: 3000 }],
     nextClass: { title: 'Chemistry - A/L 2027 (Theory)', day: 'Sunday', start: '08:00', end: '12:00', mode: 'Both', venue: 'Main Hall / Zoom', at: new Date(Date.now() + 86400000).toISOString() },
-    announcements: [{ date: today, msg: 'A/L 2027 practical session (Titration) on Saturday 2pm at the lab.' }],
+    announcements: [{ date: today, msg: 'A/L 2027 ප්‍රායෝගික සැසිය (අනුමාපනය) සෙනසුරාදා ප.ව. 2ට විද්‍යාගාරයේදී.' }],
     fees: { paidMonth: '', thisMonth: today.slice(0, 7), paid: false, dueDay: 10 },
     me: { points: 340, weekPoints: 120, streak: 4, bestStreak: 9, doneToday: false, mcqTotal: 58, mcqCorrect: 44, done: ['D0', 'D2'], units: [{ unit: 'Atomic structure', t: 20, c: 16, pct: 80 }, { unit: 'Chemical bonding', t: 18, c: 12, pct: 67 }, { unit: 'Redox', t: 8, c: 3, pct: 38 }], aiLeft: 20, rival: { name: 'Dulaj W.', ai: true, gap: 31 } },
     activeToday: 14,
