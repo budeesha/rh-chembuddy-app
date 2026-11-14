@@ -13,7 +13,7 @@
 <script defer src="https://cdn.jsdelivr.net/npm/smiles-drawer@2.1.7/dist/smiles-drawer.min.js"></script>
 <script defer src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.js"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Sinhala:wght@400;600;700&family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Sinhala:wght@400;600;700&family=Noto+Serif+Sinhala:wght@400;700&family=Noto+Serif:wght@400;700&family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
 <style>
   /* Colours follow the student's Telegram theme; fallbacks = dark theme */
   :root {
@@ -109,6 +109,31 @@
   .lb-row.me { background: color-mix(in srgb, var(--accent) 14%, transparent); border-radius: 10px; }
   .aichip { display: inline-block; font-size: 9px; font-weight: 700; letter-spacing: .3px; padding: 1px 5px; border-radius: 5px; margin-left: 5px; vertical-align: middle; color: var(--muted); border: 1px solid color-mix(in srgb, var(--muted) 45%, transparent); }
   .rival { border-left: 4px solid var(--chem); }
+  /* Exam-style past paper */
+  .paper-bar { position: sticky; top: 0; z-index: 5; display: flex; align-items: center; gap: 8px; padding: 8px 0; background: var(--bg); }
+  .paper-bar .timer { margin-left: auto; }
+  .sheet-paper { background: #fff; color: #111; border-radius: 6px; padding: 18px 14px 24px; font-family: 'Noto Serif Sinhala', 'Noto Serif', serif; font-size: 15px; line-height: 1.6; box-shadow: 0 4px 18px rgba(0,0,0,.3); }
+  .sheet-paper .ph { border: 2px solid #111; border-radius: 10px; padding: 8px 10px; text-align: center; font-weight: 700; margin-bottom: 10px; }
+  .sheet-paper .ph small { display: block; font-weight: 400; font-size: 12px; }
+  .sheet-paper .pinst { border: 1px solid #111; border-radius: 6px; padding: 8px 10px; font-size: 13px; margin-bottom: 10px; }
+  .sheet-paper .pconst { font-size: 13px; text-align: center; margin: 0 0 8px; }
+  .sheet-paper hr { border: 0; border-top: 1.5px solid #111; margin: 10px 0 14px; }
+  .pq { display: flex; gap: 8px; margin-bottom: 18px; }
+  .pq-n { flex: none; width: 24px; font-weight: 700; }
+  .pq-b { flex: 1; min-width: 0; }
+  .pq-b .struct { background: #fff; padding: 0; } .pq-b .qt th, .pq-b .qt td { border-color: #555; } .pq-b .qt th { background: #f1f1f1; }
+  .pq-b .qgraph { background: #fafafa; }
+  .pq-opts { display: grid; gap: 4px 10px; margin-top: 6px; }
+  .pq-opts.c5 { grid-template-columns: repeat(5, 1fr); } .pq-opts.c2 { grid-template-columns: 1fr 1fr; } .pq-opts.c1 { grid-template-columns: 1fr; }
+  .po { display: flex; gap: 6px; align-items: flex-start; text-align: left; background: transparent; color: #111; border: 1.5px solid transparent; border-radius: 8px; padding: 3px 5px; font: inherit; cursor: pointer; min-width: 0; }
+  .po .pon { flex: none; }
+  .po.sel { border-color: #1d4ed8; background: #e8efff; }
+  .po.ok { border-color: #15803d; background: #dcfce7; }
+  .po.bad { border-color: #b91c1c; background: #fee2e2; }
+  .pq-ex { margin-top: 6px; font-size: 13px; background: #f5f5f5; border-left: 3px solid #15803d; padding: 6px 8px; border-radius: 4px; font-family: 'Noto Sans Sinhala', sans-serif; }
+  .pq-ex.bad { border-left-color: #b91c1c; }
+  .pres { background: #111; color: #fff; border-radius: 10px; padding: 12px; text-align: center; margin-bottom: 12px; font-family: 'Noto Sans Sinhala', sans-serif; }
+  .pres b { font-size: 30px; display: block; }
   .pp-row { display: flex; align-items: center; gap: 12px; width: 100%; background: var(--bg); color: var(--text); border: 0; border-radius: 12px; padding: 10px; margin-top: 8px; font: inherit; text-align: left; cursor: pointer; }
   .pp-y { flex: none; width: 52px; height: 52px; border-radius: 10px; display: grid; place-items: center; font-weight: 800; color: #fff; background: linear-gradient(135deg, #b45309, #92400e); }
   .backbtn { flex: none; width: 34px; height: 34px; border-radius: 10px; border: 0; background: var(--card); color: var(--text); font-size: 17px; font-weight: 700; cursor: pointer; display: grid; place-items: center; }
@@ -351,6 +376,12 @@
       <button class="btn ghost" onclick="resetQuiz()">තව paper එකක්</button>
       <button class="btn ghost" style="margin-top:8px" onclick="go('rank')">🏆 Leaderboard බලන්න</button>
     </div>
+  </section>
+
+  <!-- ===== PAST PAPER (exam style) ===== -->
+  <section class="screen" id="paper">
+    <div class="paper-bar"><button class="backbtn" onclick="goBack()" aria-label="Back">←</button><span class="pill" id="ppAnswered">0 / 0</span><span class="timer" id="ppTimer">⏱ 00:00</span><button class="btn" id="ppSubmit" style="width:auto;padding:8px 14px" onclick="submitPaper()">භාර දෙන්න</button></div>
+    <div class="sheet-paper" id="ppSheet"></div>
   </section>
 
   <!-- ===== AI TUTOR ===== -->
@@ -655,6 +686,8 @@ function goBack() {
   if (isOpen('cam')) return closeCamera();
   if (isOpen('viewer')) return closeViewer();
   if (isOpen('sheet')) return closeSheet();
+  if (curScreen === 'paper' && PAPER && !PAPER.done && Object.keys(PAPER.ans).length) return ask('Paper එකෙන් ඉවත් වෙන්නද? භාර නොදුන්නොත් උත්තර save වෙන්නේ නැහැ.', ok => { if (ok) { clearInterval(PAPER.timer); PAPER = null; go(navStack.pop() || 'quiz', true); } });
+  if (curScreen === 'paper' && PAPER) { clearInterval(PAPER.timer); PAPER = null; }
   if (curScreen === 'quiz' && quizActive()) return ask('Quiz එක නවත්තන්නද? මේ වෙනකම් දීපු උත්තර save වෙනවා.', ok => { if (ok) quitQuiz(); });
   if (curScreen === 'quiz' && quizDoneShown()) { resetQuiz(); return; }
   go(navStack.pop() || 'home', true);
@@ -695,13 +728,88 @@ function unitsList() {
   practiceQs().forEach(q => { map[q.unit] = (map[q.unit] || 0) + 1; });
   return Object.keys(map).sort().map(u => ({ id: u, name: u, ic: unitIcon(u), count: map[u] }));
 }
+// ---------- Exam-style paper mode ----------
+let PAPER = null;
+const SEC_PER_Q = 144; // A/L Chemistry I: 50 questions in 2 hours
+const plainLen = (t) => String(t || '').replace(/\$\\ce\{([^}]*)\}\$/g, '$1').replace(/\$[^$]*\$/g, 'xxxxxxxx').length;
+function optCols(o) {
+  if (o.some(x => /^\s*smiles:/i.test(x))) return 'c2';
+  if (o.some(x => /\$(?!\\ce)/.test(x))) return 'c2'; // maths (fractions etc.) needs room
+  const m = Math.max(...o.map(plainLen));
+  return m <= 9 ? 'c5' : m <= 26 ? 'c2' : 'c1';
+}
+function startPaper(year) {
+  const qsP = paperQs(year); if (!qsP.length) return toast('ප්‍රශ්න නැහැ');
+  if (PAPER) clearInterval(PAPER.timer);
+  PAPER = { year, qs: qsP, ans: {}, left: qsP.length * SEC_PER_Q, done: false, timer: null };
+  go('paper'); renderPaper();
+  PAPER.timer = setInterval(() => { if (!PAPER || PAPER.done) return; PAPER.left--; paperClock(); if (PAPER.left <= 0) { toast('⏰ වෙලාව ඉවරයි! Paper එක භාර දුන්නා.'); submitPaper(true); } }, 1000);
+}
+function paperClock() {
+  const l = Math.max(0, PAPER.left), h = Math.floor(l / 3600), m = Math.floor(l % 3600 / 60), s = l % 60;
+  $('ppTimer').textContent = '⏱ ' + (h ? h + ':' : '') + String(m).padStart(2, '0') + ':' + String(s).padStart(2, '0');
+  $('ppTimer').classList.toggle('low', l <= 300);
+  $('ppAnswered').textContent = '✍️ ' + Object.keys(PAPER.ans).length + ' / ' + PAPER.qs.length;
+}
+function renderPaper() {
+  const P = PAPER;
+  let correct = 0;
+  P.qs.forEach(q => { if (P.ans[q.id] === q.a) correct++; });
+  const head = `<div class="ph">අධ්‍යයන පොදු සහතික පත්‍ර (උසස් පෙළ) විභාගය, ${esc(P.year)}<small>රසායන විද්‍යාව I · පැය දෙකයි</small></div>
+    <div class="pinst">✳ සියලු ම ප්‍රශ්නවලට පිළිතුරු සපයන්න.<br>✳ එක් එක් ප්‍රශ්නයට (1), (2), (3), (4), (5) යන පිළිතුරුවලින් නිවැරදි හෝ ඉතාමත් ගැළපෙන පිළිතුර තෝරන්න.</div>
+    <div class="pconst">සාර්වත්‍ර වායු නියතය $R = 8.314$ J K$^{-1}$ mol$^{-1}$<br>ඇවගාඩ්‍රෝ නියතය $N_A = 6.022 \\times 10^{23}$ mol$^{-1}$<br>ප්ලාන්ක්ගේ නියතය $h = 6.626 \\times 10^{-34}$ J s<br>ආලෝකයේ ප්‍රවේගය $c = 3 \\times 10^{8}$ m s$^{-1}$</div><hr>`;
+  const res = P.done ? `<div class="pres">ඔබේ ලකුණු<b>${correct} / ${P.qs.length}</b>${Math.round(100 * correct / P.qs.length)}% · <span id="ppXp">XP save කරනවා...</span></div>` : '';
+  const body = P.qs.map((q, n) => {
+    const chosen = P.ans[q.id];
+    const opts = q.o.map((o, i) => {
+      let cls = '';
+      if (P.done) { if (i === q.a) cls = 'ok'; else if (i === chosen) cls = 'bad'; }
+      else if (i === chosen) cls = 'sel';
+      return `<button class="po ${cls}" ${P.done ? 'disabled' : ''} onclick="paperPick('${q.id}', ${i})"><span class="pon">(${i + 1})</span><span style="min-width:0">${richText(o)}</span></button>`;
+    }).join('');
+    const ex = P.done ? `<div class="pq-ex ${chosen === q.a ? '' : 'bad'}">${chosen === q.a ? '✅ හරි' : (chosen === undefined ? '⚪ උත්තර දුන්නේ නැහැ' : '❌ ඔබ (' + (chosen + 1) + ')') + ' · හරි උත්තරය (' + (q.a + 1) + ')'}<br>${esc(q.ex)}<br>${noteButton(q, chosen !== q.a)}${aiButton(q, chosen === undefined ? -1 : chosen)}</div>` : '';
+    return `<div class="pq"><div class="pq-n">${q.ppNo || n + 1}.</div><div class="pq-b">${richQuestion(q)}<div class="pq-opts ${optCols(q.o)}">${opts}</div>${ex}</div></div>`;
+  }).join('');
+  $('ppSheet').innerHTML = res + head + body;
+  $('ppSubmit').style.display = P.done ? 'none' : 'block';
+  paperClock(); enhance($('ppSheet'));
+}
+function paperPick(id, i) {
+  if (!PAPER || PAPER.done) return;
+  if (PAPER.ans[id] === i) delete PAPER.ans[id]; else PAPER.ans[id] = i; // tap again to clear
+  haptic('success');
+  const y = window.scrollY; renderPaper(); window.scrollTo(0, y);
+}
+async function submitPaper(force) {
+  if (!PAPER || PAPER.done) return;
+  const left = PAPER.qs.length - Object.keys(PAPER.ans).length;
+  if (!force && left > 0) return ask('තව ප්‍රශ්න ' + left + 'කට උත්තර දීලා නැහැ. Paper එක භාර දෙන්නද?', ok => ok && submitPaper(true));
+  PAPER.done = true; clearInterval(PAPER.timer);
+  renderPaper(); window.scrollTo(0, 0);
+  const list = PAPER.qs.filter(q => PAPER.ans[q.id] !== undefined).map(q => ({ qid: q.id, choice: PAPER.ans[q.id] }));
+  const xpEl = () => $('ppXp');
+  if (!list.length) { if (xpEl()) xpEl().textContent = 'උත්තර දුන්නේ නැහැ'; return; }
+  if (DEMO) { if (xpEl()) xpEl().textContent = 'Demo: XP save වෙන්නේ නැහැ'; return; }
+  try {
+    const r = await api('submit', { answers: JSON.stringify(list) });
+    if (!r || !r.ok) throw new Error('fail');
+    const lr = r.lastResult || {};
+    if (xpEl()) xpEl().textContent = '+' + (lr.gained || 0) + ' XP' + (lr.questXp ? ' · 🎯 quests +' + lr.questXp : '');
+    const keep = PAPER; applyServer(r); PAPER = keep;
+    if (lr.promoted) setTimeout(() => showPromo(lr.promoted), 600);
+  } catch (e) {
+    const k = 'cb_pending_' + me.id; const p = store.get(k, []); p.push(list); store.set(k, p);
+    if (xpEl()) xpEl().textContent = '⚠️ Internet නැහැ. App එක ආයෙත් open කළාම save වෙනවා.';
+  }
+}
 function renderPapers() {
   const years = [...new Set(allQs().filter(q => q.pp).map(q => String(q.pp)))].sort((a, b) => b.localeCompare(a));
   const ds = doneSet();
   $('ppBox').style.display = years.length ? 'block' : 'none';
   $('ppList').innerHTML = years.map(y => {
     const qsY = paperQs(y), done = qsY.filter(q => ds.has(q.id)).length;
-    return `<button class="pp-row" onclick="startQuiz('pp:${esc(y)}')"><span class="pp-y">${esc(y)}</span><span style="flex:1;min-width:0"><b class="si">A/L ${esc(y)} – රසායන විද්‍යාව I</b><span class="muted si" style="display:block;font-size:12px">ප්‍රශ්න ${qsY.length} · ${done ? '✅ ' + done + 'ක් කළා' : 'තාම කරලා නැහැ'}</span></span><span style="color:var(--accent)">➜</span></button>`;
+    return `<div class="pp-row"><span class="pp-y">${esc(y)}</span><span style="flex:1;min-width:0"><b class="si">A/L ${esc(y)} – රසායන විද්‍යාව I</b><span class="muted si" style="display:block;font-size:12px">ප්‍රශ්න ${qsY.length} · ${done ? '✅ ' + done + 'ක් කළා' : 'තාම කරලා නැහැ'}</span>
+      <span class="row" style="gap:6px;margin-top:8px"><button class="pill" style="border:0;cursor:pointer" onclick="startPaper('${esc(y)}')">📝 Paper mode</button><button class="pill" style="border:0;cursor:pointer;background:color-mix(in srgb,var(--muted) 18%,transparent);color:var(--text)" onclick="startQuiz('pp:${esc(y)}')">🧪 එකින් එක</button></span></span></div>`;
   }).join('');
 }
 function renderUnits() {
@@ -768,6 +876,11 @@ function richQuestion(q) {
 const charts = [];
 function enhance(el) {
   if (!el) return;
+  // Slow network: the libraries may arrive later -> try again a few times
+  if ((!window.renderMathInElement || !window.SmiDrawer || !window.Chart) && (Number(el.dataset.retry || 0) < 10)) {
+    el.dataset.retry = Number(el.dataset.retry || 0) + 1;
+    setTimeout(() => enhance(el), 1200);
+  }
   try { if (window.renderMathInElement) renderMathInElement(el, { delimiters: [{ left: '$$', right: '$$', display: true }, { left: '$', right: '$', display: false }], throwOnError: false }); } catch (e) {}
   try {
     if (window.SmiDrawer && el.querySelector('svg[data-smiles]')) {
@@ -789,7 +902,7 @@ function enhance(el) {
   } catch (e) {}
 }
 // Libraries load with "defer": re-run once they are ready
-window.addEventListener('load', () => { ['qText', 'qOpts', 'qExplain'].forEach(id => enhance($(id))); });
+window.addEventListener('load', () => { ['qText', 'qOpts', 'qExplain', 'ppSheet'].forEach(id => enhance($(id))); });
 
 function showQ() {
   const q = qs[qi];
@@ -1134,6 +1247,8 @@ function demoData() {
     ['Mole concept', '$\\ce{CaCO3}$ මවුල 0.25ක ස්කන්ධය කීයද? (Ca = 40, C = 12, O = 16)', ['25 g', '10 g', '50 g', '20 g', '100 g'], 0, '0.25 × 100 = 25 g.'],
     ['Gaseous state', '27 °C හි ඇති පරිපූර්ණ වායුවක් නියත පීඩනයේදී 327 °C දක්වා රත් කළ විට පරිමාව…', ['අඩකට අඩු වේ', 'දෙගුණ වේ', 'නොවෙනස්ව පවතී', '12 ගුණයකින් වැඩි වේ', 'හතරෙන් එකක් වේ'], 1, '300 K → 600 K නිසා V දෙගුණ වේ.'],
     ['Redox', '$\\ce{KMnO4}$ හි Mn හි ඔක්සිකරණ අංකය කීයද?', ['+2', '+4', '+6', '+3', '+7'], 4, '+1 + x − 8 = 0 → +7.'],
+    ['Periodic table', 'කාමර උෂ්ණත්වයේදී (25 °C) සහ වායුගෝලීය පීඩනයේදී ($1.0 \\times 10^{5}$ N m$^{-2}$) ද්‍රව අවස්ථාවේ පැවතිය හැකි මූලද්‍රව්‍ය සංඛ්‍යාව වනුයේ,', ['1', '2', '3', '4', '5'], 1, 'Hg සහ $\\ce{Br2}$ පමණි.', { pp: '2012', ppNo: 1 }],
+    ['Periodic table', 'C, O, Al, P සහ Ca හි පරමාණුක අරයයන් වැඩිවන නිවැරදි අනුපිළිවෙළ වනුයේ,', ['O < C < Al < P < Ca', 'O < C < P < Al < Ca', 'C < O < P < Al < Ca', 'C < O < Al < P < Ca', 'C < O < Al < Ca < P'], 1, 'O < C < P < Al < Ca.', { pp: '2012', ppNo: 2 }],
     ['Organic chemistry', 'පහත සඳහන් සංයෝගයේ IUPAC නාමය කුමක් ද?', ['1-hydroxy-2-methylpent-4-yn-3-one', '2-methyl-3-oxopent-4-yn-1-ol', '2-methyl-4-pentyn-1-ol-3-one', '5-hydroxy-4-methylpent-1-yn-3-one', '5-hydroxy-4-methyl-1-yne-3-pentanone'], 3, 'කීටෝනයට අංක 3, ත්‍රිත්ව බන්ධනයට අංක 1.', { smiles: 'C#CC(=O)C(C)CO', pp: '2012', ppNo: 3 }],
     ['Atomic structure', 'ක්වොන්ටම් අංක ($n, l, m_l, m_s$) කුලකයක් ලෙස පිළිගත නොහැකි කුමක්ද?', ['$\\left(4,\\ 2,\\ 0,\\ +\\frac{1}{2}\\right)$', '$\\left(3,\\ 1,\\ -1,\\ +\\frac{1}{2}\\right)$', '$\\left(3,\\ 2,\\ -3,\\ +\\frac{1}{2}\\right)$', '$\\left(2,\\ 1,\\ 1,\\ +\\frac{1}{2}\\right)$', '$\\left(4,\\ 0,\\ 0,\\ -\\frac{1}{2}\\right)$'], 2, '$l = 2$ නම් $m_l = -3$ විය නොහැක.', { pp: '2012', ppNo: 5 }],
     ['Kinetics', '$\\ce{A + B -> C}$ ප්‍රතික්‍රියාව සඳහා පහත දත්ත ලැබිණි. A ට සාපේක්ෂව පෙළ කීයද?', ['0', '1', '2', '3', '$\\frac{1}{2}$'], 2, '[A] දෙගුණ කළ විට (පරීක්ෂණ 1→2) සීඝ්‍රතාව 4 ගුණ වන නිසා පෙළ = 2.', { table: 'පරීක්ෂණය | [A] / mol dm⁻³ | [B] / mol dm⁻³ | සීඝ්‍රතාව\n1 | 0.10 | 0.10 | 2.0×10⁻³\n2 | 0.20 | 0.10 | 8.0×10⁻³\n3 | 0.10 | 0.20 | 2.0×10⁻³', graph: 'x: 0,10,20,30,40; y: 0.80,0.40,0.20,0.10,0.05; xlabel: කාලය / s; ylabel: [A] / mol dm⁻³' }],
