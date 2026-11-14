@@ -116,9 +116,13 @@
   .paper-bar .timer { margin-left: auto; }
   .sheet-paper { background: #fff; color: #111; border-radius: 6px; padding: 18px 14px 24px; font-family: 'Noto Serif Sinhala', 'Noto Serif', serif; font-size: 15px; line-height: 1.6; box-shadow: 0 4px 18px rgba(0,0,0,.3); }
   .sheet-paper .ph { border: 2px solid #111; border-radius: 10px; padding: 8px 10px; text-align: center; font-weight: 700; margin-bottom: 10px; }
+  .sheet-paper .ph-code { text-align: right; font-size: 11px; font-weight: 700; letter-spacing: .4px; margin-bottom: 4px; font-family: 'Inter', sans-serif; }
+  .sheet-paper .ph-meta { display: flex; justify-content: space-between; align-items: center; font-size: 12px; font-weight: 600; margin-top: 4px; padding-top: 4px; border-top: 1px solid #ccc; }
+  .sheet-paper .ph-box { display: inline-flex; gap: 3px; font-family: 'Inter', sans-serif; }
+  .sheet-paper .ph-box span { border: 1.5px solid #111; padding: 1px 6px; font-weight: 800; }
   .sheet-paper .ph small { display: block; font-weight: 400; font-size: 12px; }
   .sheet-paper .pinst { border: 1px solid #111; border-radius: 6px; padding: 8px 10px; font-size: 13px; margin-bottom: 10px; }
-  .sheet-paper .pconst { font-size: 13px; text-align: center; margin: 0 0 8px; }
+  .sheet-paper .pconst { display: grid; grid-template-columns: auto auto; justify-content: center; gap: 2px 12px; font-size: 13px; text-align: left; margin: 0 0 8px; }
   .sheet-paper hr { border: 0; border-top: 1.5px solid #111; margin: 10px 0 14px; }
   .pq { display: flex; gap: 8px; margin-bottom: 18px; }
   .pq-n { flex: none; width: 24px; font-weight: 700; }
@@ -126,7 +130,7 @@
   .pq-b .struct { background: #fff; padding: 0; } .pq-b .qt th, .pq-b .qt td { border-color: #555; } .pq-b .qt th { background: #f1f1f1; }
   .pq-b .qgraph { background: #fafafa; }
   .pq-opts { display: grid; gap: 4px 10px; margin-top: 6px; }
-  .pq-opts.c5 { grid-template-columns: repeat(5, 1fr); } .pq-opts.c2 { grid-template-columns: 1fr 1fr; } .pq-opts.c1 { grid-template-columns: 1fr; }
+  .pq-opts.c5 { grid-template-columns: repeat(5, 1fr); } .pq-opts.c3 { grid-template-columns: repeat(3, 1fr); } .pq-opts.c2 { grid-template-columns: 1fr 1fr; } .pq-opts.c1 { grid-template-columns: 1fr; }
   .po { display: flex; gap: 6px; align-items: flex-start; text-align: left; background: transparent; color: #111; border: 1.5px solid transparent; border-radius: 8px; padding: 3px 5px; font: inherit; cursor: pointer; min-width: 0; }
   .po .pon { flex: none; }
   .po.sel { border-color: #1d4ed8; background: #e8efff; }
@@ -733,12 +737,12 @@ function unitsList() {
 // ---------- Exam-style paper mode ----------
 let PAPER = null;
 const SEC_PER_Q = 144; // A/L Chemistry I: 50 questions in 2 hours
-const plainLen = (t) => String(t || '').replace(/\$\\ce\{([^}]*)\}\$/g, '$1').replace(/\$[^$]*\$/g, 'xxxxxxxx').length;
+const plainLen = (t) => String(t || '').replace(/\\left|\\right/g, '').replace(/\\frac\{([^}]*)\}\{([^}]*)\}/g, '$1/$2').replace(/\$\\ce\{([^}]*)\}\$/g, '$1').replace(/\$[^$]*\$/g, m => m.slice(1, -1).replace(/\s+/g, '')).length;
 function optCols(o) {
   if (o.some(x => /^\s*(smiles|paper):/i.test(x))) return 'c1';
-  if (o.some(x => /\$(?!\\ce)/.test(x))) return 'c2'; // maths (fractions etc.) needs room
   const m = Math.max(...o.map(plainLen));
-  return m <= 9 ? 'c5' : m <= 26 ? 'c2' : 'c1';
+  if (o.some(x => /\$(?!\\ce)/.test(x))) return m <= 14 ? 'c3' : m <= 26 ? 'c2' : 'c1';
+  return m <= 9 ? 'c5' : m <= 16 ? 'c3' : m <= 26 ? 'c2' : 'c1';
 }
 function startPaper(year) {
   const qsP = paperQs(year); if (!qsP.length) return toast('ප්‍රශ්න නැහැ');
@@ -757,9 +761,10 @@ function renderPaper() {
   const P = PAPER;
   let correct = 0;
   P.qs.forEach(q => { if (P.ans[q.id] === q.a) correct++; });
-  const head = `<div class="ph">අධ්‍යයන පොදු සහතික පත්‍ර (උසස් පෙළ) විභාගය, ${esc(P.year)}<small>රසායන විද්‍යාව I · පැය දෙකයි</small></div>
-    <div class="pinst">✳ සියලු ම ප්‍රශ්නවලට පිළිතුරු සපයන්න.<br>✳ එක් එක් ප්‍රශ්නයට (1), (2), (3), (4), (5) යන පිළිතුරුවලින් නිවැරදි හෝ ඉතාමත් ගැළපෙන පිළිතුර තෝරන්න.</div>
-    <div class="pconst">සාර්වත්‍ර වායු නියතය $R = 8.314$ J K$^{-1}$ mol$^{-1}$<br>ඇවගාඩ්‍රෝ නියතය $N_A = 6.022 \\times 10^{23}$ mol$^{-1}$<br>ප්ලාන්ක්ගේ නියතය $h = 6.626 \\times 10^{-34}$ J s<br>ආලෝකයේ ප්‍රවේගය $c = 3 \\times 10^{8}$ m s$^{-1}$</div><hr>`;
+  const head = `<div class="ph-code">AL/${esc(P.year)}/02/S-I</div>
+    <div class="ph">අධ්‍යයන පොදු සහතික පත්‍ර (උසස් පෙළ) විභාගය, ${esc(P.year)}<small>රසායන විද්‍යාව I · නව නිර්දේශය</small><div class="ph-meta"><span>රසායන විද්‍යාව I</span><span class="ph-box"><span>02</span><span>S</span><span>I</span></span><span>පැය දෙකයි</span></div></div>
+    <div class="pinst">✳ සියලු ම ප්‍රශ්නවලට පිළිතුරු සපයන්න.<br>✳ ගණක යන්ත්‍ර භාවිතයට ඉඩ දෙනු නොලැබේ.<br>✳ 1 සිට 50 තෙක් එක් එක් ප්‍රශ්නයට (1), (2), (3), (4), (5) යන පිළිතුරුවලින් නිවැරදි හෝ ඉතාමත් ගැළපෙන පිළිතුර තෝරන්න.</div>
+    <div class="pconst"><span>සාර්වත්‍ර වායු නියතය</span><span>$R = 8.314\\text{ J K}^{-1}\\text{ mol}^{-1}$</span><span>ඇවගාඩ්‍රෝ නියතය</span><span>$N_A = 6.022 \\times 10^{23}\\text{ mol}^{-1}$</span><span>ප්ලාන්ක්ගේ නියතය</span><span>$h = 6.626 \\times 10^{-34}\\text{ J s}$</span><span>ආලෝකයේ ප්‍රවේගය</span><span>$c = 3 \\times 10^{8}\\text{ m s}^{-1}$</span></div><hr>`;
   const res = P.done ? `<div class="pres">ඔබේ ලකුණු<b>${correct} / ${P.qs.length}</b>${Math.round(100 * correct / P.qs.length)}% · <span id="ppXp">XP save කරනවා...</span></div>` : '';
   const body = P.qs.map((q, n) => {
     const chosen = P.ans[q.id];
@@ -769,7 +774,7 @@ function renderPaper() {
       else if (i === chosen) cls = 'sel';
       return `<button class="po ${cls}" ${P.done ? 'disabled' : ''} onclick="paperPick('${q.id}', ${i})"><span class="pon">(${i + 1})</span><span style="min-width:0">${richText(o)}</span></button>`;
     }).join('');
-    const ex = P.done ? `<div class="pq-ex ${chosen === q.a ? '' : 'bad'}">${chosen === q.a ? '✅ හරි' : (chosen === undefined ? '⚪ උත්තර දුන්නේ නැහැ' : '❌ ඔබ (' + (chosen + 1) + ')') + ' · හරි උත්තරය (' + (q.a + 1) + ')'}<br>${esc(q.ex)}<br>${noteButton(q, chosen !== q.a)}${aiButton(q, chosen === undefined ? -1 : chosen)}</div>` : '';
+    const ex = P.done ? `<div class="pq-ex ${chosen === q.a ? '' : 'bad'}">${chosen === q.a ? '✅ හරි' : (chosen === undefined ? '⚪ උත්තර දුන්නේ නැහැ' : '❌ ඔබ (' + (chosen + 1) + ')') + ' · හරි උත්තරය (' + (q.a + 1) + ')'}<br>${inlineStructs(q.ex)}<br>${noteButton(q, chosen !== q.a)}${aiButton(q, chosen === undefined ? -1 : chosen)}</div>` : '';
     return `<div class="pq"><div class="pq-n">${q.ppNo || n + 1}.</div><div class="pq-b">${richQuestion(q)}<div class="pq-opts ${optCols(q.o)}">${opts}</div>${ex}</div></div>`;
   }).join('');
   $('ppSheet').innerHTML = res + head + body;
@@ -859,11 +864,11 @@ function richText(t) {
   if (l && window.paperStructText) return esc(paperStructText(l[1]));
   return inlineStructs(s);
 }
-// [[HC#C-C(=O)-CH3]] inside question text = paper-style structure; [[line:...]] = one-line formula
+// [[HC#C-C(=O)-CH3]] inside question text = paper-style structure; [[line:...]] = one-line formula; **text** = bold
 function inlineStructs(s) {
   return String(s).split(/(\[\[[^\]]+\]\])/).map(part => {
     const m = part.match(/^\[\[(line:)?([^\]]+)\]\]$/);
-    if (!m || !window.paperStructHTML) return esc(part);
+    if (!m || !window.paperStructHTML) return esc(part).replace(/\*\*([^*]+)\*\*/g, '<b>$1</b>');
     return m[1] ? esc(paperStructText(m[2])) : `<span class="ps-wrap" style="display:block">${paperStructHTML(m[2])}</span>`;
   }).join('');
 }
@@ -1271,9 +1276,10 @@ function demoData() {
     ['Gaseous state', '27 °C හි ඇති පරිපූර්ණ වායුවක් නියත පීඩනයේදී 327 °C දක්වා රත් කළ විට පරිමාව…', ['අඩකට අඩු වේ', 'දෙගුණ වේ', 'නොවෙනස්ව පවතී', '12 ගුණයකින් වැඩි වේ', 'හතරෙන් එකක් වේ'], 1, '300 K → 600 K නිසා V දෙගුණ වේ.'],
     ['Redox', '$\\ce{KMnO4}$ හි Mn හි ඔක්සිකරණ අංකය කීයද?', ['+2', '+4', '+6', '+3', '+7'], 4, '+1 + x − 8 = 0 → +7.'],
     ['Periodic table', 'කාමර උෂ්ණත්වයේදී (25 °C) සහ වායුගෝලීය පීඩනයේදී ($1.0 \\times 10^{5}$ N m$^{-2}$) ද්‍රව අවස්ථාවේ පැවතිය හැකි මූලද්‍රව්‍ය සංඛ්‍යාව වනුයේ,', ['1', '2', '3', '4', '5'], 1, 'Hg සහ $\\ce{Br2}$ පමණි.', { pp: '2012', ppNo: 1 }],
-    ['Periodic table', 'C, O, Al, P සහ Ca හි පරමාණුක අරයයන් වැඩිවන නිවැරදි අනුපිළිවෙළ වනුයේ,', ['O < C < Al < P < Ca', 'O < C < P < Al < Ca', 'C < O < P < Al < Ca', 'C < O < Al < P < Ca', 'C < O < Al < Ca < P'], 1, 'O < C < P < Al < Ca.', { pp: '2012', ppNo: 2 }],
-    ['Organic chemistry', 'පහත සඳහන් සංයෝගයේ IUPAC නාමය කුමක් ද?', ['1-hydroxy-2-methylpent-4-yn-3-one', '2-methyl-3-oxopent-4-yn-1-ol', '2-methyl-4-pentyn-1-ol-3-one', '5-hydroxy-4-methylpent-1-yn-3-one', '5-hydroxy-4-methyl-1-yne-3-pentanone'], 3, 'කීටෝනයට අංක 3, ත්‍රිත්ව බන්ධනයට අංක 1.', { smiles: 'C#CC(=O)C(C)CO', pp: '2012', ppNo: 3 }],
-    ['Atomic structure', 'ක්වොන්ටම් අංක ($n, l, m_l, m_s$) කුලකයක් ලෙස පිළිගත නොහැකි කුමක්ද?', ['$\\left(4,\\ 2,\\ 0,\\ +\\frac{1}{2}\\right)$', '$\\left(3,\\ 1,\\ -1,\\ +\\frac{1}{2}\\right)$', '$\\left(3,\\ 2,\\ -3,\\ +\\frac{1}{2}\\right)$', '$\\left(2,\\ 1,\\ 1,\\ +\\frac{1}{2}\\right)$', '$\\left(4,\\ 0,\\ 0,\\ -\\frac{1}{2}\\right)$'], 2, '$l = 2$ නම් $m_l = -3$ විය නොහැක.', { pp: '2012', ppNo: 5 }],
+    ['Periodic table', 'C, O, Al, P සහ Ca හි පරමාණුක අරයයන් **වැඩිවන** නිවැරදි අනුපිළිවෙළ වනුයේ,', ['O < C < Al < P < Ca', 'O < C < P < Al < Ca', 'C < O < P < Al < Ca', 'C < O < Al < P < Ca', 'C < O < Al < Ca < P'], 1, 'O < C < P < Al < Ca.', { pp: '2012', ppNo: 2 }],
+    ['Organic chemistry', 'පහත සඳහන් සංයෝගයේ IUPAC නාමය කුමක් ද?', ['1-hydroxy-2-methylpent-4-yn-3-one', '2-methyl-3-oxopent-4-yn-1-ol', '2-methyl-4-pentyn-1-ol-3-one', '5-hydroxy-4-methylpent-1-yn-3-one', '5-hydroxy-4-methyl-1-yne-3-pentanone'], 3, 'කීටෝනයට අංක 3, ත්‍රිත්ව බන්ධනයට අංක 1.', { smiles: 'paper:HC#C-C(=O)-CH(CH3)-CH2OH', pp: '2012', ppNo: 3 }],
+    ['Periodic table', 'දෙවැනි ආවර්තයේ Li සිට F තෙක් මූලද්‍රව්‍ය පිළිබඳව පහත සඳහන් කුමන ප්‍රකාශය සත්‍ය **නොවේ** ද?', ['ඉහළම ඍණ ඉලෙක්ට්‍රෝන බන්ධුතාව පෙන්වන්නේ F ය.', 'ඉහළම ධන ඉලෙක්ට්‍රෝන බන්ධුතාව පෙන්වන්නේ Be ය.', 'ඉහළම ඔක්සිකරණ අවස්ථාව පෙන්වන්නේ C ය.', 'Li සිට F තෙක් පරමාණුක අරයයන් අඩු වේ.', 'කැටායන සෑදීමේ හැකියාව සහ ඔක්සිහාරක ලෙස ක්‍රියාකිරීමේ හැකියාව Li සිට F තෙක් අඩු වේ.'], 2, 'දෙවැනි ආවර්තයේ ඉහළම ඔක්සිකරණ අවස්ථාව (+5) පෙන්වන්නේ N ය (C පෙන්වන්නේ +4).', { pp: '2012', ppNo: 4 }],
+    ['Atomic structure', 'පරමාණුවක ඇති ඉලෙක්ට්‍රෝනයක අනන්‍යතාව, ක්වොන්ටම් අංක හතරක් ($n, l, m_l, m_s$) යොදා ප්‍රකාශ කළ හැකිය. පහත සඳහන් අංක කුලක අතුරෙන්, පරමාණුක ඉලෙක්ට්‍රෝනයක් සඳහා ක්වොන්ටම් අංක කුලකයක් ලෙස පිළිගත **නොහැකි** කුමක්දැයි හඳුනාගන්න.', ['$\\left(4,\\ 2,\\ 0,\\ +\\frac{1}{2}\\right)$', '$\\left(3,\\ 1,\\ -1,\\ +\\frac{1}{2}\\right)$', '$\\left(3,\\ 2,\\ -3,\\ +\\frac{1}{2}\\right)$', '$\\left(2,\\ 1,\\ 1,\\ +\\frac{1}{2}\\right)$', '$\\left(4,\\ 0,\\ 0,\\ -\\frac{1}{2}\\right)$'], 2, '$l = 2$ නම් $m_l = -3$ විය නොහැක.', { pp: '2012', ppNo: 5 }],
     ['Kinetics', '$\\ce{A + B -> C}$ ප්‍රතික්‍රියාව සඳහා පහත දත්ත ලැබිණි. A ට සාපේක්ෂව පෙළ කීයද?', ['0', '1', '2', '3', '$\\frac{1}{2}$'], 2, '[A] දෙගුණ කළ විට (පරීක්ෂණ 1→2) සීඝ්‍රතාව 4 ගුණ වන නිසා පෙළ = 2.', { table: 'පරීක්ෂණය | [A] / mol dm⁻³ | [B] / mol dm⁻³ | සීඝ්‍රතාව\n1 | 0.10 | 0.10 | 2.0×10⁻³\n2 | 0.20 | 0.10 | 8.0×10⁻³\n3 | 0.10 | 0.20 | 2.0×10⁻³', graph: 'x: 0,10,20,30,40; y: 0.80,0.40,0.20,0.10,0.05; xlabel: කාලය / s; ylabel: [A] / mol dm⁻³' }],
     ['Organic chemistry', 'propan-2-ol වන්නේ පහත කුමන සංයෝගයද?', ['smiles:CCCO', 'smiles:CC(C)O', 'smiles:CC(=O)C', 'smiles:CCC=O', 'smiles:COCC'], 1, 'propan-2-ol හි OH කාණ්ඩය මැද කාබනයට බැඳී ඇත.']
   ].map((r, i) => ({ id: 'D' + i, unit: r[0], q: r[1], o: r[2], a: r[3], ex: r[4], ...(r[5] || {}) }));
