@@ -135,6 +135,13 @@
   .fab { position: fixed; right: max(16px, calc(50% - 224px)); bottom: 84px; width: 56px; height: 56px; border-radius: 50%; border: 0; background: var(--accent); color: var(--accent-text); font-size: 26px; box-shadow: 0 6px 18px rgba(0,0,0,.35); cursor: pointer; display: none; }
   .fab.show { display: block; }
   .snap { display: inline-flex; align-items: center; gap: 6px; margin-top: 10px; border: 1.5px dashed var(--accent); background: transparent; color: var(--accent); border-radius: 10px; padding: 8px 12px; font: inherit; font-size: 13px; font-weight: 700; cursor: pointer; }
+  .pnote { display: flex; gap: 12px; align-items: center; width: 100%; background: var(--card); color: var(--text); border: 0; border-radius: 14px; padding: 10px; margin-bottom: 10px; text-align: left; font: inherit; cursor: pointer; }
+  .pnote img { flex: none; width: 64px; height: 64px; border-radius: 10px; object-fit: cover; background: var(--bg); }
+  .pnote .q { font-size: 14px; font-weight: 600; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+  .pnote .m { font-size: 12px; color: var(--muted); margin-top: 2px; }
+  .wrong-row { display: flex; gap: 10px; align-items: center; padding: 8px 0; border-top: 1px solid color-mix(in srgb, var(--muted) 18%, transparent); font-size: 13px; }
+  .wrong-row span { flex: 1; }
+  .wrong-row .snap { margin: 0; flex: none; }
   .note-hint { display: none; margin-bottom: 12px; border-left: 4px solid var(--chem); cursor: pointer; }
   .note-hint.show { display: block; }
 
@@ -245,11 +252,7 @@
       <div class="score" id="rScore">4/5</div>
       <div class="si" id="rMsg">නියමයි!</div>
       <div class="pill" style="margin:12px 0" id="rPts">+40 ⭐</div>
-      <div class="card si" style="background:var(--bg);text-align:left;margin:4px 0 12px">
-        <b>📸 මේ unit එකට short note එකක් දාන්න</b>
-        <div class="muted" style="font-size:13px;margin:4px 0 10px">වැරදුණ කොටස් ඔබේ පොතේ ලියලා photo එකක් ගන්න. ඊළඟ පාර quiz එකට කලින් බලන්න පුළුවන්.</div>
-        <button class="btn" onclick="pickPhoto({ unit: quizUnit })">📸 Photo ගන්න / තෝරන්න</button>
-      </div>
+      <div class="card si" id="rWrong" style="background:var(--bg);text-align:left;margin:4px 0 12px"></div>
       <button class="btn ghost" onclick="resetQuiz()">තව paper එකක්</button>
       <button class="btn ghost" style="margin-top:8px" onclick="go('rank')">🏆 Leaderboard බලන්න</button>
     </div>
@@ -265,10 +268,14 @@
 
   <!-- ===== NOTES ===== -->
   <section class="screen" id="notes">
-    <h2 style="margin:4px 0 4px">📒 මගේ Short Notes</h2>
-    <p class="muted si" style="margin:0 0 12px">ඔබේ අත් අකුරු notes වල photo. Unit එක අනුව හොයාගන්න.</p>
+    <h2 style="margin:4px 0 12px">📒 මගේ Short Notes</h2>
+    <div class="tabs" id="noteTabs">
+      <button class="si on" data-t="problem" onclick="setNoteTab('problem')">🧩 ප්‍රශ්න notes</button>
+      <button class="si" data-t="theory" onclick="setNoteTab('theory')">📚 Theory notes</button>
+    </div>
+    <p class="muted si" id="noteIntro" style="margin:0 0 12px;font-size:13px"></p>
     <div class="chips" id="noteChips"></div>
-    <div class="notes-grid" id="notesGrid"></div>
+    <div id="notesList"></div>
   </section>
 
   <!-- ===== TIMETABLE ===== -->
@@ -309,10 +316,10 @@
     </div>
   </section>
 
-  <div class="demo-note">Prototype v1 · demo data · notes saved on this phone only</div>
+  <div class="demo-note">Prototype v2 · demo data · notes saved on this phone only</div>
 </div>
 
-<button class="fab" id="fab" onclick="pickPhoto({})" aria-label="Add note">📸</button>
+<button class="fab" id="fab" onclick="pickPhoto({ theory: true, unit: noteFilter })" aria-label="Add theory note">📸</button>
 <input type="file" id="photoIn" accept="image/*" style="display:none">
 
 <!-- In-app camera (direct capture) -->
@@ -332,11 +339,11 @@
 <div class="overlay" id="ov" onclick="closeSheet()"></div>
 <div class="sheet" id="sheet">
   <div class="grab"></div>
-  <h3 class="si" style="margin-bottom:10px">📸 Short note එකක් save කරන්න</h3>
+  <h3 class="si" style="margin-bottom:10px" id="shHead">📸 Short note එකක් save කරන්න</h3>
+  <div class="linked si" id="shLinked" style="display:none;margin:0 0 10px"></div>
   <img id="shImg" alt="">
   <input class="field si" id="shTitle" placeholder="Note එකේ නම (උදා: SN1 vs SN2)">
   <select class="field" id="shUnit"></select>
-  <div class="linked si" id="shLinked" style="display:none"></div>
   <div class="row" style="margin-top:14px">
     <button class="btn ghost" onclick="pickPhoto(draft.ctx)" style="flex:1">🔄 වෙනත් photo</button>
     <button class="btn" onclick="saveNote()" style="flex:1">💾 Save</button>
@@ -347,7 +354,7 @@
 <div class="viewer" id="viewer">
   <div class="vtop"><button class="iconbtn" onclick="closeViewer()">✕</button><b id="vTitle"></b><button class="iconbtn" onclick="deleteNote()">🗑</button></div>
   <div class="vimg"><img id="vImg" alt=""></div>
-  <div class="vbot si" id="vMeta"></div>
+  <div class="vbot si"><div id="vMeta"></div><button class="btn" id="vRetry" style="display:none;margin-top:10px" onclick="retryFromViewer()">🔁 මේ ප්‍රශ්නය ආයෙත් කරන්න</button></div>
 </div>
 
 <nav><div class="inner">
@@ -406,7 +413,7 @@ const TIMETABLE = [
 function go(id) {
   document.querySelectorAll('.screen').forEach(s => s.classList.toggle('active', s.id === id));
   document.querySelectorAll('nav button').forEach(b => b.classList.toggle('on', b.dataset.s === id));
-  document.getElementById('fab').classList.toggle('show', id === 'notes');
+  document.getElementById('fab').classList.toggle('show', id === 'notes' && noteTab === 'theory');
   window.scrollTo(0, 0);
   try { tg && tg.HapticFeedback && tg.HapticFeedback.selectionChanged(); } catch (e) {}
 }
@@ -425,15 +432,18 @@ function go(id) {
 // ---------- Quiz ----------
 document.getElementById('unitGrid').innerHTML = UNITS.map(u =>
   `<button class="unit" onclick="startQuiz('${u.id}')"><span class="ic">${u.ic}</span><b>${u.name}</b><span>${u.done}% නිවැරදි</span></button>`).join('');
-let qs = [], qi = 0, score = 0, timer = null, left = 60, quizUnit = 'mixed';
-function startQuiz(unit) {
+// Every question needs a stable ID so a problem note stays attached to it (later: Question ID column in the sheet)
+QUESTIONS.forEach((q, i) => { q.id = q.id || 'Q' + (i + 1); });
+const qById = (id) => QUESTIONS.find(q => q.id === id);
+let qs = [], qi = 0, score = 0, timer = null, left = 60, quizUnit = 'mixed', wrongQs = [];
+function startQuiz(unit, onlyIds) {
   quizUnit = unit;
   showUnitHint();
   const pool = unit === 'mixed' ? QUESTIONS : QUESTIONS.filter(q => q.unit === unit);
   const shuffle = (a) => [...a].sort(() => Math.random() - .5);
   // Selected unit first; top up with other units only if the unit has fewer than 5 questions
-  qs = [...shuffle(pool), ...shuffle(QUESTIONS.filter(q => !pool.includes(q)))].slice(0, 5);
-  qi = 0; score = 0;
+  qs = onlyIds ? onlyIds.map(qById).filter(Boolean) : [...shuffle(pool), ...shuffle(QUESTIONS.filter(q => !pool.includes(q)))].slice(0, 5);
+  qi = 0; score = 0; wrongQs = [];
   document.getElementById('quizPick').style.display = 'none';
   document.getElementById('quizDone').style.display = 'none';
   document.getElementById('quizPlay').style.display = 'block';
@@ -459,10 +469,9 @@ function answer(i) {
   clearInterval(timer);
   const q = qs[qi]; const btns = document.querySelectorAll('#qOpts .opt');
   btns.forEach((b, k) => { b.disabled = true; if (k === q.a) b.classList.add('correct'); if (k === i && i !== q.a) b.classList.add('wrong'); });
-  if (i === q.a) { score++; haptic('success'); } else haptic('error');
+  if (i === q.a) { score++; haptic('success'); } else { haptic('error'); wrongQs.push(q); }
   const ex = document.getElementById('qExplain');
-  ex.innerHTML = (i === q.a ? '✅ <b>හරි!</b> ' : (i === -1 ? '⏰ <b>වෙලාව ඉවරයි.</b> ' : '❌ <b>වැරදියි.</b> ')) + q.e +
-    (i !== q.a ? `<br><button class="snap" onclick="pickPhoto({ unit: '${q.unit}', qi: ${QUESTIONS.indexOf(q)} })">📸 මේකට short note එකක් දාන්න</button>` : '');
+  ex.innerHTML = (i === q.a ? '✅ <b>හරි!</b> ' : (i === -1 ? '⏰ <b>වෙලාව ඉවරයි.</b> ' : '❌ <b>වැරදියි.</b> ')) + q.e + '<br>' + noteButton(q, i !== q.a);
   ex.classList.add('show');
   const nx = document.getElementById('qNext'); nx.style.display = 'block';
   nx.textContent = qi === qs.length - 1 ? 'ප්‍රතිඵලය බලන්න 🎯' : 'ඊළඟ ➜';
@@ -475,7 +484,21 @@ function nextQ() {
   document.getElementById('rScore').textContent = score + '/' + qs.length;
   document.getElementById('rMsg').textContent = score >= 4 ? 'නියමයි! දිගටම කරගෙන යන්න 💪' : score >= 2 ? 'හොඳයි! වැරදුණ ඒවා ආයෙත් බලන්න 📖' : 'කමක් නැහැ, ආයෙත් උත්සාහ කරමු 🙂';
   document.getElementById('rPts').textContent = '+' + score * 10 + ' ⭐';
+  renderWrongList();
   // Later: send the result to n8n here
+}
+// Result screen: each wrong question gets its own "add note" button
+function renderWrongList() {
+  const box = document.getElementById('rWrong');
+  box.style.display = wrongQs.length ? 'block' : 'none';
+  box.innerHTML = `<b>📸 වැරදුණ ප්‍රශ්න වලට short notes දාන්න</b><div class="muted" style="font-size:12px;margin:2px 0 6px">Note එක ඒ ප්‍රශ්නයටම attach වෙනවා. ඊළඟ පාර ඒ ප්‍රශ්නය ආවම බලන්න පුළුවන්.</div>` +
+    wrongQs.map(q => `<div class="wrong-row"><span>${esc(q.q)}</span>${noteButton(q, true, true)}</div>`).join('');
+}
+// "Add note" for a question, or "View my note" if it already has one
+function noteButton(q, offerAdd, short) {
+  const n = problemNote(q.id);
+  if (n) return `<button class="snap" onclick="openViewer('${n.id}')">📒 ${short ? 'බලන්න' : 'මගේ note එක බලන්න'}</button>`;
+  return offerAdd ? `<button class="snap" onclick="pickPhoto({ qid: '${q.id}' })">📸 ${short ? 'Note' : 'මේකට short note එකක් දාන්න'}</button>` : '';
 }
 function resetQuiz() {
   document.getElementById('quizDone').style.display = 'none';
@@ -563,55 +586,104 @@ document.getElementById('photoIn').addEventListener('change', async (e) => {
   openSheet(img, pendingCtx);
 });
 
+// Two kinds of note:
+//  problem = photo attached to ONE question (qid)  ·  theory = photo filed under a unit/category
+let noteTab = 'problem';
+const noteType = (n) => n.type || (n.qid || n.question ? 'problem' : 'theory');
+const problemNote = (qid) => notes.find(n => noteType(n) === 'problem' && n.qid === qid);
+const fmtDate = (t) => new Date(t).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' });
+
 function openSheet(img, ctx) {
   draft = { img, ctx };
+  const q = ctx.qid ? qById(ctx.qid) : null;
   document.getElementById('shImg').src = img;
-  const unit = ctx.unit && ctx.unit !== 'mixed' ? ctx.unit : (noteFilter !== 'all' ? noteFilter : UNITS[0].id);
-  document.getElementById('shUnit').innerHTML = UNITS.map(u => `<option value="${u.id}" ${u.id === unit ? 'selected' : ''}>${u.ic} ${u.name}</option>`).join('');
-  const q = ctx.qi !== undefined ? QUESTIONS[ctx.qi] : null;
-  document.getElementById('shTitle').value = q ? q.q.slice(0, 40) : '';
+  document.getElementById('shHead').textContent = q ? '🧩 ප්‍රශ්නයට note එකක්' : '📚 Theory note එකක්';
   const lk = document.getElementById('shLinked');
   lk.style.display = q ? 'block' : 'none';
-  lk.textContent = q ? '🔗 ප්‍රශ්නය: ' + q.q : '';
+  lk.textContent = q ? '🔗 ' + q.q : '';
+  // Problem note: no category to choose (it belongs to the question). Theory note: pick the unit.
+  const title = document.getElementById('shTitle'), sel = document.getElementById('shUnit');
+  title.value = '';
+  title.placeholder = q ? 'මතක් කරගන්න කෙටි වචනයක් (optional)' : 'Note එකේ නම (උදා: VSEPR shapes)';
+  sel.style.display = q ? 'none' : 'block';
+  const unit = ctx.unit && ctx.unit !== 'all' && ctx.unit !== 'mixed' ? ctx.unit : UNITS[0].id;
+  sel.innerHTML = UNITS.map(u => `<option value="${u.id}" ${u.id === unit ? 'selected' : ''}>${u.ic} ${u.name}</option>`).join('');
   document.getElementById('ov').classList.add('show');
   document.getElementById('sheet').classList.add('show');
 }
 function closeSheet() { document.getElementById('ov').classList.remove('show'); document.getElementById('sheet').classList.remove('show'); draft = null; }
 async function saveNote() {
   if (!draft) return;
-  const n = {
-    id: 'n' + Date.now(),
-    img: draft.img,
-    title: document.getElementById('shTitle').value.trim() || 'Short note',
-    unit: document.getElementById('shUnit').value,
-    question: draft.ctx.qi !== undefined ? QUESTIONS[draft.ctx.qi].q : '',
-    created: Date.now()
-  };
+  const q = draft.ctx.qid ? qById(draft.ctx.qid) : null;
+  const typed = document.getElementById('shTitle').value.trim();
+  const n = q
+    ? { id: 'n' + Date.now(), type: 'problem', img: draft.img, qid: q.id, unit: q.unit, question: q.q, answer: q.o[q.a], title: typed || q.q.slice(0, 50), created: Date.now() }
+    : { id: 'n' + Date.now(), type: 'theory', img: draft.img, unit: document.getElementById('shUnit').value, title: typed || 'Theory note', created: Date.now() };
+  // One note per question: a new photo replaces the old one
+  const old = q && problemNote(q.id);
+  if (old) await dbDel(old.id);
   await dbPut(n);
   closeSheet(); haptic('success');
   await loadNotes(); showUnitHint();
+  refreshQuizNoteButtons();
   toast('✅ Note එක save වුණා!');
 }
+// After saving from inside a quiz, swap "📸 add" buttons to "📒 view"
+function refreshQuizNoteButtons() {
+  const ex = document.getElementById('qExplain');
+  if (ex.classList.contains('show') && qs[qi]) {
+    const q = qs[qi]; const old = ex.querySelector('.snap'); if (old) old.outerHTML = noteButton(q, true);
+  }
+  if (document.getElementById('quizDone').style.display === 'block') renderWrongList();
+}
 
+function setNoteTab(t) {
+  noteTab = t; noteFilter = 'all';
+  document.querySelectorAll('#noteTabs button').forEach(b => b.classList.toggle('on', b.dataset.t === t));
+  document.getElementById('fab').classList.toggle('show', t === 'theory' && document.getElementById('notes').classList.contains('active'));
+  renderNotes();
+}
 function renderNotes() {
-  const counts = {}; notes.forEach(n => counts[n.unit] = (counts[n.unit] || 0) + 1);
-  document.getElementById('noteChips').innerHTML =
-    `<button class="chip ${noteFilter === 'all' ? 'on' : ''}" onclick="setNoteFilter('all')">සියල්ල (${notes.length})</button>` +
+  const probs = notes.filter(n => noteType(n) === 'problem');
+  const theo = notes.filter(n => noteType(n) === 'theory');
+  document.querySelectorAll('#noteTabs button').forEach(b => {
+    b.textContent = b.dataset.t === 'problem' ? `🧩 ප්‍රශ්න notes (${probs.length})` : `📚 Theory notes (${theo.length})`;
+  });
+  const intro = document.getElementById('noteIntro'), chips = document.getElementById('noteChips'), box = document.getElementById('notesList');
+  if (noteTab === 'problem') {
+    intro.textContent = 'MCQ වලදී වැරදුණ ප්‍රශ්න වලට දාපු notes. Note එක tap කරලා ප්‍රශ්නය ආයෙත් කරන්න පුළුවන්.';
+    chips.innerHTML = '';
+    box.innerHTML = probs.length
+      ? probs.map(n => `<button class="pnote" onclick="openViewer('${n.id}')"><img src="${n.img}" alt=""><div style="min-width:0"><div class="q">${esc(n.question)}</div><div class="m">${unitIcon(n.unit)} ${unitName(n.unit)} · ${fmtDate(n.created)}</div></div></button>`).join('')
+      : `<div class="empty si"><div class="ic">🧩</div><b>තාම ප්‍රශ්න notes නැහැ</b><div style="font-size:13px;margin:6px 0 14px">MCQ එකක ප්‍රශ්නයක් වැරදුණාම "📸 මේකට short note එකක් දාන්න" ඔබන්න.</div><button class="btn" onclick="go('quiz')">🧪 MCQ කරන්න</button></div>`;
+    return;
+  }
+  intro.textContent = 'Unit එක අනුව ඔබේ theory notes. 📸 බොත්තමෙන් අලුත් එකක් දාන්න.';
+  const counts = {}; theo.forEach(n => counts[n.unit] = (counts[n.unit] || 0) + 1);
+  chips.innerHTML = `<button class="chip ${noteFilter === 'all' ? 'on' : ''}" onclick="setNoteFilter('all')">සියල්ල (${theo.length})</button>` +
     UNITS.map(u => `<button class="chip ${noteFilter === u.id ? 'on' : ''}" onclick="setNoteFilter('${u.id}')">${u.ic} ${u.name} (${counts[u.id] || 0})</button>`).join('');
-  const list = noteFilter === 'all' ? notes : notes.filter(n => n.unit === noteFilter);
-  document.getElementById('notesGrid').innerHTML = list.length
-    ? list.map(n => `<button class="note" onclick="openViewer('${n.id}')"><img src="${n.img}" alt=""><div class="meta"><b>${esc(n.title)}</b><span>${unitIcon(n.unit)} ${new Date(n.created).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })}</span></div></button>`).join('')
-    : `<div class="empty si" style="grid-column:1/-1"><div class="ic">📸</div><b>තාම notes නැහැ</b><div style="font-size:13px;margin:6px 0 14px">MCQ එකක් කරලා වැරදුණ දේවල් පොතේ ලියලා photo එකක් ගන්න.</div><button class="btn" onclick="pickPhoto({ unit: noteFilter })">📸 පළමු note එක දාන්න</button></div>`;
+  const list = noteFilter === 'all' ? theo : theo.filter(n => n.unit === noteFilter);
+  box.innerHTML = list.length
+    ? '<div class="notes-grid">' + list.map(n => `<button class="note" onclick="openViewer('${n.id}')"><img src="${n.img}" alt=""><div class="meta"><b>${esc(n.title)}</b><span>${unitIcon(n.unit)} ${fmtDate(n.created)}</span></div></button>`).join('') + '</div>'
+    : `<div class="empty si"><div class="ic">📚</div><b>මේ කොටසේ theory notes නැහැ</b><div style="font-size:13px;margin:6px 0 14px">ඔබේ පොතේ theory note එකක photo එකක් ගන්න.</div><button class="btn" onclick="pickPhoto({ theory: true, unit: noteFilter })">📸 Theory note එකක් දාන්න</button></div>`;
 }
 function setNoteFilter(f) { noteFilter = f; renderNotes(); }
 function esc(t) { return String(t).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c])); }
 
 function openViewer(id) {
   viewing = notes.find(n => n.id === id); if (!viewing) return;
+  const isProb = noteType(viewing) === 'problem';
   document.getElementById('vImg').src = viewing.img;
-  document.getElementById('vTitle').textContent = viewing.title;
-  document.getElementById('vMeta').textContent = unitIcon(viewing.unit) + ' ' + unitName(viewing.unit) + ' · ' + new Date(viewing.created).toLocaleString('en-GB') + (viewing.question ? '\n🔗 ' + viewing.question : '');
+  document.getElementById('vTitle').textContent = isProb ? '🧩 ප්‍රශ්න note' : viewing.title;
+  document.getElementById('vMeta').textContent = isProb
+    ? '❓ ' + viewing.question + (viewing.answer ? '\n✅ හරි උත්තරය: ' + viewing.answer : '') + '\n' + unitIcon(viewing.unit) + ' ' + unitName(viewing.unit) + ' · ' + fmtDate(viewing.created)
+    : unitIcon(viewing.unit) + ' ' + unitName(viewing.unit) + ' · ' + new Date(viewing.created).toLocaleString('en-GB');
+  document.getElementById('vRetry').style.display = isProb && viewing.qid && qById(viewing.qid) ? 'block' : 'none';
   document.getElementById('viewer').classList.add('show');
+}
+function retryFromViewer() {
+  const id = viewing && viewing.qid; closeViewer(); if (!id) return;
+  go('quiz'); startQuiz(qById(id).unit, [id]);
 }
 function closeViewer() { document.getElementById('viewer').classList.remove('show'); viewing = null; }
 async function deleteNote() {
@@ -620,14 +692,14 @@ async function deleteNote() {
   ask('මේ note එක delete කරන්නද?', ok => ok && go2());
 }
 
-// In a quiz: "you have N notes for this unit" -> open them
+// In a quiz: "you have N theory notes for this unit" -> open them
 function showUnitHint() {
   const h = document.getElementById('qNoteHint');
-  const n = quizUnit === 'mixed' ? 0 : notes.filter(x => x.unit === quizUnit).length;
+  const n = quizUnit === 'mixed' ? 0 : notes.filter(x => noteType(x) === 'theory' && x.unit === quizUnit).length;
   h.classList.toggle('show', n > 0);
-  h.innerHTML = `📒 <b>${unitName(quizUnit)}</b> එකට ඔබේ short notes ${n}ක් තියෙනවා → බලන්න`;
+  h.innerHTML = `📚 <b>${unitName(quizUnit)}</b> theory notes ${n}ක් තියෙනවා → බලන්න`;
 }
-function openUnitNotes() { noteFilter = quizUnit; renderNotes(); go('notes'); }
+function openUnitNotes() { go('notes'); setNoteTab('theory'); noteFilter = quizUnit; renderNotes(); }
 
 loadNotes();
 
