@@ -813,13 +813,29 @@ async function submitPaper(force) {
     if (xpEl()) xpEl().textContent = '⚠️ Internet නැහැ. App එක ආයෙත් open කළාම save වෙනවා.';
   }
 }
+// Past paper access from the server: newest N free, the rest unlock once with a slip (ppAccess)
+function unlockPapers() {
+  const a = DATA.ppAccess || {};
+  ask('🔓 Past papers ඔක්කොම unlock කරන්න LKR ' + (a.price || 1500) + ' (එක පාරයි, සදහටම).\n\nගෙවලා bank slip එකේ photo එක bot එකට එවන්න. ගුරුතුමා තහවුරු කළාම ඔක්කොම open වෙනවා.\n\nBot එක open කරන්නද?', ok => ok && openBot());
+}
 function renderPapers() {
-  const years = [...new Set(allQs().filter(q => q.pp).map(q => String(q.pp)))].sort((a, b) => b.localeCompare(a));
+  const acc = DATA.ppAccess || null;
+  const list = acc && Array.isArray(acc.papers) && acc.papers.length ? acc.papers
+    : [...new Set(allQs().filter(q => q.pp).map(q => String(q.pp)))].sort((a, b) => b.localeCompare(a)).map(y => ({ year: y, locked: false, free: false }));
   const ds = doneSet();
-  $('ppBox').style.display = years.length ? 'block' : 'none';
-  $('ppList').innerHTML = years.map(y => {
+  const lockedN = list.filter(p => p.locked).length;
+  $('ppBox').style.display = list.length ? 'block' : 'none';
+  const head = lockedN ? `<div class="pp-row" style="background:color-mix(in srgb,var(--accent) 12%,transparent);border-radius:12px;padding:10px"><span style="font-size:26px">🔓</span><span style="flex:1;min-width:0"><b class="si">Past papers ${list.length}ම – LKR ${acc.price || 1500}</b><span class="muted si" style="display:block;font-size:12px">අලුත්ම papers ${acc.freeCount || 5} free. අනිත් ${lockedN} open කරන්න එක පාරක් ගෙවන්න (සදහටම). Bank slip එකේ photo එක bot එකට එවන්න.</span>
+      <span class="row" style="gap:6px;margin-top:8px"><button class="pill" style="border:0;cursor:pointer" onclick="unlockPapers()">🧾 Slip එක එවන්න</button></span></span></div>` : '';
+  $('ppList').innerHTML = head + list.map(p => {
+    const y = String(p.year);
+    if (p.locked) {
+      return `<div class="pp-row" style="opacity:.72"><span class="pp-y">${esc(y)}</span><span style="flex:1;min-width:0"><b class="si">A/L ${esc(y)} – රසායන විද්‍යාව I</b><span class="muted si" style="display:block;font-size:12px">🔒 ප්‍රශ්න ${p.count || 50} · unlock කරන්න ඕන</span>
+        <span class="row" style="gap:6px;margin-top:8px"><button class="pill" style="border:0;cursor:pointer;background:color-mix(in srgb,var(--muted) 18%,transparent);color:var(--text)" onclick="unlockPapers()">🔒 Unlock</button></span></span></div>`;
+    }
     const qsY = paperQs(y), done = qsY.filter(q => ds.has(q.id)).length;
-    return `<div class="pp-row"><span class="pp-y">${esc(y)}</span><span style="flex:1;min-width:0"><b class="si">A/L ${esc(y)} – රසායන විද්‍යාව I</b><span class="muted si" style="display:block;font-size:12px">ප්‍රශ්න ${qsY.length} · ${done ? '✅ ' + done + 'ක් කළා' : 'තාම කරලා නැහැ'}</span>
+    const tag = p.free && acc && !acc.unlocked ? '🎁 Free · ' : '';
+    return `<div class="pp-row"><span class="pp-y">${esc(y)}</span><span style="flex:1;min-width:0"><b class="si">A/L ${esc(y)} – රසායන විද්‍යාව I</b><span class="muted si" style="display:block;font-size:12px">${tag}ප්‍රශ්න ${qsY.length} · ${done ? '✅ ' + done + 'ක් කළා' : 'තාම කරලා නැහැ'}</span>
       <span class="row" style="gap:6px;margin-top:8px"><button class="pill" style="border:0;cursor:pointer" onclick="startPaper('${esc(y)}')">📝 Paper mode</button><button class="pill" style="border:0;cursor:pointer;background:color-mix(in srgb,var(--muted) 18%,transparent);color:var(--text)" onclick="startQuiz('pp:${esc(y)}')">🧪 එකින් එක</button></span></span></div>`;
   }).join('');
 }
