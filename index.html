@@ -341,7 +341,7 @@
     <div class="card class-next tap" id="nextCard" onclick="go('time')"></div>
 
     <div class="card ai-card tap" onclick="openAsk()">
-      <div class="row between"><h3 class="si">🤖 AI Chemistry ගුරු</h3><span class="pill" id="aiLeftPill"></span></div>
+      <div class="row between"><h3 class="si">🤖 Rhenium AI</h3><span class="pill" id="aiLeftPill"></span></div>
       <div class="muted si" style="font-size:13px;margin-top:4px">Theory ප්‍රශ්නයක් සිංහලෙන්, Singlish වලින් හරි English වලින් හරි අහන්න.</div>
     </div>
 
@@ -405,7 +405,7 @@
   <!-- ===== AI TUTOR ===== -->
   <section class="screen" id="askScr">
     <div class="row between" style="margin:4px 0 12px">
-      <h2>🤖 AI ගුරු</h2>
+      <h2>🤖 Rhenium AI</h2>
       <span class="pill" id="aiLeft2"></span>
     </div>
     <div class="chat si" id="chat"></div>
@@ -418,7 +418,7 @@
         <button class="sug" onclick="askSug(this)">SN1 සහ SN2 වෙනස මොකක්ද?</button>
       </div>
     </div>
-    <p class="muted si" style="font-size:11px;margin-top:14px">AI උත්තර සමහර වෙලාවට වැරදි වෙන්න පුළුවන්. සැකයක් තියෙනවා නම් ගුරුතුමාගෙන් අහන්න.</p>
+    <p class="muted si" style="font-size:11px;margin-top:14px">Rhenium AI උත්තර සමහර වෙලාවට වැරදි වෙන්න පුළුවන්. සැකයක් තියෙනවා නම් ගුරුතුමාගෙන් අහන්න.</p>
     <div style="height:70px"></div>
   </section>
 
@@ -528,7 +528,7 @@
 <nav><div class="inner">
   <button class="on" data-s="home" onclick="go('home')"><span class="i">🏠</span>Home</button>
   <button data-s="quiz" onclick="go('quiz')"><span class="i">🧪</span>MCQ</button>
-  <button data-s="askScr" onclick="openAsk()"><span class="i">🤖</span>AI</button>
+  <button data-s="askScr" onclick="openAsk()"><span class="i">🤖</span>Rhenium AI</button>
   <button data-s="rank" onclick="go('rank')"><span class="i">🏆</span>Rank</button>
   <button data-s="me" onclick="go('me')"><span class="i">👤</span>Me</button>
 </div></nav>
@@ -1112,7 +1112,7 @@ function noteButton(q, offerAdd, short) {
   if (n) return `<button class="snap" onclick="openViewer('${n.id}')">📒 ${short ? 'බලන්න' : 'මගේ note එක'}</button>`;
   return offerAdd ? `<button class="snap" onclick="pickPhoto({ qid: '${q.id}' })">📸 ${short ? 'Note' : 'Short note එකක් දාන්න'}</button>` : '';
 }
-function aiButton(q, choice) { return `<button class="snap ai" onclick="askAboutQ('${q.id}', ${choice})">🤖 AI එකෙන් අහන්න</button>`; }
+function aiButton(q, choice) { return `<button class="snap ai" onclick="askAboutQ('${q.id}', ${choice})">🤖 Rhenium AI එකෙන් අහන්න</button>`; }
 function resetQuiz() { $('quizDone').style.display = 'none'; $('quizPick').style.display = 'block'; }
 
 // ---------- AI tutor ----------
@@ -1135,7 +1135,7 @@ async function sendAsk() {
   $('askBtn').disabled = true;
   try {
     let r;
-    if (DEMO) { await new Promise(res => setTimeout(res, 700)); r = { ok: true, ai: { ok: true, answer: 'Demo mode: ඇත්ත app එකේ AI ගුරු මෙතනට උත්තරය දෙනවා.', left: 19 } }; }
+    if (DEMO) { await new Promise(res => setTimeout(res, 700)); r = { ok: true, ai: { ok: true, answer: 'Demo mode: ඇත්ත app එකේ Rhenium AI මෙතනට උත්තරය දෙනවා.', left: 19 } }; }
     else r = await api('ask', { question: q, context: aiCtx });
     const a = (r && r.ai) || {};
     wait.textContent = a.answer || 'සමාවෙන්න, උත්තරයක් ගන්න බැරි වුණා.';
