@@ -3,7 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover">
-<title>Rh ChemBuddy</title>
+<title>Rhenium – An Element of Revision</title>
+<link rel="icon" href="logo.png">
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
 <!-- Rich questions: equations (KaTeX + mhchem), organic structures (SmilesDrawer), graphs (Chart.js) -->
 <link rel="stylesheet" href="paperstruct.css">
@@ -24,8 +25,8 @@
     --card: var(--tg-theme-secondary-bg-color, #18222d);
     --text: var(--tg-theme-text-color, #eef3f8);
     --muted: var(--tg-theme-hint-color, #8a99a8);
-    --accent: var(--tg-theme-button-color, #3b9cf6);
-    --accent-text: var(--tg-theme-button-text-color, #ffffff);
+    --accent: #2a86c4; /* Rhenium brand blue (from the Re cube logo) */
+    --accent-text: #ffffff;
     --good: #2fbf71;
     --bad: #ef5350;
     --gold: #f5b82e;
@@ -54,6 +55,14 @@
 
   .hello { margin: 4px 0 16px; }
   .hello h1 { font-size: 22px; font-weight: 800; }
+  .brandbar { display: flex; align-items: center; gap: 10px; margin: 2px 0 12px; }
+  .brandbar img { width: 42px; height: 42px; border-radius: 9px; background: #fff; flex: none; }
+  .brandbar b { display: block; font-size: 19px; letter-spacing: 2.5px; color: var(--accent); line-height: 1.1; }
+  .brandbar small { display: block; font-size: 11.5px; color: var(--muted); letter-spacing: .3px; }
+  .teacher-card { display: flex; gap: 12px; align-items: center; }
+  .teacher-card img { width: 58px; height: 58px; border-radius: 50%; object-fit: cover; flex: none; border: 2px solid var(--accent); }
+  .paybox { margin-top: 8px; padding: 10px 12px; border-radius: 12px; background: color-mix(in srgb, var(--accent) 10%, transparent); font-size: 13px; line-height: 1.55; }
+  .paybox .acc { font-size: 18px; font-weight: 800; letter-spacing: 1px; color: var(--accent); }
   .avatar { width: 44px; height: 44px; border-radius: 50%; background: linear-gradient(135deg, var(--chem), var(--accent)); display: grid; place-items: center; font-weight: 800; color: #fff; flex: none; }
   .iconbtn2 { border: 0; background: var(--card); color: var(--text); width: 38px; height: 38px; border-radius: 12px; font-size: 16px; cursor: pointer; flex: none; }
 
@@ -293,6 +302,7 @@
 
   <!-- ===== HOME ===== -->
   <section class="screen active" id="home">
+    <div class="brandbar"><img src="logo.png" alt=""><div><b>RHENIUM</b><small>An Element of Revision · A/L රසායන විද්‍යාව</small></div></div>
     <div class="row hello">
       <div class="avatar" id="av">S</div>
       <div style="min-width:0">
@@ -303,6 +313,7 @@
       <button class="iconbtn2" onclick="refresh()" aria-label="Refresh">🔄</button>
     </div>
 
+    <div class="card teacher-card" id="teacherCard"><img src="teacher.jpg" alt=""><div style="min-width:0"><b class="si" id="tName">Nirmad Samarakoon</b><div class="muted si" style="font-size:12.5px">A/L රසායන විද්‍යාව (සිංහල මාධ්‍ය) · වසර 10+ අත්දැකීම්</div><div class="muted" style="font-size:12px">De Mazenod College, Kandana</div></div></div>
     <div class="card countdown" id="cdCard">
       <div class="si" style="opacity:.9">A/L විභාගයට තව</div>
       <div class="big"><span id="cdDays">0</span> <span style="font-size:20px" class="si">දින</span></div>
@@ -416,7 +427,7 @@
     <h2 style="margin:4px 0 12px">🧪 Periodic League</h2>
     <div class="tabs" id="lbTabs"><button class="on si" data-k="league" onclick="lbTab('league')">මගේ League</button><button class="si" data-k="ladder" onclick="lbTab('ladder')">League 20</button><button class="si" data-k="class" onclick="lbTab('class')">🏫 Class</button></div>
     <div id="lbBody"></div>
-    <p class="muted si" style="font-size:11px;text-align:center" id="lbFoot"><span class="aichip" style="margin:0 4px 0 0">AI</span> = ChemBuddy League practice rivals. ඔවුන්ව පරද්දලා ඉහළට යන්න! 💪</p>
+    <p class="muted si" style="font-size:11px;text-align:center" id="lbFoot"><span class="aichip" style="margin:0 4px 0 0">AI</span> = Rhenium League practice rivals. ඔවුන්ව පරද්දලා ඉහළට යන්න! 💪</p>
   </section>
 
   <!-- ===== NOTES ===== -->
@@ -573,8 +584,8 @@ function openBot(start) {
 async function login() {
   if (DEMO) { DATA = demoData(); me = { ...DATA, id: 'demo' }; return startApp(); }
   if (!(tg && tg.initData)) {
-    return gateMsg('📱', 'Telegram එකෙන් open කරන්න', 'මේ app එක වැඩ කරන්නේ Telegram එකේ Rh ChemBuddy bot එක ඇතුළේ විතරයි.',
-      `<a class="btn" style="text-decoration:none" href="https://t.me/${CONFIG.botUsername}">Rh ChemBuddy open කරන්න</a>`);
+    return gateMsg('📱', 'Telegram එකෙන් open කරන්න', 'මේ app එක වැඩ කරන්නේ Telegram එකේ Rhenium bot එක ඇතුළේ විතරයි.',
+      `<a class="btn" style="text-decoration:none" href="https://t.me/${CONFIG.botUsername}">Rhenium bot එක open කරන්න</a>`);
   }
   gate('<div class="spin"></div><div class="muted" style="margin-top:14px">ඔබව හඳුනාගන්නවා...</div>');
   let r = null;
@@ -590,7 +601,7 @@ async function login() {
 }
 async function startApp() {
   $('gate').classList.remove('show');
-  $('verNote').textContent = 'Rh ChemBuddy ' + VERSION + (DEMO ? ' · demo data' : '');
+  $('verNote').textContent = 'Rhenium · An Element of Revision · ' + VERSION + (DEMO ? ' · demo data' : '');
   renderAll();
   loadNotes(); // notes are kept separately for each student on this phone
   // Opened from the group's "📱 App එකේ බලන්න" button: t.me/<bot>?startapp=q_Q0021 -> open that question
@@ -623,6 +634,7 @@ function renderAll() {
 function goalKey() { return 'cb_goal_' + (me && me.id) + '_' + (DATA && DATA.today); }
 function renderHome() {
   const d = DATA, m = d.me || {};
+  if (d.teacherName && !/demo/i.test(d.teacherName)) $('tName').textContent = d.teacherName;
   // Countdown (teacher sets the exam date in the sheet)
   const cd = $('cdCard');
   if (d.examDate) {
@@ -855,9 +867,20 @@ async function refreshQuiet() {
   try { const r = await api('load'); if (r && r.ok && r.status === 'ACTIVE' && r.questions) { DATA = r; applyKeys(); renderHome(); renderUnits(); renderLB(lbKey); renderProfile(); } } catch (e) {}
 }
 // Past paper access from the server: newest N free, the rest unlock once with a slip (ppAccess)
+// Bank details come from the Sheet (Settings: Bank name / Bank account number / Bank account name / Office phone)
+const payInfo = () => Object.assign({ bank: 'Commercial Bank – Bandarawela Branch', account: '8800033419', name: 'S.K.S Nirmad Samarakoon', phone: '071 320 9438' }, (DATA && DATA.pay) || {});
+function payBoxHtml(price) {
+  const p = payInfo(), wa = '94' + String(p.phone).replace(/\D/g, '').replace(/^0/, '');
+  return `<div class="paybox si">💳 <b>LKR ${esc(price)}</b> මේ account එකට transfer කරන්න:<br><span class="acc">${esc(p.account)}</span> <button class="pill" style="border:0;cursor:pointer;vertical-align:middle" onclick="copyAcc(event)">📋 Copy</button><br>${esc(p.name)}<br>${esc(p.bank)}<br>ඊට පස්සේ slip එකේ photo එක bot එකට එවන්න.${p.phone ? `<br>📞 <a href="https://wa.me/${wa}" style="color:var(--accent)">${esc(p.phone)} (WhatsApp)</a>` : ''}</div>`;
+}
+function copyAcc(e) {
+  const acc = payInfo().account;
+  try { navigator.clipboard.writeText(acc).then(() => toast('Account number එක copy වුණා ✅'), () => toast(acc)); } catch (x) { toast(acc); }
+  if (e) e.stopPropagation();
+}
 function unlockPapers() {
-  const a = DATA.ppAccess || {};
-  ask('🔓 Past papers ඔක්කොම unlock කරන්න LKR ' + (a.price || 1500) + ' (එක පාරයි, සදහටම).\n\nගෙවලා bank slip එකේ photo එක bot එකට එවන්න. ගුරුතුමා තහවුරු කළාම ඔක්කොම open වෙනවා.\n\nBot එක open කරන්නද?', ok => ok && openBot());
+  const a = DATA.ppAccess || {}, p = payInfo();
+  ask('🔓 Past papers ඔක්කොම: LKR ' + (a.price || 1500) + ' (එක පාරයි, සදහටම)\n\n' + p.bank + '\n' + p.account + '\n' + p.name + '\n\nගෙවලා slip එකේ photo එක bot එකට එවන්න. Bot එක open කරන්නද?', ok => ok && openBot());
 }
 function renderPapers() {
   const acc = DATA.ppAccess || null;
@@ -866,8 +889,8 @@ function renderPapers() {
   const ds = doneSet();
   const lockedN = list.filter(p => p.locked).length;
   $('ppBox').style.display = list.length ? 'block' : 'none';
-  const head = lockedN ? `<div class="pp-row" style="background:color-mix(in srgb,var(--accent) 12%,transparent);border-radius:12px;padding:10px"><span style="font-size:26px">🔓</span><span style="flex:1;min-width:0"><b class="si">Past papers ${list.length}ම – LKR ${acc.price || 1500}</b><span class="muted si" style="display:block;font-size:12px">අලුත්ම papers ${acc.freeCount || 5} free. අනිත් ${lockedN} open කරන්න එක පාරක් ගෙවන්න (සදහටම). Bank slip එකේ photo එක bot එකට එවන්න.</span>
-      <span class="row" style="gap:6px;margin-top:8px"><button class="pill" style="border:0;cursor:pointer" onclick="unlockPapers()">🧾 Slip එක එවන්න</button></span></span></div>` : '';
+  const head = lockedN ? `<div class="pp-row" style="background:color-mix(in srgb,var(--accent) 12%,transparent);border-radius:12px;padding:10px"><span style="font-size:26px">🔓</span><span style="flex:1;min-width:0"><b class="si">Past papers ${list.length}ම – LKR ${acc.price || 1500}</b><span class="muted si" style="display:block;font-size:12px">අලුත්ම papers ${acc.freeCount || 5} free. අනිත් ${lockedN} open කරන්න එක පාරක් ගෙවන්න (සදහටම).</span>${payBoxHtml(acc.price || 1500)}
+      <span class="row" style="gap:6px;margin-top:8px"><button class="pill" style="border:0;cursor:pointer" onclick="openBot()">🧾 Slip එක bot එකට එවන්න</button></span></span></div>` : '';
   $('ppList').innerHTML = head + list.map(p => {
     const y = String(p.year);
     if (p.locked) {
