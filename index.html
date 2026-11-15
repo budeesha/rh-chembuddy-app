@@ -654,7 +654,8 @@ function renderHome() {
   // Fees
   const f = d.fees || {}, fc = $('feeCard');
   const dayNo = Number(String(d.today || '').slice(8, 10)) || 1;
-  if (f.thisMonth && !f.paid) { fc.style.display = 'block'; fc.innerHTML = `<div class="row between"><b class="si">💳 ${monthName(f.thisMonth)} fees</b><span class="pill" style="background:color-mix(in srgb,var(--bad) 18%,transparent);color:var(--bad)">${dayNo > f.dueDay ? 'ප්‍රමාදයි' : f.dueDay + ' ට කලින්'}</span></div><div class="muted si" style="font-size:13px;margin-top:4px">ගෙව්වා නම් slip එකේ photo එක bot එකට එවන්න.</div>`; }
+  fc.style.display = 'none'; // class fees are switched off in Settings for now (f.enabled)
+  if (f.enabled === true && f.thisMonth && !f.paid) { fc.style.display = 'block'; fc.innerHTML = `<div class="row between"><b class="si">💳 ${monthName(f.thisMonth)} fees</b><span class="pill" style="background:color-mix(in srgb,var(--bad) 18%,transparent);color:var(--bad)">${dayNo > f.dueDay ? 'ප්‍රමාදයි' : f.dueDay + ' ට කලින්'}</span></div><div class="muted si" style="font-size:13px;margin-top:4px">ගෙව්වා නම් slip එකේ photo එක bot එකට එවන්න.</div>`; }
   else fc.style.display = 'none';
   // Next class
   const n = d.nextClass;
@@ -1135,6 +1136,8 @@ function renderProfile() {
   ];
   $('badges').innerHTML = B.map(b => `<div class="badge ${b[2] ? '' : 'locked'}"><div class="b">${b[0]}</div>${b[1]}</div>`).join('');
   const f = DATA.fees || {};
+  $('feeBox').style.display = f.enabled === true ? '' : 'none';
+  if (f.enabled !== true) return;
   $('feeBox').innerHTML = `<div class="row between"><div><div class="muted si" style="font-size:13px">💳 ${monthName(f.thisMonth)} fees</div><b class="si" style="color:${f.paid ? 'var(--good)' : 'var(--bad)'}">${f.paid ? '✅ ගෙවා ඇත' : '⏳ තවම සටහන් වෙලා නැහැ'}</b></div><span class="pill">${esc(f.paidMonth || '—')}</span></div>` +
     (f.paid ? '' : `<div class="muted si" style="font-size:13px;margin-top:8px">ගෙව්වා නම් bank slip එකේ photo එක bot එකට එවන්න. ගුරුතුමා තහවුරු කළාම මෙතන ✅ වෙනවා.</div><button class="btn ghost si" style="margin-top:10px" onclick="openBot()">🧾 Slip එක bot එකට එවන්න</button>`);
 }
@@ -1310,7 +1313,7 @@ function demoData() {
     nextClass: { title: 'Chemistry - A/L 2027 (Theory)', day: 'Sunday', start: '08:00', end: '12:00', mode: 'Both', venue: 'Main Hall / Zoom', at: new Date(Date.now() + 86400000).toISOString() },
     announcements: [{ date: today, msg: 'A/L 2027 ප්‍රායෝගික සැසිය (අනුමාපනය) සෙනසුරාදා ප.ව. 2ට විද්‍යාගාරයේදී.' }],
     fees: { paidMonth: '', thisMonth: today.slice(0, 7), paid: false, dueDay: 10 },
-    me: { points: 340, weekPoints: 120, streak: 4, bestStreak: 9, doneToday: false, mcqTotal: 58, mcqCorrect: 44, done: ['D0', 'D2'], units: [{ unit: 'Atomic structure', t: 20, c: 16, pct: 80 }, { unit: 'Chemical bonding', t: 18, c: 12, pct: 67 }, { unit: 'Redox', t: 8, c: 3, pct: 38 }], aiLeft: 20, rival: { name: 'Dulaj W.', ai: true, gap: 31 } },
+    me: { points: 340, weekPoints: 120, streak: 4, bestStreak: 9, doneToday: false, mcqTotal: 58, mcqCorrect: 44, done: ['D0', 'D2'], units: [{ unit: 'Atomic structure', t: 20, c: 16, pct: 80 }, { unit: 'Chemical bonding', t: 18, c: 12, pct: 67 }, { unit: 'Redox', t: 8, c: 3, pct: 38 }], aiLeft: 10, rival: { name: 'Dulaj W.', ai: true, gap: 31 } },
     activeToday: 14,
     league: (() => {
       const names = [['Nethmi A.', 180, 1], ['Dulaj W.', 150, 1], ['Kasun P.', 120, 0, 1], ['Sachini R.', 112, 1], ['Hasitha K.', 98, 0, 0, 1], ['Nimal P.', 90, 1], ['Piumi E.', 77, 1], ['Akila V.', 70, 1], ['Senuri T.', 61, 1], ['Isuru H.', 55, 1], ['Chamod B.', 41, 1], ['Malith C.', 33, 1], ['Hiruni U.', 25, 1], ['Dinuka R.', 18, 1], ['Oshadi M.', 9, 1]];
