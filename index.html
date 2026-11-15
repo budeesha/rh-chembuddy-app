@@ -1114,7 +1114,7 @@ function closePromo() { $('promo').classList.remove('show'); }
 function renderTimetable() {
   $('ttSub').textContent = DATA.batch + ' · ' + DATA.medium + ' medium';
   const cs = (DATA.classes || []).slice().sort((a, b) => (a.dayNo || 9) - (b.dayNo || 9) || String(a.start).localeCompare(String(b.start)));
-  $('tt').innerHTML = cs.length ? cs.map(c => `<div class="day si">${esc(siDay(c.day))}</div><div class="card cls"><div class="time">${esc(c.start)}<div class="muted" style="font-size:12px;font-weight:400">${esc(c.end)}</div></div><div style="flex:1"><b>${esc(c.title)}</b><div class="muted" style="font-size:13px">${esc(c.mode)}${c.venue ? ' · ' + esc(c.venue) : ''}</div>${c.fee ? `<div class="muted si" style="font-size:12px">මාසික fees: LKR ${c.fee.toLocaleString('en-US')}</div>` : ''}</div></div>`).join('')
+  $('tt').innerHTML = cs.length ? cs.map(c => `<div class="day si">${esc(siDay(c.day))}</div><div class="card cls"><div class="time">${esc(c.start)}<div class="muted" style="font-size:12px;font-weight:400">${esc(c.end)}</div></div><div style="flex:1"><b>${esc(c.title)}</b><div class="muted" style="font-size:13px">${esc(c.mode)}${c.venue ? ' · ' + esc(c.venue) : ''}</div>${c.fee ? `<div class="muted si" style="font-size:12px">${c.feeUnit === 'session' ? 'Fees (එක class දවසකට)' : 'මාසික fees'}: LKR ${c.fee.toLocaleString('en-US')}</div>` : ''}</div></div>`).join('')
     : '<div class="card muted si">ඔබේ batch එකට class එකක් නැහැ.</div>';
 }
 
