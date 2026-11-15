@@ -528,7 +528,7 @@ const tg = window.Telegram && window.Telegram.WebApp;
 if (tg) { tg.ready(); tg.expand(); }
 // ---------- Config (one copy of the app per teacher bot) ----------
 const CONFIG = {
-  api: 'https://budeeshasamarakoon.app.n8n.cloud/webhook/chembuddy-api',
+  api: 'https://chembuddy-api-guard.budeesha0011.workers.dev', // Cloudflare guard (rate limit) in front of n8n
   teacher: 'chem1',
   botUsername: 'physics_demo_bot',
   dailyGoal: 10
