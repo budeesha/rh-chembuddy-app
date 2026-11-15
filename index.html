@@ -609,6 +609,7 @@ function applyServer(r) { if (r && r.ok && r.status === 'ACTIVE' && r.questions)
 
 // ---------- Render everything from DATA ----------
 function renderAll() {
+  applyKeys();
   const d = DATA;
   const first = (d.name || d.firstName || 'Student').split(' ')[0];
   $('hiName').textContent = first;
@@ -704,7 +705,7 @@ function quitQuiz() {
   const done = answers.slice();
   $('quizPlay').style.display = 'none';
   resetQuiz();
-  if (done.length) { submitResult(done); toast('උත්තර ' + done.length + 'ක් save කරනවා ✅'); }
+  if (done.length && !DEMO) { toast('උත්තර ' + done.length + 'ක් save වුණා ✅'); refreshQuiet(); } // each answer was saved when it was checked
 }
 try { if (tg && tg.BackButton) tg.BackButton.onClick(goBack); } catch (e) {}
 // Overlays open/close in many places: watch them and keep the Telegram back button in sync
@@ -724,7 +725,32 @@ function go(id, isBack) {
 }
 
 // ---------- Quiz ----------
-const allQs = () => (DATA && DATA.questions) || [];
+// Answers are NOT sent with the questions (anti-cheat). After a student answers, the server returns the correct
+// option + explanation for that question only ('check'); KEY keeps them for this session.
+const KEY = {};
+const PAPER_QS = {}; // past papers are downloaded one at a time when opened ('paper')
+function applyKeys(list) { (list || allQs()).forEach(q => { const k = KEY[q.id]; if (k) { q.a = k.a; if (k.acc) q.acc = k.acc; q.ex = k.ex; } }); }
+function mergeKey(key) { Object.entries(key || {}).forEach(([id, k]) => { KEY[id] = { a: k.a, acc: k.acc, ex: k.ex || '' }; }); applyKeys(); }
+const hasKey = (q) => q && q.a !== undefined && q.a !== null && q.a >= 0;
+async function ensurePaper(year) {
+  year = String(year);
+  if (DEMO || paperQs(year).length) return true;
+  try {
+    const r = await api('paper', { year });
+    if (!r || !r.ok) throw new Error('fail');
+    if (r.locked) { unlockPapers(); return false; }
+    PAPER_QS[year] = r.questions || []; applyKeys(PAPER_QS[year]);
+    return PAPER_QS[year].length > 0;
+  } catch (e) { toast('Internet එක check කරලා ආයෙ උත්සාහ කරන්න'); return false; }
+}
+async function openPaper(year, how) {
+  const b = event && event.target; if (b) { b.disabled = true; b.dataset.t = b.textContent; b.textContent = '⏳...'; }
+  const ok = await ensurePaper(year);
+  if (b) { b.disabled = false; b.textContent = b.dataset.t; }
+  if (!ok) return;
+  if (how === 'paper') startPaper(year); else { go('quiz'); startQuiz('pp:' + year); }
+}
+const allQs = () => [...((DATA && DATA.questions) || []), ...Object.values(PAPER_QS).flat()];
 // Past paper questions (Sheet column "Past paper (year)") live only in the Past Papers section
 const practiceQs = () => allQs().filter(q => !q.pp);
 const paperQs = (year) => allQs().filter(q => String(q.pp) === String(year)).sort((a, b) => (a.ppNo || 0) - (b.ppNo || 0));
@@ -796,23 +822,36 @@ async function submitPaper(force) {
   if (!PAPER || PAPER.done) return;
   const left = PAPER.qs.length - Object.keys(PAPER.ans).length;
   if (!force && left > 0) return ask('තව ප්‍රශ්න ' + left + 'කට උත්තර දීලා නැහැ. Paper එක භාර දෙන්නද?', ok => ok && submitPaper(true));
+  if (PAPER.sending) return;
+  // Every question is checked on the server (also unanswered ones, so the review can show all answers)
+  const list = PAPER.qs.map(q => ({ qid: q.id, choice: PAPER.ans[q.id] !== undefined ? PAPER.ans[q.id] : -1 }));
+  const answered = PAPER.qs.filter(q => PAPER.ans[q.id] !== undefined).length;
+  let lr = null;
+  if (!DEMO) {
+    PAPER.sending = true; $('ppSubmit').disabled = true; $('ppSubmit').textContent = '⏳ check කරනවා...';
+    try {
+      const r = await api('check', { answers: JSON.stringify(list) });
+      if (!r || !r.ok) throw new Error('fail');
+      mergeKey(r.key); lr = r.result || {};
+    } catch (e) {
+      PAPER.sending = false; $('ppSubmit').disabled = false; $('ppSubmit').textContent = 'භාර දෙන්න';
+      return toast('⚠️ Internet නැහැ. Connection එක ආවම ආයෙ "භාර දෙන්න" ඔබන්න. ඔබේ උත්තර මෙතන තියෙනවා.');
+    }
+    PAPER.sending = false; $('ppSubmit').disabled = false; $('ppSubmit').textContent = 'භාර දෙන්න';
+  }
   PAPER.done = true; clearInterval(PAPER.timer);
   renderPaper(); window.scrollTo(0, 0);
-  const list = PAPER.qs.filter(q => PAPER.ans[q.id] !== undefined).map(q => ({ qid: q.id, choice: PAPER.ans[q.id] }));
   const xpEl = () => $('ppXp');
-  if (!list.length) { if (xpEl()) xpEl().textContent = 'උත්තර දුන්නේ නැහැ'; return; }
+  if (!answered) { if (xpEl()) xpEl().textContent = 'උත්තර දුන්නේ නැහැ'; return; }
   if (DEMO) { if (xpEl()) xpEl().textContent = 'Demo: XP save වෙන්නේ නැහැ'; return; }
-  try {
-    const r = await api('submit', { answers: JSON.stringify(list) });
-    if (!r || !r.ok) throw new Error('fail');
-    const lr = r.lastResult || {};
-    if (xpEl()) xpEl().textContent = '+' + (lr.gained || 0) + ' XP' + (lr.questXp ? ' · 🎯 quests +' + lr.questXp : '');
-    const keep = PAPER; applyServer(r); PAPER = keep;
-    if (lr.promoted) setTimeout(() => showPromo(lr.promoted), 600);
-  } catch (e) {
-    const k = 'cb_pending_' + me.id; const p = store.get(k, []); p.push(list); store.set(k, p);
-    if (xpEl()) xpEl().textContent = '⚠️ Internet නැහැ. App එක ආයෙත් open කළාම save වෙනවා.';
-  }
+  if (xpEl()) xpEl().textContent = '+' + (lr.gained || 0) + ' XP' + (lr.questXp ? ' · 🎯 quests +' + lr.questXp : '') + (lr.throttled || lr.capped ? ' · (අද XP සීමාවට ආවා)' : '');
+  if (lr.promoted) setTimeout(() => showPromo(lr.promoted), 600);
+  refreshQuiet();
+}
+// Reload app data in the background (XP, league, quests) after answers were saved
+async function refreshQuiet() {
+  if (DEMO) return;
+  try { const r = await api('load'); if (r && r.ok && r.status === 'ACTIVE' && r.questions) { DATA = r; applyKeys(); renderHome(); renderUnits(); renderLB(lbKey); renderProfile(); } } catch (e) {}
 }
 // Past paper access from the server: newest N free, the rest unlock once with a slip (ppAccess)
 function unlockPapers() {
@@ -836,8 +875,9 @@ function renderPapers() {
     }
     const qsY = paperQs(y), done = qsY.filter(q => ds.has(q.id)).length;
     const tag = p.free && acc && !acc.unlocked ? '🎁 Free · ' : '';
-    return `<div class="pp-row"><span class="pp-y">${esc(y)}</span><span style="flex:1;min-width:0"><b class="si">A/L ${esc(y)} – රසායන විද්‍යාව I</b><span class="muted si" style="display:block;font-size:12px">${tag}ප්‍රශ්න ${qsY.length} · ${done ? '✅ ' + done + 'ක් කළා' : 'තාම කරලා නැහැ'}</span>
-      <span class="row" style="gap:6px;margin-top:8px"><button class="pill" style="border:0;cursor:pointer" onclick="startPaper('${esc(y)}')">📝 Paper mode</button><button class="pill" style="border:0;cursor:pointer;background:color-mix(in srgb,var(--muted) 18%,transparent);color:var(--text)" onclick="startQuiz('pp:${esc(y)}')">🧪 එකින් එක</button></span></span></div>`;
+    const n = qsY.length || p.count || 50;
+    return `<div class="pp-row"><span class="pp-y">${esc(y)}</span><span style="flex:1;min-width:0"><b class="si">A/L ${esc(y)} – රසායන විද්‍යාව I</b><span class="muted si" style="display:block;font-size:12px">${tag}ප්‍රශ්න ${n}${qsY.length ? ' · ' + (done ? '✅ ' + done + 'ක් කළා' : 'තාම කරලා නැහැ') : ''}</span>
+      <span class="row" style="gap:6px;margin-top:8px"><button class="pill" style="border:0;cursor:pointer" onclick="openPaper('${esc(y)}', 'paper')">📝 Paper mode</button><button class="pill" style="border:0;cursor:pointer;background:color-mix(in srgb,var(--muted) 18%,transparent);color:var(--text)" onclick="openPaper('${esc(y)}', 'quiz')">🧪 එකින් එක</button></span></span></div>`;
   }).join('');
 }
 function renderUnits() {
@@ -867,7 +907,8 @@ function startQuiz(unit, onlyIds) {
   else { const inUnit = all.filter(q => q.unit === unit); pool = [...shuffle(inUnit.filter(q => !ds.has(q.id))), ...shuffle(inUnit.filter(q => ds.has(q.id))), ...shuffle(all.filter(q => q.unit !== unit))]; }
   if (!pool.length) return toast('ප්‍රශ්න නැහැ');
   qs = pool.slice(0, (onlyIds || isPaper) ? pool.length : 5);
-  qi = 0; score = 0; wrongQs = []; answers = [];
+  qi = 0; score = 0; wrongQs = []; answers = []; checking = false;
+  quizXp = { gained: 0, dailyBonus: 0, questXp: 0, quests: 0, promoted: 0, weekPoints: 0, streak: 0, limited: false };
   showUnitHint();
   $('quizPick').style.display = 'none'; $('quizDone').style.display = 'none'; $('quizPlay').style.display = 'block';
   showQ();
@@ -969,10 +1010,33 @@ function tick() {
   const el = $('qTimer'); el.textContent = '⏱ ' + left; el.classList.toggle('low', left <= 10);
   if (left-- <= 0) { clearInterval(timer); answer(-1); }
 }
-function answer(i) {
+let checking = false, quizXp = { gained: 0, dailyBonus: 0, questXp: 0, quests: 0, promoted: 0, weekPoints: 0, streak: 0, limited: false };
+async function answer(i) {
   clearInterval(timer);
-  const q = qs[qi]; if (answers.some(a => a.qid === q.id)) return;
-  document.querySelectorAll('#qOpts .opt').forEach((b, k) => { b.disabled = true; if (okAns(q, k)) b.classList.add('correct'); if (k === i && !okAns(q, i)) b.classList.add('wrong'); });
+  const q = qs[qi]; if (checking || answers.some(a => a.qid === q.id)) return;
+  const btns = document.querySelectorAll('#qOpts .opt');
+  if (!DEMO) {
+    // Ask the server: it grades, saves XP and only then tells us the correct answer
+    checking = true;
+    btns.forEach((b, k) => { b.disabled = true; if (k === i) b.classList.add('sel'); });
+    const ex0 = $('qExplain'); ex0.innerHTML = '<span class="spin sm"></span> check කරනවා...'; ex0.classList.add('show');
+    try {
+      const r = await api('check', { answers: JSON.stringify([{ qid: q.id, choice: i }]) });
+      if (!r || !r.ok || !r.key || !r.key[q.id]) throw new Error('fail');
+      mergeKey(r.key);
+      const lr = r.result || {};
+      quizXp.gained += lr.gained || 0; quizXp.dailyBonus += lr.dailyBonus || 0; quizXp.questXp += lr.questXp || 0; quizXp.quests += (lr.questsCompleted || []).length;
+      if (lr.promoted) quizXp.promoted = lr.promoted; quizXp.weekPoints = lr.weekPoints || quizXp.weekPoints; quizXp.streak = lr.streak || quizXp.streak;
+      if (lr.throttled || lr.capped) quizXp.limited = true;
+    } catch (e) {
+      checking = false;
+      btns.forEach(b => { b.disabled = false; b.classList.remove('sel'); });
+      ex0.innerHTML = '⚠️ Internet නැහැ. Connection එක ආවම ආයෙ උත්තරය තෝරන්න.';
+      return;
+    }
+    checking = false;
+  }
+  btns.forEach((b, k) => { b.disabled = true; b.classList.remove('sel'); if (okAns(q, k)) b.classList.add('correct'); if (k === i && !okAns(q, i)) b.classList.add('wrong'); });
   answers.push({ qid: q.id, choice: i });
   store.set(goalKey(), store.get(goalKey(), 0) + 1);
   if (okAns(q, i)) { score++; haptic('success'); } else { haptic('error'); wrongQs.push(q); }
@@ -991,33 +1055,27 @@ function nextQ() {
   $('rPts').textContent = '';
   renderWrongList();
   renderHome();
-  submitResult(answers.slice());
+  showQuizResult(answers.slice());
 }
-// Send answers to n8n. The server checks them against the Question Bank and adds points.
-async function submitResult(list) {
+// Every answer was already saved by the server ('check'); show what this quiz earned
+function showQuizResult(list) {
   const box = $('rSave');
   if (DEMO) { const pts = list.filter(a => { const q = qById(a.qid); return q && okAns(q, a.choice); }).length * 10; box.textContent = 'Demo: points save වෙන්නේ නැහැ'; $('rPts').textContent = '+' + pts + ' ⭐ (demo)'; return; }
-  box.innerHTML = '<span class="spin sm"></span>Points save කරනවා...';
-  try {
-    const r = await api('submit', { answers: JSON.stringify(list) });
-    if (!r || !r.ok) throw new Error('fail');
-    const lr = r.lastResult || {};
-    applyServer(r);
-    box.textContent = (lr.dailyBonus ? '🔥 අද දවසේ පළමු quiz එක: +' + lr.dailyBonus + ' bonus! ' : '✅ Save වුණා. ') + (lr.questXp ? '🎯 Quests ' + (lr.questsCompleted || []).length + 'ක් ඉවරයි: +' + lr.questXp + ' XP!' : '');
-    if (lr.promoted) setTimeout(() => showPromo(lr.promoted), 600);
-    $('rPts').textContent = '+' + (lr.gained || 0) + ' XP · මේ සතිය ' + (lr.weekPoints || 0) + (lr.streak > 1 ? ' · 🔥 ' + lr.streak : '');
-    if (lr.gained && lr.gained < 6 && !lr.dailyBonus && !lr.questXp) box.textContent = 'ℹ️ කලින් කරපු ප්‍රශ්න නිසා points අඩුයි. වැඩිපුර points වලට 🆕 අලුත් ප්‍රශ්න කරන්න!';
-    if (!lr.gained) box.textContent = 'ℹ️ මේ පාර points නැහැ. 🆕 අලුත් ප්‍රශ්න කරන්න!';
-  } catch (e) {
-    const k = 'cb_pending_' + me.id; const p = store.get(k, []); p.push(list); store.set(k, p);
-    box.innerHTML = '⚠️ Internet නැති නිසා save වුණේ නැහැ. App එක ආයෙත් open කළාම ඉබේම save වෙනවා.';
-  }
+  const x = quizXp;
+  box.textContent = (x.dailyBonus ? '🔥 අද දවසේ පළමු quiz එක: +' + x.dailyBonus + ' bonus! ' : '✅ Save වුණා. ') + (x.questXp ? '🎯 Quests ' + x.quests + 'ක් ඉවරයි: +' + x.questXp + ' XP!' : '');
+  if (x.promoted) setTimeout(() => showPromo(x.promoted), 600);
+  $('rPts').textContent = '+' + x.gained + ' XP · මේ සතිය ' + (x.weekPoints || 0) + (x.streak > 1 ? ' · 🔥 ' + x.streak : '');
+  if (x.gained && x.gained < 6 && !x.dailyBonus && !x.questXp) box.textContent = 'ℹ️ කලින් කරපු ප්‍රශ්න නිසා points අඩුයි. වැඩිපුර points වලට 🆕 අලුත් ප්‍රශ්න කරන්න!';
+  if (!x.gained) box.textContent = 'ℹ️ මේ පාර points නැහැ. 🆕 අලුත් ප්‍රශ්න කරන්න!';
+  if (x.limited) box.textContent += ' (අද XP සීමාවට ආවා – හෙට ආයෙත්!)';
+  refreshQuiet();
 }
+// Results saved by an older app version while offline: send them once (the server grades them)
 async function flushPending() {
   if (DEMO || !me) return;
   const k = 'cb_pending_' + me.id; const p = store.get(k, []); if (!p.length) return;
-  const all = [].concat(...p);
-  try { const r = await api('submit', { answers: JSON.stringify(all) }); if (r && r.ok) { store.del(k); applyServer(r); toast('✅ කලින් save නොවුණු quiz එක save වුණා'); } } catch (e) {}
+  const all = [].concat(...p).slice(0, 60);
+  try { const r = await api('check', { answers: JSON.stringify(all) }); if (r && r.ok) { store.del(k); mergeKey(r.key); refreshQuiet(); toast('✅ කලින් save නොවුණු quiz එක save වුණා'); } } catch (e) {}
 }
 function renderWrongList() {
   const box = $('rWrong');
