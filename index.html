@@ -156,6 +156,11 @@
   /* Rich questions */
   .struct { background: #fff; border-radius: 12px; padding: 8px; margin: 10px 0; text-align: center; }
   .struct svg, .struct img { width: 100%; max-width: 360px; height: 180px; }
+  .stmt { border-left: 3px solid var(--accent, #3b82f6); background: color-mix(in srgb, var(--muted) 12%, transparent); border-radius: 0 10px 10px 0; padding: 8px 10px; margin: 0 0 8px; font-weight: 500; }
+  .stmt b { display: block; font-size: 13px; margin-bottom: 2px; }
+  .tf-key { font-size: 12px; font-weight: 500; color: var(--muted); }
+  .tf { font-size: 18px; letter-spacing: 4px; white-space: nowrap; }
+  .tf-note { display: block; font-size: 12px; color: var(--muted); margin-top: 2px; }
   .opt .struct { margin: 4px 0 0; padding: 4px; } .opt .struct svg { height: 90px; }
   .qimg { width: 100%; border-radius: 12px; margin: 10px 0; background: #fff; }
   .qt { width: 100%; border-collapse: collapse; margin: 10px 0; font-size: 14px; font-weight: 400; }
@@ -940,7 +945,22 @@ function startQuiz(unit, onlyIds) {
 // ---------- Rich question rendering ----------
 // Text: $...$ maths and $\ce{...}$ chemistry (KaTeX). Option "smiles:CCO" = structure. Columns: smiles, table, graph, img.
 const smilesTheme = () => 'light'; // structures sit on a white card so they read well in both themes
+// Two-statement questions: "පළමු වගන්තිය සත්‍යයි | දෙවන වගන්තිය ..." options become short ✅/❌ lines
+const tfMark = (s) => /අසත/.test(s) ? '❌' : '✅';
+function stmtOption(s) {
+  const m = String(s ?? '').match(/^\s*([^|]*වගන්තිය[^|]*)\|([^|]*වගන්තිය[^|]*)$/);
+  if (!m) return null;
+  const note = /නොදෙ|නොපහද/.test(m[2]) ? '② මගින් ① නොපහදයි' : /පහදා/.test(m[2]) ? '② මගින් ① නිවැරදිව පහදයි' : '';
+  return `<span class="tf">${tfMark(m[1])} ${tfMark(m[2])}</span>${note ? `<span class="tf-note">${note}</span>` : ''}`;
+}
+const STMT_RE = /පළමු\s*ප්‍?රකාශය\s*[:：]?\s*([\s\S]*?)\s*දෙවන\s*ප්‍?රකාශය\s*[:：]?\s*([\s\S]*)$/;
+function stmtQuestion(q) {
+  const m = String(q.q || '').match(STMT_RE);
+  if (!m || !Array.isArray(q.o) || !q.o.every(o => stmtOption(o))) return null;
+  return `<div class="stmt"><b>① පළමු ප්‍රකාශය</b>${inlineStructs(m[1])}</div><div class="stmt"><b>② දෙවන ප්‍රකාශය</b>${inlineStructs(m[2])}</div><div class="tf-key">✅ සත්‍ය · ❌ අසත්‍ය</div>`;
+}
 function richText(t) {
+  const st = stmtOption(t); if (st) return st;
   const s = String(t ?? '');
   const m = s.match(/^\s*smiles:\s*(\S+)\s*$/i);
   if (m) return `<div class="struct"><svg data-smiles="${esc(m[1])}"></svg></div>`;
@@ -980,7 +1000,7 @@ function parseGraph(g) {
   return { x: nums(o.x), y: nums(o.y), xl: o.xlabel || '', yl: o.ylabel || '', type: (o.type || 'line').toLowerCase() };
 }
 function richQuestion(q) {
-  let h = `<div>${inlineStructs(q.q)}</div>`;
+  let h = stmtQuestion(q) || `<div>${inlineStructs(q.q)}</div>`;
   if (q.img) h += `<img class="qimg" src="${esc(q.img)}" alt="" loading="lazy">`;
   if (q.smiles) h += structHtml(q.smiles);
   if (q.table) h += tableHtml(q.table);
