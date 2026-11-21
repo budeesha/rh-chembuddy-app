@@ -903,7 +903,7 @@ async function refreshQuiet() {
   if (DEMO) return;
   try { const r = await api('load'); if (r && r.ok && r.status === 'ACTIVE' && r.questions) { DATA = r; applyKeys(); renderHome(); renderUnits(); renderLB(lbKey); renderProfile(); } } catch (e) {}
 }
-// Past paper access from the server: newest N free, the rest unlock once with a slip (ppAccess)
+// Past paper access from the server: the free years from Settings (e.g. 2026 and 2011), the rest unlock once with a slip (ppAccess)
 // Bank details come from the Sheet (Settings: Bank name / Bank account number / Bank account name / Office phone)
 const payInfo = () => Object.assign({ bank: 'Commercial Bank – Bandarawela Branch', account: '8800033419', name: 'S.K.S Nirmad Samarakoon', phone: '071 320 9438' }, (DATA && DATA.pay) || {});
 function payBoxHtml(price) {
@@ -917,7 +917,7 @@ function copyAcc(e) {
 }
 function unlockPapers() {
   const a = DATA.ppAccess || {}, p = payInfo();
-  ask('🔓 Past papers ඔක්කොම: LKR ' + (a.price || 1500) + ' (එක පාරයි, සදහටම)\n\n' + p.bank + '\n' + p.account + '\n' + p.name + '\n\nගෙවලා slip එකේ photo එක bot එකට එවන්න. Bot එක open කරන්නද?', ok => ok && openBot());
+  ask('🔓 Past papers ඔක්කොම: LKR ' + (a.price || 2000) + ' (එක පාරයි, සදහටම)\n\n' + p.bank + '\n' + p.account + '\n' + p.name + '\n\nගෙවලා slip එකේ photo එක bot එකට එවන්න. Bot එක open කරන්නද?', ok => ok && openBot());
 }
 function renderPapers() {
   const acc = DATA.ppAccess || null;
@@ -926,7 +926,10 @@ function renderPapers() {
   const ds = doneSet();
   const lockedN = list.filter(p => p.locked).length;
   $('ppBox').style.display = list.length ? 'block' : 'none';
-  const head = lockedN ? `<div class="pp-row" style="background:color-mix(in srgb,var(--accent) 12%,transparent);border-radius:12px;padding:10px"><span style="font-size:26px">🔓</span><span style="flex:1;min-width:0"><b class="si">Past papers ${list.length}ම – LKR ${acc.price || 1500}</b><span class="muted si" style="display:block;font-size:12px">අලුත්ම papers ${acc.freeCount || 5} free. අනිත් ${lockedN} open කරන්න එක පාරක් ගෙවන්න (සදහටම).</span>${payBoxHtml(acc.price || 1500)}
+  // Which papers are free comes from the server (Settings 'Free past papers', e.g. 2026 and 2011)
+  const freeYs = (acc && Array.isArray(acc.freeYears) ? acc.freeYears : list.filter(p => p.free).map(p => p.year)).map(String);
+  const freeTxt = freeYs.length ? (freeYs.length > 1 ? freeYs.slice(0, -1).join(', ') + ' සහ ' + freeYs[freeYs.length - 1] : freeYs[0]) + ' papers free.' : '';
+  const head = lockedN ? `<div class="pp-row" style="background:color-mix(in srgb,var(--accent) 12%,transparent);border-radius:12px;padding:10px"><span style="font-size:26px">🔓</span><span style="flex:1;min-width:0"><b class="si">Past papers ${list.length}ම – LKR ${acc.price || 2000}</b><span class="muted si" style="display:block;font-size:12px">${freeTxt} අනිත් ${lockedN} open කරන්න එක පාරක් ගෙවන්න (සදහටම).</span>${payBoxHtml(acc.price || 2000)}
       <span class="row" style="gap:6px;margin-top:8px"><button class="pill" style="border:0;cursor:pointer" onclick="openBot()">🧾 Slip එක bot එකට එවන්න</button></span></span></div>` : '';
   $('ppList').innerHTML = head + list.map(p => {
     const y = String(p.year);
