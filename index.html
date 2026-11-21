@@ -55,12 +55,28 @@
 
   .hello { margin: 4px 0 16px; }
   .hello h1 { font-size: 22px; font-weight: 800; }
-  .brandbar { display: flex; align-items: center; gap: 10px; margin: 2px 0 12px; }
-  .brandbar img { width: 42px; height: 42px; border-radius: 9px; background: #fff; flex: none; }
-  .brandbar b { display: block; font-size: 19px; letter-spacing: 2.5px; color: var(--accent); line-height: 1.1; }
+  .brandbar { display: flex; align-items: center; justify-content: center; gap: 14px; margin: 14px 0 18px; }
+  .brandbar b { display: block; font-size: 22px; letter-spacing: 3px; color: var(--accent); line-height: 1.1; }
   .brandbar small { display: block; font-size: 11.5px; color: var(--muted); letter-spacing: .3px; }
-  .teacher-card { display: flex; gap: 12px; align-items: center; }
-  .teacher-card img { width: 58px; height: 58px; border-radius: 50%; object-fit: cover; flex: none; border: 2px solid var(--accent); }
+  .logo3d { position: relative; width: 62px; height: 58px; flex: none; perspective: 300px; cursor: pointer; -webkit-tap-highlight-color: transparent; }
+  .logo3d .cube { position: absolute; inset: 0; animation: logoIn .9s cubic-bezier(.2,1.4,.4,1) both, logoFloat 4s ease-in-out .9s infinite; transform-style: preserve-3d; }
+  .logo3d .cube.spin { animation: logoSpin .8s cubic-bezier(.3,1.3,.5,1); }
+  .logo3d img { width: 100%; height: 100%; object-fit: contain; display: block; filter: drop-shadow(0 6px 8px color-mix(in srgb, var(--accent) 35%, transparent)); }
+  .logo3d .shine { position: absolute; inset: 0; -webkit-mask: url(logo-cube.png) center / contain no-repeat; mask: url(logo-cube.png) center / contain no-repeat; background: linear-gradient(110deg, transparent 35%, rgba(255,255,255,.75) 50%, transparent 65%) -150% 0 / 250% 100% no-repeat; animation: logoShine 4.5s ease-in-out 1.2s infinite; pointer-events: none; }
+  .logo3d::after { content: ''; position: absolute; left: 14%; right: 14%; bottom: -8px; height: 6px; border-radius: 50%; background: color-mix(in srgb, var(--accent) 30%, transparent); filter: blur(3px); animation: logoShadow 4s ease-in-out .9s infinite; }
+  .brandbar .btxt { animation: brandTxt .7s ease-out .25s both; }
+  @keyframes logoIn { 0% { opacity: 0; transform: translateY(-30px) rotateY(-180deg) scale(.5); } 100% { opacity: 1; transform: none; } }
+  @keyframes logoFloat { 0%, 100% { transform: translateY(0) rotateY(-8deg) rotateX(4deg); } 50% { transform: translateY(-5px) rotateY(8deg) rotateX(-2deg); } }
+  @keyframes logoShadow { 0%, 100% { transform: scaleX(1); opacity: .9; } 50% { transform: scaleX(.8); opacity: .5; } }
+  @keyframes logoShine { 0%, 55% { background-position: -150% 0; } 85%, 100% { background-position: 250% 0; } }
+  @keyframes logoSpin { from { transform: rotateY(0) scale(1); } 50% { transform: rotateY(180deg) scale(1.15); } to { transform: rotateY(360deg) scale(1); } }
+  @keyframes brandTxt { from { opacity: 0; transform: translateX(-10px); } to { opacity: 1; transform: none; } }
+  @media (prefers-reduced-motion: reduce) { .logo3d .cube, .logo3d .shine, .logo3d::after, .brandbar .btxt { animation: none !important; } }
+  .teacher-card { display: flex; flex-direction: column; align-items: center; text-align: center; gap: 8px; padding-top: 18px; }
+  .teacher-card .tdp { position: relative; width: 112px; height: 112px; border-radius: 50%; padding: 4px; background: conic-gradient(from 0deg, var(--accent), #7cc0ea, var(--chem), var(--accent)); flex: none; }
+  .teacher-card .tdp img { width: 100%; height: 100%; border-radius: 50%; object-fit: cover; display: block; border: 3px solid var(--card); }
+  .teacher-card .tdp .badge-t { position: absolute; right: 2px; bottom: 4px; background: var(--accent); color: #fff; font-size: 11px; font-weight: 700; padding: 2px 7px; border-radius: 10px; border: 2px solid var(--card); }
+  .teacher-card .tname { font-size: 17px; }
   .paybox { margin-top: 8px; padding: 10px 12px; border-radius: 12px; background: color-mix(in srgb, var(--accent) 10%, transparent); font-size: 13px; line-height: 1.55; }
   .paybox .acc { font-size: 18px; font-weight: 800; letter-spacing: 1px; color: var(--accent); }
   .avatar { width: 44px; height: 44px; border-radius: 50%; background: linear-gradient(135deg, var(--chem), var(--accent)); display: grid; place-items: center; font-weight: 800; color: #fff; flex: none; }
@@ -316,7 +332,7 @@
 
   <!-- ===== HOME ===== -->
   <section class="screen active" id="home">
-    <div class="brandbar"><img src="logo.png" alt=""><div><b>RHENIUM</b><small>An Element of Revision · A/L රසායන විද්‍යාව</small></div></div>
+    <div class="brandbar"><div class="logo3d" onclick="spinLogo(this)" aria-hidden="true"><div class="cube"><img src="logo-cube.png" alt=""><div class="shine"></div></div></div><div class="btxt"><b>RHENIUM</b><small>An Element of Revision · A/L රසායන විද්‍යාව</small></div></div>
     <div class="row hello">
       <div class="avatar" id="av">S</div>
       <div style="min-width:0">
@@ -327,7 +343,7 @@
       <button class="iconbtn2" onclick="refresh()" aria-label="Refresh">🔄</button>
     </div>
 
-    <div class="card teacher-card" id="teacherCard"><img src="teacher.jpg" alt=""><div style="min-width:0"><b class="si" id="tName">Nirmad Samarakoon</b><div class="muted si" style="font-size:12.5px">A/L රසායන විද්‍යාව (සිංහල මාධ්‍ය) · වසර 10+ අත්දැකීම්</div><div class="muted" style="font-size:12px">De Mazenod College, Kandana</div></div></div>
+    <div class="card teacher-card" id="teacherCard"><div class="tdp"><img src="teacher.jpg?v=2" alt=""><span class="badge-t">Re</span></div><div style="min-width:0"><b class="si tname" id="tName">Nirmad Samarakoon</b><div class="muted si" style="font-size:12.5px">A/L රසායන විද්‍යාව (සිංහල මාධ්‍ය) · වසර 10+ අත්දැකීම්</div><div class="muted" style="font-size:12px">De Mazenod College, Kandana</div></div></div>
     <div class="card countdown" id="cdCard">
       <div class="si" style="opacity:.9">A/L විභාගයට තව</div>
       <div class="big"><span id="cdDays">0</span> <span style="font-size:20px" class="si">දින</span></div>
@@ -646,6 +662,13 @@ function renderAll() {
   renderHome(); renderUnits(); renderLB(lbKey); renderTimetable(); renderProfile(); renderAiLeft();
 }
 function goalKey() { return 'cb_goal_' + (me && me.id) + '_' + (DATA && DATA.today); }
+// Tapping the logo spins the Re cube once (with a light haptic in Telegram)
+function spinLogo(el) {
+  const c = el.querySelector('.cube'); if (!c) return;
+  c.classList.remove('spin'); void c.offsetWidth; c.classList.add('spin');
+  try { Telegram.WebApp.HapticFeedback.impactOccurred('light'); } catch (e) {}
+  c.addEventListener('animationend', () => c.classList.remove('spin'), { once: true });
+}
 function renderHome() {
   const d = DATA, m = d.me || {};
   if (d.teacherName && !/demo/i.test(d.teacherName)) $('tName').textContent = d.teacherName;
