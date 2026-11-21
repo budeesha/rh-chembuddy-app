@@ -95,6 +95,15 @@
   .opt.correct { border-color: var(--good); background: color-mix(in srgb, var(--good) 15%, var(--card)); }
   .opt.wrong { border-color: var(--bad); background: color-mix(in srgb, var(--bad) 15%, var(--card)); }
   .opt:disabled { cursor: default; }
+  .opt { transition: transform .12s, border-color .15s, background .15s; }
+  .opt:not(:disabled):active { transform: scale(.97); }
+  .opt.sel { border-color: var(--accent); background: color-mix(in srgb, var(--accent) 15%, var(--card)); }
+  .opt.sel .n { background: transparent; }
+  .opt.sel .n .spin.sm { margin: 0; }
+  .opt.correct { animation: optPop .35s ease; } .opt.correct .n { background: var(--good); color: #fff; }
+  .opt.wrong { animation: optShake .4s ease; } .opt.wrong .n { background: var(--bad); color: #fff; }
+  @keyframes optPop { 0% { transform: scale(1); } 45% { transform: scale(1.04); } 100% { transform: scale(1); } }
+  @keyframes optShake { 0%, 100% { transform: translateX(0); } 20%, 60% { transform: translateX(-6px); } 40%, 80% { transform: translateX(6px); } }
   .explain { display: none; margin-top: 6px; }
   .explain.show { display: block; }
   .units-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 12px; }
@@ -1062,7 +1071,9 @@ async function answer(i) {
   if (!DEMO) {
     // Ask the server: it grades, saves XP and only then tells us the correct answer
     checking = true;
-    btns.forEach((b, k) => { b.disabled = true; if (k === i) b.classList.add('sel'); });
+    // Show the tap at once: the chosen option lights up and its number turns into a spinner until the server answers
+    try { tg && tg.HapticFeedback && tg.HapticFeedback.impactOccurred('light'); } catch (e) {}
+    btns.forEach((b, k) => { b.disabled = true; if (k === i) { b.classList.add('sel'); const n = b.querySelector('.n'); if (n) n.innerHTML = '<span class="spin sm"></span>'; } });
     const ex0 = $('qExplain'); ex0.innerHTML = '<span class="spin sm"></span> check කරනවා...'; ex0.classList.add('show');
     try {
       const r = await api('check', { answers: JSON.stringify([{ qid: q.id, choice: i }]) });
@@ -1074,13 +1085,17 @@ async function answer(i) {
       if (lr.throttled || lr.capped) quizXp.limited = true;
     } catch (e) {
       checking = false;
-      btns.forEach(b => { b.disabled = false; b.classList.remove('sel'); });
+      btns.forEach((b, k) => { b.disabled = false; b.classList.remove('sel'); const n = b.querySelector('.n'); if (n) n.textContent = k + 1; });
       ex0.innerHTML = '⚠️ Internet නැහැ. Connection එක ආවම ආයෙ උත්තරය තෝරන්න.';
       return;
     }
     checking = false;
   }
-  btns.forEach((b, k) => { b.disabled = true; b.classList.remove('sel'); if (okAns(q, k)) b.classList.add('correct'); if (k === i && !okAns(q, i)) b.classList.add('wrong'); });
+  btns.forEach((b, k) => {
+    b.disabled = true; b.classList.remove('sel');
+    const n = b.querySelector('.n'); if (n) n.textContent = okAns(q, k) ? '✓' : (k === i ? '✗' : k + 1);
+    if (okAns(q, k)) b.classList.add('correct'); if (k === i && !okAns(q, i)) b.classList.add('wrong');
+  });
   answers.push({ qid: q.id, choice: i });
   store.set(goalKey(), store.get(goalKey(), 0) + 1);
   if (okAns(q, i)) { score++; haptic('success'); } else { haptic('error'); wrongQs.push(q); }
@@ -1088,6 +1103,7 @@ async function answer(i) {
   ex.innerHTML = (okAns(q, i) ? '✅ <b>හරි!</b> ' + (q.acc ? '(මේ ප්‍රශ්නයට හරි උත්තර ' + ansLabel(q) + ')<br>' : '') : (i === -1 ? '⏰ <b>වෙලාව ඉවරයි.</b> හරි උත්තරය: <b>' + ansLabel(q) + '</b><br>' : '❌ <b>වැරදියි.</b> හරි උත්තරය: <b>' + ansLabel(q) + '</b><br>')) + esc(q.ex) + '<br>' + noteButton(q, !okAns(q, i)) + aiButton(q, i);
   ex.classList.add('show'); enhance(ex);
   const nx = $('qNext'); nx.style.display = 'block';
+  try { ex.scrollIntoView({ behavior: 'smooth', block: 'nearest' }); } catch (e) {}
   nx.textContent = qi === qs.length - 1 ? 'ප්‍රතිඵලය බලන්න 🎯' : 'ඊළඟ ➜';
 }
 function nextQ() {
